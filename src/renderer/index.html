@@ -3,15 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI客服 - 智能客服系统</title>
+  <title>AI客服 - 多平台智能客服系统</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --bg-primary: #0a0e17;
       --bg-secondary: #111827;
@@ -23,10 +18,7 @@
       --neon-red: #ef4444;
       --text-primary: #e2e8f0;
       --text-secondary: #94a3b8;
-      --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5);
-      --glow-purple: 0 0 20px rgba(168, 85, 247, 0.5);
     }
-
     body {
       font-family: 'Rajdhani', sans-serif;
       background: var(--bg-primary);
@@ -34,33 +26,20 @@
       height: 100vh;
       overflow: hidden;
     }
-
-    /* 背景粒子效果 */
-    .bg-particles {
+    .bg-gradient {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        radial-gradient(ellipse at 20% 80%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
-      background: 
-        radial-gradient(ellipse at 20% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
-        var(--bg-primary);
     }
-
-    /* 布局 */
-    .app-container {
-      display: flex;
-      height: 100vh;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* 左侧导航 */
+    .app-container { display: flex; height: 100vh; position: relative; z-index: 1; }
+    
+    /* 侧边栏 */
     .sidebar {
-      width: 80px;
+      width: 260px;
       background: var(--bg-panel);
       backdrop-filter: blur(20px);
       border-right: 1px solid rgba(0, 240, 255, 0.2);
@@ -68,93 +47,43 @@
       flex-direction: column;
       padding: 20px 0;
     }
-
     .sidebar-logo {
       text-align: center;
-      margin-bottom: 30px;
+      padding: 10px 20px 30px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
     }
-
     .sidebar-logo h1 {
       font-family: 'Orbitron', sans-serif;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
       background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: var(--glow-cyan);
     }
-
-    .nav-items {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 0 12px;
-    }
-
+    .sidebar-logo p { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+    
+    .nav-section { padding: 15px 15px 5px; }
+    .nav-title { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    
     .nav-item {
-      width: 56px;
-      height: 56px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      border-radius: 12px;
+      gap: 12px;
+      padding: 12px 15px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.3s ease;
-      position: relative;
-      background: transparent;
-      border: 1px solid transparent;
+      margin-bottom: 4px;
     }
-
-    .nav-item:hover {
-      background: rgba(0, 240, 255, 0.1);
-      border-color: rgba(0, 240, 255, 0.3);
-    }
-
-    .nav-item.active {
-      background: rgba(0, 240, 255, 0.15);
-      border: 1px solid var(--neon-cyan);
-      box-shadow: var(--glow-cyan);
-    }
-
-    .nav-item .icon {
-      font-size: 24px;
-      filter: grayscale(0);
-      transition: all 0.3s ease;
-    }
-
-    .nav-item:hover .icon,
-    .nav-item.active .icon {
-      filter: drop-shadow(0 0 8px var(--neon-cyan));
-    }
-
-    .nav-item .label {
-      position: absolute;
-      left: 70px;
-      background: var(--bg-secondary);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(0, 240, 255, 0.3);
-    }
-
-    .nav-item:hover .label {
-      opacity: 1;
-    }
-
-    /* 主内容区 */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* 顶部状态栏 */
+    .nav-item:hover { background: rgba(0, 240, 255, 0.1); }
+    .nav-item.active { background: rgba(0, 240, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.3); }
+    .nav-item .icon { font-size: 18px; }
+    .nav-item .label { font-size: 14px; font-weight: 500; }
+    
+    /* 主内容 */
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* 顶部栏 */
     .top-bar {
       height: 60px;
       background: var(--bg-panel);
@@ -165,55 +94,17 @@
       justify-content: space-between;
       padding: 0 24px;
     }
-
-    .top-bar h2 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--neon-cyan);
-    }
-
-    .status-indicators {
-      display: flex;
-      gap: 20px;
-    }
-
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--neon-green);
-      animation: pulse 2s infinite;
-    }
-
-    .status-dot.warning {
-      background: var(--neon-amber);
-    }
-
-    .status-dot.error {
-      background: var(--neon-red);
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
-      50% { opacity: 0.7; box-shadow: 0 0 0 4px transparent; }
-    }
-
-    /* 内容区域 */
-    .content-area {
-      flex: 1;
-      padding: 24px;
-      overflow: auto;
-    }
-
+    .top-bar h2 { font-family: 'Orbitron', sans-serif; font-size: 16px; color: var(--neon-cyan); }
+    .top-bar .status-indicators { display: flex; gap: 20px; }
+    .status-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 2s infinite; }
+    .status-dot.green { background: var(--neon-green); }
+    .status-dot.red { background: var(--neon-red); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    
+    /* 内容区 */
+    .content-area { flex: 1; padding: 24px; overflow-y: auto; }
+    
     /* 玻璃卡片 */
     .glass-card {
       background: var(--bg-panel);
@@ -222,38 +113,12 @@
       border-radius: 16px;
       padding: 24px;
       margin-bottom: 20px;
-      transition: all 0.3s ease;
     }
-
-    .glass-card:hover {
-      border-color: rgba(0, 240, 255, 0.4);
-      box-shadow: var(--glow-cyan);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .card-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--neon-cyan);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* 平台状态网格 */
-    .platform-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .card-title { font-family: 'Orbitron', sans-serif; font-size: 15px; color: var(--neon-cyan); display: flex; align-items: center; gap: 10px; }
+    
+    /* 平台网格 */
+    .platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
     .platform-card {
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(0, 240, 255, 0.15);
@@ -262,352 +127,590 @@
       position: relative;
       overflow: hidden;
     }
-
     .platform-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 3px;
       background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
     }
-
-    .platform-card.connected::before {
-      background: var(--neon-green);
-      box-shadow: var(--glow-cyan);
-    }
-
-    .platform-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .platform-name {
-      font-size: 18px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    .platform-card.connected::before { background: var(--neon-green); }
+    
+    .platform-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .platform-name { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
     .platform-status {
-      font-size: 12px;
+      font-size: 11px;
       padding: 4px 10px;
       border-radius: 20px;
-      background: rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.15);
       color: var(--neon-red);
       border: 1px solid rgba(239, 68, 68, 0.3);
     }
-
-    .platform-status.connected {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--neon-green);
-      border-color: rgba(16, 185, 129, 0.3);
-    }
-
-    .platform-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .stat-item {
-      text-align: center;
-      padding: 10px;
-      background: rgba(0, 240, 255, 0.05);
-      border-radius: 8px;
-      border: 1px solid rgba(0, 240, 255, 0.1);
-    }
-
-    .stat-value {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--neon-cyan);
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    /* 按钮样式 */
-    .neon-btn {
-      padding: 10px 20px;
+    .platform-status.connected { background: rgba(16, 185, 129, 0.15); color: var(--neon-green); border-color: rgba(16, 185, 129, 0.3); }
+    
+    .platform-actions { display: flex; gap: 10px; margin-top: 15px; }
+    
+    /* 按钮 */
+    .btn {
+      padding: 8px 16px;
       border: 1px solid var(--neon-cyan);
       background: transparent;
       color: var(--neon-cyan);
       font-family: 'Rajdhani', sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
     }
-
-    .neon-btn:hover {
-      background: var(--neon-cyan);
-      color: var(--bg-primary);
-      box-shadow: var(--glow-cyan);
-    }
-
-    .neon-btn.primary {
-      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-      border: none;
-      color: white;
-    }
-
-    .neon-btn.primary:hover {
-      box-shadow: var(--glow-cyan), var(--glow-purple);
-      transform: translateY(-2px);
-    }
-
-    /* 实时日志 */
-    .log-container {
-      height: 200px;
-      background: rgba(0, 0, 0, 0.4);
+    .btn:hover { background: var(--neon-cyan); color: var(--bg-primary); }
+    .btn.primary { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); border: none; color: white; }
+    .btn.danger { border-color: var(--neon-red); color: var(--neon-red); }
+    .btn.danger:hover { background: var(--neon-red); color: white; }
+    .btn.small { padding: 5px 10px; font-size: 12px; }
+    
+    /* AI配置 */
+    .config-form { max-width: 500px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; display: block; }
+    .form-input {
+      width: 100%;
+      padding: 12px 15px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 240, 255, 0.2);
       border-radius: 8px;
-      padding: 15px;
-      overflow-y: auto;
-      font-family: 'Consolas', monospace;
-      font-size: 12px;
-    }
-
-    .log-entry {
-      padding: 4px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .log-time {
-      color: var(--text-secondary);
-      margin-right: 10px;
-    }
-
-    .log-platform {
-      color: var(--neon-purple);
-      margin-right: 10px;
-    }
-
-    .log-message {
       color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      transition: all 0.3s ease;
     }
-
-    /* 滚动条 */
-    ::-webkit-scrollbar {
-      width: 6px;
+    .form-input:focus { outline: none; border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
+    .form-input::placeholder { color: var(--text-secondary); }
+    .form-actions { display: flex; gap: 10px; }
+    
+    /* 添加店铺弹窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
     }
-
-    ::-webkit-scrollbar-track {
+    .modal-overlay.show { display: flex; }
+    .modal {
       background: var(--bg-secondary);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 16px;
+      padding: 30px;
+      width: 400px;
+      max-width: 90%;
     }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--neon-cyan);
-      border-radius: 3px;
+    .modal h3 { font-family: 'Orbitron', sans-serif; color: var(--neon-cyan); margin-bottom: 20px; }
+    .modal-close { float: right; cursor: pointer; font-size: 20px; color: var(--text-secondary); }
+    .modal-close:hover { color: var(--neon-red); }
+    
+    /* 平台选择 */
+    .platform-select { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+    .platform-option {
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(0, 240, 255, 0.2);
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
-
-    /* 动画 */
-    @keyframes glow {
-      0%, 100% { box-shadow: 0 0 5px var(--neon-cyan); }
-      50% { box-shadow: 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-purple); }
+    .platform-option:hover { border-color: var(--neon-cyan); }
+    .platform-option.selected { border-color: var(--neon-cyan); background: rgba(0, 240, 255, 0.1); }
+    .platform-option .icon { font-size: 32px; margin-bottom: 8px; }
+    .platform-option .name { font-size: 14px; font-weight: 600; }
+    
+    /* 统计卡片 */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+    .stat-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
     }
-
-    .glow-border {
-      animation: glow 2s infinite;
-    }
+    .stat-value { font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 700; color: var(--neon-cyan); }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
+    
+    /* 滚动条 */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 3px; }
   </style>
 </head>
 <body>
-  <div class="bg-particles"></div>
+  <div class="bg-gradient"></div>
   
   <div class="app-container">
     <!-- 侧边栏 -->
     <nav class="sidebar">
       <div class="sidebar-logo">
-        <h1>AI</h1>
+        <h1>AI客服</h1>
+        <p>多平台智能客服系统 v1.0</p>
       </div>
       
-      <div class="nav-items">
+      <div class="nav-section">
+        <div class="nav-title">主菜单</div>
         <div class="nav-item active" data-page="dashboard">
           <span class="icon">📊</span>
           <span class="label">控制台</span>
         </div>
-        <div class="nav-item" data-page="platforms">
-          <span class="icon">🔗</span>
-          <span class="label">平台管理</span>
+        <div class="nav-item" data-page="stores">
+          <span class="icon">🏪</span>
+          <span class="label">店铺管理</span>
+        </div>
+        <div class="nav-item" data-page="config">
+          <span class="icon">⚙️</span>
+          <span class="label">AI配置</span>
         </div>
         <div class="nav-item" data-page="knowledge">
           <span class="icon">📚</span>
           <span class="label">知识库</span>
         </div>
-        <div class="nav-item" data-page="settings">
-          <span class="icon">⚙️</span>
-          <span class="label">设置</span>
+        <div class="nav-item" data-page="logs">
+          <span class="icon">📋</span>
+          <span class="label">运行日志</span>
         </div>
       </div>
     </nav>
 
     <!-- 主内容 -->
     <main class="main-content">
-      <!-- 顶部状态栏 -->
+      <!-- 顶部栏 -->
       <header class="top-bar">
-        <h2>控制台</h2>
+        <h2 id="page-title">控制台</h2>
         <div class="status-indicators">
           <div class="status-item">
-            <span class="status-dot"></span>
+            <span class="status-dot green"></span>
             <span>后端服务</span>
           </div>
           <div class="status-item">
-            <span class="status-dot"></span>
+            <span class="status-dot green"></span>
             <span>扣子API</span>
-          </div>
-          <div class="status-item">
-            <span class="status-dot warning"></span>
-            <span>抖音飞鸽</span>
-          </div>
-          <div class="status-item">
-            <span class="status-dot error"></span>
-            <span>淘宝千牛</span>
           </div>
         </div>
       </header>
 
       <!-- 内容区域 -->
-      <div class="content-area">
-        <!-- 概览卡片 -->
-        <div class="glass-card">
-          <div class="card-header">
-            <span class="card-title">📈 今日概览</span>
-            <button class="neon-btn">刷新数据</button>
-          </div>
-          <div class="platform-grid">
-            <div class="platform-card connected">
-              <div class="platform-header">
-                <span class="platform-name">🐦 抖音飞鸽</span>
-                <span class="platform-status connected">已连接</span>
-              </div>
-              <div class="platform-stats">
-                <div class="stat-item">
-                  <div class="stat-value" id="dy-msg-count">0</div>
-                  <div class="stat-label">消息数</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value" id="dy-reply-rate">0%</div>
-                  <div class="stat-label">回复率</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value" id="dy-avg-time">0s</div>
-                  <div class="stat-label">平均响应</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="platform-card">
-              <div class="platform-header">
-                <span class="platform-name">🐱 淘宝千牛</span>
-                <span class="platform-status">未连接</span>
-              </div>
-              <div class="platform-stats">
-                <div class="stat-item">
-                  <div class="stat-value">-</div>
-                  <div class="stat-label">消息数</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value">-</div>
-                  <div class="stat-label">回复率</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value">-</div>
-                  <div class="stat-label">平均响应</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="platform-card">
-              <div class="platform-header">
-                <span class="platform-name">🏪 抖店网页</span>
-                <span class="platform-status">未连接</span>
-              </div>
-              <div class="platform-stats">
-                <div class="stat-item">
-                  <div class="stat-value">-</div>
-                  <div class="stat-label">消息数</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value">-</div>
-                  <div class="stat-label">回复率</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value">-</div>
-                  <div class="stat-label">平均响应</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 系统日志 -->
-        <div class="glass-card">
-          <div class="card-header">
-            <span class="card-title">📋 实时日志</span>
-            <button class="neon-btn">清空</button>
-          </div>
-          <div class="log-container" id="log-container">
-            <div class="log-entry">
-              <span class="log-time">[18:24:01]</span>
-              <span class="log-platform">[SYSTEM]</span>
-              <span class="log-message">AI客服系统启动中...</span>
-            </div>
-            <div class="log-entry">
-              <span class="log-time">[18:24:02]</span>
-              <span class="log-platform">[DY]</span>
-              <span class="log-message">正在连接抖音飞鸽服务...</span>
-            </div>
-            <div class="log-entry">
-              <span class="log-time">[18:24:03]</span>
-              <span class="log-platform">[TB]</span>
-              <span class="log-message">淘宝千牛配置缺失，请检查设置</span>
-            </div>
-          </div>
-        </div>
+      <div class="content-area" id="content-area">
+        <!-- 动态内容 -->
       </div>
     </main>
   </div>
 
-  <script>
-    // 添加日志
-    function addLog(platform, message) {
-      const container = document.getElementById('log-container');
-      const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
-      const entry = document.createElement('div');
-      entry.className = 'log-entry';
-      entry.innerHTML = `
-        <span class="log-time">[${time}]</span>
-        <span class="log-platform">[${platform}]</span>
-        <span class="log-message">${message}</span>
-      `;
-      container.appendChild(entry);
-      container.scrollTop = container.scrollHeight;
-    }
+  <!-- 添加店铺弹窗 -->
+  <div class="modal-overlay" id="add-store-modal">
+    <div class="modal">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h3>添加店铺</h3>
+      <div class="platform-select">
+        <div class="platform-option" data-platform="douyin" onclick="selectPlatform(this)">
+          <div class="icon">🐦</div>
+          <div class="name">抖店</div>
+        </div>
+        <div class="platform-option" data-platform="qianiu" onclick="selectPlatform(this)">
+          <div class="icon">🐱</div>
+          <div class="name">淘宝千牛</div>
+        </div>
+        <div class="platform-option" data-platform="kuaishou" onclick="selectPlatform(this)">
+          <div class="icon">📺</div>
+          <div class="name">快手</div>
+        </div>
+        <div class="platform-option" data-platform="pinduoduo" onclick="selectPlatform(this)">
+          <div class="icon">🛒</div>
+          <div class="name">拼多多</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">店铺名称</label>
+        <input type="text" class="form-input" id="store-name" placeholder="输入店铺名称">
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="closeModal()">取消</button>
+        <button class="btn primary" onclick="addStore()">添加</button>
+      </div>
+    </div>
+  </div>
 
-    // 导航切换
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        addLog('UI', `切换到: ${item.dataset.page}`);
-      });
-    });
+  <script>
+    // 状态
+    let currentPage = 'dashboard';
+    let stores = [];
+    let selectedPlatform = null;
 
     // 初始化
-    addLog('SYSTEM', 'AI客服系统初始化完成');
+    async function init() {
+      await loadStores();
+      await loadConfig();
+      await loadStats();
+      showPage('dashboard');
+      
+      // 每30秒刷新状态
+      setInterval(() => {
+        loadStores();
+        loadStats();
+      }, 30000);
+    }
+
+    // 加载店铺列表
+    async function loadStores() {
+      try {
+        const res = await fetch('/api/stores');
+        const data = await res.json();
+        stores = data.data?.stores || [];
+        if (currentPage === 'stores' || currentPage === 'dashboard') {
+          renderCurrentPage();
+        }
+      } catch (e) {
+        console.error('加载店铺失败:', e);
+      }
+    }
+
+    // 加载配置
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/config');
+        const data = await res.json();
+        window.aiConfig = data.data?.config || {};
+      } catch (e) {
+        console.error('加载配置失败:', e);
+      }
+    }
+
+    // 加载统计
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        window.stats = data.data || {};
+      } catch (e) {
+        console.error('加载统计失败:', e);
+      }
+    }
+
+    // 显示页面
+    function showPage(page) {
+      currentPage = page;
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === page);
+      });
+      
+      const titles = {
+        dashboard: '控制台',
+        stores: '店铺管理',
+        config: 'AI配置',
+        knowledge: '知识库',
+        logs: '运行日志'
+      };
+      document.getElementById('page-title').textContent = titles[page] || page;
+      
+      renderCurrentPage();
+    }
+
+    // 渲染当前页面
+    function renderCurrentPage() {
+      const content = document.getElementById('content-area');
+      
+      switch (currentPage) {
+        case 'dashboard':
+          content.innerHTML = renderDashboard();
+          break;
+        case 'stores':
+          content.innerHTML = renderStores();
+          break;
+        case 'config':
+          content.innerHTML = renderConfig();
+          break;
+        case 'knowledge':
+          content.innerHTML = renderKnowledge();
+          break;
+        case 'logs':
+          content.innerHTML = renderLogs();
+          break;
+      }
+    }
+
+    // 控制台页面
+    function renderDashboard() {
+      const stats = window.stats || {};
+      const total = stats.total_messages || 0;
+      const replies = stats.ai_replies || 0;
+      const rate = total > 0 ? ((replies / total) * 100).toFixed(1) : 0;
+      
+      return `
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">📈 今日概览</span>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">${total}</div>
+              <div class="stat-label">总消息数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${replies}</div>
+              <div class="stat-label">AI回复数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${rate}%</div>
+              <div class="stat-label">回复率</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${stores.length}</div>
+              <div class="stat-label">已连接店铺</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">🏪 店铺状态</span>
+            <button class="btn small" onclick="showPage('stores')">管理店铺</button>
+          </div>
+          <div class="platform-grid">
+            ${stores.length === 0 ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">暂无店铺，点击"添加店铺"开始</p>' : stores.map(store => `
+              <div class="platform-card ${store.status === 'active' ? 'connected' : ''}">
+                <div class="platform-header">
+                  <span class="platform-name">${getPlatformIcon(store.platform)} ${store.name}</span>
+                  <span class="platform-status ${store.status === 'active' ? 'connected' : ''}">${store.status === 'active' ? '已连接' : '已断开'}</span>
+                </div>
+                <div class="platform-actions">
+                  <button class="btn small" onclick="toggleStore('${store.id}')">${store.status === 'active' ? '禁用' : '启用'}</button>
+                  <button class="btn small danger" onclick="deleteStore('${store.id}')">删除</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // 店铺管理页面
+    function renderStores() {
+      return `
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">🏪 店铺管理</span>
+            <button class="btn primary" onclick="openModal()">+ 添加店铺</button>
+          </div>
+          <div class="platform-grid">
+            ${stores.length === 0 ? `
+              <div style="text-align:center;padding:40px;color:var(--text-secondary);">
+                <p style="font-size:48px;margin-bottom:15px;">🏪</p>
+                <p>暂无店铺</p>
+                <p style="font-size:13px;margin-top:10px;">点击"添加店铺"连接你的第一个平台</p>
+              </div>
+            ` : stores.map(store => `
+              <div class="platform-card ${store.status === 'active' ? 'connected' : ''}">
+                <div class="platform-header">
+                  <span class="platform-name">${getPlatformIcon(store.platform)} ${store.name}</span>
+                  <span class="platform-status ${store.status === 'active' ? 'connected' : ''}">${store.status === 'active' ? '已连接' : '已断开'}</span>
+                </div>
+                <p style="font-size:12px;color:var(--text-secondary);margin:10px 0;">平台: ${getPlatformName(store.platform)}</p>
+                <p style="font-size:12px;color:var(--text-secondary);">添加时间: ${new Date(store.created_at).toLocaleDateString('zh-CN')}</p>
+                <div class="platform-actions" style="margin-top:15px;">
+                  <button class="btn small" onclick="toggleStore('${store.id}')">${store.status === 'active' ? '禁用' : '启用'}</button>
+                  <button class="btn small danger" onclick="deleteStore('${store.id}')">删除</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // AI配置页面
+    function renderConfig() {
+      const config = window.aiConfig || {};
+      return `
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">⚙️ AI配置</span>
+          </div>
+          <div class="config-form">
+            <div class="form-group">
+              <label class="form-label">扣子 API Key</label>
+              <input type="password" class="form-input" id="coze-api-key" value="${config.coze_api_key || ''}" placeholder="pat_xxx">
+              <p style="font-size:11px;color:var(--text-secondary);margin-top:5px;">当前: ${config.coze_api_key_masked || '未设置'}</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">扣子 Bot ID</label>
+              <input type="text" class="form-input" id="coze-bot-id" value="${config.coze_bot_id || ''}" placeholder="输入Bot ID">
+            </div>
+            <div class="form-actions">
+              <button class="btn primary" onclick="saveConfig()">保存配置</button>
+              <button class="btn" onclick="testConfig()">测试连接</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">📋 配置说明</span>
+          </div>
+          <div style="color:var(--text-secondary);font-size:13px;line-height:1.8;">
+            <p>• API Key 和 Bot ID 请到 <a href="https://coze.cn" target="_blank" style="color:var(--neon-cyan);">扣子平台</a> 获取</p>
+            <p>• 配置后系统将自动使用AI回复客户消息</p>
+            <p>• 建议同时配置知识库以提高回复准确率</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // 知识库页面
+    function renderKnowledge() {
+      return `
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">📚 知识库</span>
+            <button class="btn primary">+ 添加知识</button>
+          </div>
+          <div style="text-align:center;padding:40px;color:var(--text-secondary);">
+            <p style="font-size:48px;margin-bottom:15px;">📚</p>
+            <p>知识库功能开发中...</p>
+            <p style="font-size:13px;margin-top:10px;">可以手动编辑 knowledge-base 目录下的文件</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // 运行日志页面
+    function renderLogs() {
+      return `
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">📋 运行日志</span>
+            <button class="btn small" onclick="clearLogs()">清空</button>
+          </div>
+          <div style="background:rgba(0,0,0,0.4);border-radius:8px;padding:15px;font-family:Consolas,monospace;font-size:12px;max-height:400px;overflow-y:auto;">
+            <p style="color:var(--text-secondary);">[${new Date().toLocaleTimeString()}] 系统启动</p>
+            <p style="color:var(--neon-green);">[${new Date().toLocaleTimeString()}] 后端服务连接成功</p>
+            <p style="color:var(--text-secondary);">[${new Date().toLocaleTimeString()}] 等待平台连接...</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // 工具函数
+    function getPlatformIcon(platform) {
+      const icons = { douyin: '🐦', qianiu: '🐱', kuaishou: '📺', pinduoduo: '🛒' };
+      return icons[platform] || '🏪';
+    }
+    
+    function getPlatformName(platform) {
+      const names = { douyin: '抖店', qianiu: '淘宝千牛', kuaishou: '快手', pinduoduo: '拼多多' };
+      return names[platform] || platform;
+    }
+
+    // 店铺操作
+    function openModal() {
+      selectedPlatform = null;
+      document.querySelectorAll('.platform-option').forEach(el => el.classList.remove('selected'));
+      document.getElementById('store-name').value = '';
+      document.getElementById('add-store-modal').classList.add('show');
+    }
+    
+    function closeModal() {
+      document.getElementById('add-store-modal').classList.remove('show');
+    }
+    
+    function selectPlatform(el) {
+      document.querySelectorAll('.platform-option').forEach(opt => opt.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPlatform = el.dataset.platform;
+    }
+    
+    async function addStore() {
+      if (!selectedPlatform) {
+        alert('请选择平台');
+        return;
+      }
+      const name = document.getElementById('store-name').value.trim();
+      if (!name) {
+        alert('请输入店铺名称');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/stores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, platform: selectedPlatform, config: {} })
+        });
+        const data = await res.json();
+        if (data.code === 0) {
+          closeModal();
+          await loadStores();
+          renderCurrentPage();
+        } else {
+          alert(data.msg || '添加失败');
+        }
+      } catch (e) {
+        alert('添加失败: ' + e.message);
+      }
+    }
+    
+    async function deleteStore(id) {
+      if (!confirm('确定要删除这个店铺吗？')) return;
+      try {
+        await fetch(`/api/stores/${id}`, { method: 'DELETE' });
+        await loadStores();
+        renderCurrentPage();
+      } catch (e) {
+        alert('删除失败: ' + e.message);
+      }
+    }
+    
+    async function toggleStore(id) {
+      try {
+        await fetch(`/api/stores/${id}/toggle`, { method: 'PUT' });
+        await loadStores();
+        renderCurrentPage();
+      } catch (e) {
+        alert('操作失败: ' + e.message);
+      }
+    }
+    
+    async function saveConfig() {
+      const apiKey = document.getElementById('coze-api-key').value.trim();
+      const botId = document.getElementById('coze-bot-id').value.trim();
+      
+      try {
+        await fetch('/api/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ coze_api_key: apiKey, coze_bot_id: botId })
+        });
+        await loadConfig();
+        alert('配置已保存');
+      } catch (e) {
+        alert('保存失败: ' + e.message);
+      }
+    }
+    
+    async function testConfig() {
+      alert('测试连接功能开发中...');
+    }
+    
+    function clearLogs() {
+      // 实现清空日志
+    }
+
+    // 导航事件
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => showPage(item.dataset.page));
+    });
+
+    // 启动
+    init();
   </script>
 </body>
 </html>
