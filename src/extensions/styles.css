@@ -1,0 +1,154 @@
+/* AI客服助手 - 浏览器插件样式 */
+
+/* 浮动控制面板 */
+.ai-kefu-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  background: rgba(10, 14, 23, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 999999;
+  font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+}
+
+.ai-kefu-panel h3 {
+  color: #00f0ff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-kefu-panel h3::before {
+  content: '🤖';
+}
+
+/* 状态显示 */
+.ai-kefu-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 240, 255, 0.1);
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.ai-kefu-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse 2s infinite;
+}
+
+.ai-kefu-status .dot.disconnected {
+  background: #ef4444;
+}
+
+.ai-kefu-status span {
+  color: #e2e8f0;
+  font-size: 13px;
+}
+
+/* 开关按钮 */
+.ai-kefu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-kefu-toggle label {
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.ai-kefu-toggle input[type="checkbox"] {
+  width: 40px;
+  height: 20px;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ai-kefu-toggle input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #94a3b8;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.ai-kefu-toggle input[type="checkbox"]:checked {
+  background: rgba(0, 240, 255, 0.3);
+}
+
+.ai-kefu-toggle input[type="checkbox"]:checked::before {
+  left: 22px;
+  background: #00f0ff;
+  box-shadow: 0 0 10px #00f0ff;
+}
+
+/* 统计信息 */
+.ai-kefu-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ai-kefu-stats .stat {
+  text-align: center;
+  padding: 8px;
+  background: rgba(168, 85, 247, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.ai-kefu-stats .stat-value {
+  color: #a855f7;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ai-kefu-stats .stat-label {
+  color: #94a3b8;
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+/* 动画 */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 隐藏默认滚动条 */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.3);
+  border-radius: 2px;
+}

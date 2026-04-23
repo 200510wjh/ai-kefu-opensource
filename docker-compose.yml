@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # AI客服后端服务
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: ai-kefu-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - COZE_API_KEY=${COZE_API_KEY}
+      - COZE_BOT_ID=${COZE_BOT_ID}
+    volumes:
+      - ./knowledge-base:/app/knowledge-base
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - ai-kefu-network
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: ai-kefu-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - ai-kefu-network
+
+networks:
+  ai-kefu-network:
+    driver: bridge

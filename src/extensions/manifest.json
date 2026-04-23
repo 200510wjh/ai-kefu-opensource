@@ -1,0 +1,82 @@
+{
+  "manifest_version": 3,
+  "name": "AI客服助手",
+  "version": "1.0.0",
+  "description": "多平台AI客服助手，自动回复客户消息（支持抖店、淘宝千牛、快手、拼多多）",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "webRequest",
+    "https://*/*",
+    "http://localhost:8000/*"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.douyin.com/*",
+        "*://*.toutiao.com/*",
+        "*://*.xianghongdian.com/*"
+      ],
+      "js": ["dy.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://qianyu.taobao.com/*",
+        "*://work.taobao.com/*",
+        "*://maijia.alibaba.com/*"
+      ],
+      "js": ["qianiu.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://cp.kuaishou.com/*",
+        "*://business.kuaishou.com/*",
+        "*://seller.kuaishou.com/*"
+      ],
+      "js": ["ks.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://mms.pinduoduo.com/*",
+        "*://erp.pinduoduo.com/*",
+        "*://chat.pinduoduo.com/*"
+      ],
+      "js": ["pdd.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "AI客服助手",
+    "default_icon": {
+      "16": "icons/icon16.svg",
+      "48": "icons/icon48.svg",
+      "128": "icons/icon128.svg"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
