@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "AI客服助手 - 抖店版",
+  "name": "AI客服助手",
   "version": "1.0.0",
-  "description": "抖店智能客服助手，自动回复客户消息",
+  "description": "多平台AI客服助手，自动回复客户消息（支持抖店、淘宝千牛）",
   "permissions": [
     "activeTab",
     "storage",
@@ -28,20 +28,30 @@
       "js": ["dy.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://qianyu.taobao.com/*",
+        "*://work.taobao.com/*",
+        "*://maijia.alibaba.com/*"
+      ],
+      "js": ["qianiu.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
     }
   ],
   "action": {
     "default_title": "AI客服助手",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "icons/icon16.svg",
+      "48": "icons/icon48.svg",
+      "128": "icons/icon128.svg"
     }
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
   },
   "web_accessible_resources": [
     {
