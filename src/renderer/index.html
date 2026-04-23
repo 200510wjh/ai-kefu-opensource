@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI客服 - 智能客服系统</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-panel: rgba(17, 24, 39, 0.8);
+      --neon-cyan: #00f0ff;
+      --neon-purple: #a855f7;
+      --neon-green: #10b981;
+      --neon-amber: #f59e0b;
+      --neon-red: #ef4444;
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5);
+      --glow-purple: 0 0 20px rgba(168, 85, 247, 0.5);
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 背景粒子效果 */
+    .bg-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background: 
+        radial-gradient(ellipse at 20% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+        var(--bg-primary);
+    }
+
+    /* 布局 */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 左侧导航 */
+    .sidebar {
+      width: 80px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(0, 240, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .sidebar-logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .sidebar-logo h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: var(--glow-cyan);
+    }
+
+    .nav-items {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 12px;
+    }
+
+    .nav-item {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      background: transparent;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(0, 240, 255, 0.1);
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    .nav-item.active {
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--neon-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .nav-item .icon {
+      font-size: 24px;
+      filter: grayscale(0);
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover .icon,
+    .nav-item.active .icon {
+      filter: drop-shadow(0 0 8px var(--neon-cyan));
+    }
+
+    .nav-item .label {
+      position: absolute;
+      left: 70px;
+      background: var(--bg-secondary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+
+    .nav-item:hover .label {
+      opacity: 1;
+    }
+
+    /* 主内容区 */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 顶部状态栏 */
+    .top-bar {
+      height: 60px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .top-bar h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+    }
+
+    .status-indicators {
+      display: flex;
+      gap: 20px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.warning {
+      background: var(--neon-amber);
+    }
+
+    .status-dot.error {
+      background: var(--neon-red);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px transparent; }
+    }
+
+    /* 内容区域 */
+    .content-area {
+      flex: 1;
+      padding: 24px;
+      overflow: auto;
+    }
+
+    /* 玻璃卡片 */
+    .glass-card {
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 平台状态网格 */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .platform-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .platform-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+    }
+
+    .platform-card.connected::before {
+      background: var(--neon-green);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .platform-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .platform-name {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .platform-status {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--neon-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .platform-status.connected {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--neon-green);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .platform-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 10px;
+      background: rgba(0, 240, 255, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 240, 255, 0.1);
+    }
+
+    .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* 按钮样式 */
+    .neon-btn {
+      padding: 10px 20px;
+      border: 1px solid var(--neon-cyan);
+      background: transparent;
+      color: var(--neon-cyan);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .neon-btn:hover {
+      background: var(--neon-cyan);
+      color: var(--bg-primary);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .neon-btn.primary {
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      border: none;
+      color: white;
+    }
+
+    .neon-btn.primary:hover {
+      box-shadow: var(--glow-cyan), var(--glow-purple);
+      transform: translateY(-2px);
+    }
+
+    /* 实时日志 */
+    .log-container {
+      height: 200px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 8px;
+      padding: 15px;
+      overflow-y: auto;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+    }
+
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .log-time {
+      color: var(--text-secondary);
+      margin-right: 10px;
+    }
+
+    .log-platform {
+      color: var(--neon-purple);
+      margin-right: 10px;
+    }
+
+    .log-message {
+      color: var(--text-primary);
+    }
+
+    /* 滚动条 */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--neon-cyan);
+      border-radius: 3px;
+    }
+
+    /* 动画 */
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 5px var(--neon-cyan); }
+      50% { box-shadow: 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-purple); }
+    }
+
+    .glow-border {
+      animation: glow 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-particles"></div>
+  
+  <div class="app-container">
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <h1>AI</h1>
+      </div>
+      
+      <div class="nav-items">
+        <div class="nav-item active" data-page="dashboard">
+          <span class="icon">📊</span>
+          <span class="label">控制台</span>
+        </div>
+        <div class="nav-item" data-page="platforms">
+          <span class="icon">🔗</span>
+          <span class="label">平台管理</span>
+        </div>
+        <div class="nav-item" data-page="knowledge">
+          <span class="icon">📚</span>
+          <span class="label">知识库</span>
+        </div>
+        <div class="nav-item" data-page="settings">
+          <span class="icon">⚙️</span>
+          <span class="label">设置</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+      <!-- 顶部状态栏 -->
+      <header class="top-bar">
+        <h2>控制台</h2>
+        <div class="status-indicators">
+          <div class="status-item">
+            <span class="status-dot"></span>
+            <span>后端服务</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot"></span>
+            <span>扣子API</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot warning"></span>
+            <span>抖音飞鸽</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot error"></span>
+            <span>淘宝千牛</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- 内容区域 -->
+      <div class="content-area">
+        <!-- 概览卡片 -->
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">📈 今日概览</span>
+            <button class="neon-btn">刷新数据</button>
+          </div>
+          <div class="platform-grid">
+            <div class="platform-card connected">
+              <div class="platform-header">
+                <span class="platform-name">🐦 抖音飞鸽</span>
+                <span class="platform-status connected">已连接</span>
+              </div>
+              <div class="platform-stats">
+                <div class="stat-item">
+                  <div class="stat-value" id="dy-msg-count">0</div>
+                  <div class="stat-label">消息数</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value" id="dy-reply-rate">0%</div>
+                  <div class="stat-label">回复率</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value" id="dy-avg-time">0s</div>
+                  <div class="stat-label">平均响应</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="platform-card">
+              <div class="platform-header">
+                <span class="platform-name">🐱 淘宝千牛</span>
+                <span class="platform-status">未连接</span>
+              </div>
+              <div class="platform-stats">
+                <div class="stat-item">
+                  <div class="stat-value">-</div>
+                  <div class="stat-label">消息数</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">-</div>
+                  <div class="stat-label">回复率</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">-</div>
+                  <div class="stat-label">平均响应</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="platform-card">
+              <div class="platform-header">
+                <span class="platform-name">🏪 抖店网页</span>
+                <span class="platform-status">未连接</span>
+              </div>
+              <div class="platform-stats">
+                <div class="stat-item">
+                  <div class="stat-value">-</div>
+                  <div class="stat-label">消息数</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">-</div>
+                  <div class="stat-label">回复率</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">-</div>
+                  <div class="stat-label">平均响应</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 系统日志 -->
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title">📋 实时日志</span>
+            <button class="neon-btn">清空</button>
+          </div>
+          <div class="log-container" id="log-container">
+            <div class="log-entry">
+              <span class="log-time">[18:24:01]</span>
+              <span class="log-platform">[SYSTEM]</span>
+              <span class="log-message">AI客服系统启动中...</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-time">[18:24:02]</span>
+              <span class="log-platform">[DY]</span>
+              <span class="log-message">正在连接抖音飞鸽服务...</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-time">[18:24:03]</span>
+              <span class="log-platform">[TB]</span>
+              <span class="log-message">淘宝千牛配置缺失，请检查设置</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // 添加日志
+    function addLog(platform, message) {
+      const container = document.getElementById('log-container');
+      const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `
+        <span class="log-time">[${time}]</span>
+        <span class="log-platform">[${platform}]</span>
+        <span class="log-message">${message}</span>
+      `;
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // 导航切换
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        addLog('UI', `切换到: ${item.dataset.page}`);
+      });
+    });
+
+    // 初始化
+    addLog('SYSTEM', 'AI客服系统初始化完成');
+  </script>
+</body>
+</html>
