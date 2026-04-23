@@ -11,6 +11,7 @@ import json
 import logging
 import uuid
 import os
+import random
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 from collections import defaultdict
@@ -223,6 +224,128 @@ async def test_connection(store: StoreCreate):
     # 模拟连接测试
     logger.info(f"[店铺] 测试连接: {store.platform}")
     return {"code": 0, "msg": "连接成功", "data": {"status": "ok"}}
+
+# ============== 用户认证数据模型 ==============
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class UserRegister(BaseModel):
+    phone: str
+    password: str
+    code: str
+
+class SendCodeRequest(BaseModel):
+    phone: str
+
+# 模拟验证码存储（生产环境用Redis）
+verification_codes = {}
+
+# ============== 用户认证API ==============
+
+@app.post("/api/auth/send-code")
+async def send_verification_code(req: SendCodeRequest):
+    """发送验证码"""
+    # 生成4位验证码
+    code = str(random.randint(1000, 9999))
+    verification_codes[req.phone] = code
+    
+    # 实际生产环境应该发送短信，这里模拟
+    logger.info(f"[用户] 发送验证码到 {req.phone}: {code}")
+    
+    return {"code": 0, "msg": "验证码已发送", "data": {"code": code}}  # 开发环境返回验证码
+
+@app.post("/api/auth/register")
+async def register(req: UserRegister):
+    """用户注册"""
+    data = load_database()
+    users = data.get("users", [])
+    
+    # 检查手机号是否已注册
+    for u in users:
+        if u.get("phone") == req.phone:
+            return {"code": 1, "msg": "该手机号已注册"}
+    
+    # 验证验证码
+    stored_code = verification_codes.get(req.phone)
+    if not stored_code or stored_code != req.code:
+        return {"code": 1, "msg": "验证码错误或已过期"}
+    
+    # 创建用户
+    new_user = {
+        "id": str(uuid.uuid4())[:8],
+        "phone": req.phone,
+        "password": req.password,  # 生产环境要加密！
+        "created_at": datetime.now().isoformat(),
+        "expires_at": None,  # 会员过期时间
+        "status": "active"
+    }
+    
+    data.setdefault("users", []).append(new_user)
+    save_database(data)
+    
+    # 清除验证码
+    del verification_codes[req.phone]
+    
+    logger.info(f"[用户] 新用户注册: {req.phone}")
+    
+    # 生成token
+    token = str(uuid.uuid4())
+    
+    return {
+        "code": 0,
+        "msg": "注册成功",
+        "data": {
+            "user": {"id": new_user["id"], "phone": new_user["phone"]},
+            "token": token
+        }
+    }
+
+@app.post("/api/auth/login")
+async def login(req: UserLogin):
+    """用户登录"""
+    data = load_database()
+    users = data.get("users", [])
+    
+    # 查找用户
+    for u in users:
+        if u.get("phone") == req.username and u.get("password") == req.password:
+            if u.get("status") != "active":
+                return {"code": 1, "msg": "账号已被禁用"}
+            
+            token = str(uuid.uuid4())
+            logger.info(f"[用户] 用户登录: {u['phone']}")
+            
+            return {
+                "code": 0,
+                "msg": "登录成功",
+                "data": {
+                    "user": {
+                        "id": u["id"],
+                        "phone": u["phone"],
+                        "expires_at": u.get("expires_at")
+                    },
+                    "token": token
+                }
+            }
+    
+    return {"code": 1, "msg": "手机号或密码错误"}
+
+@app.get("/api/user/info")
+async def get_user_info():
+    """获取用户信息"""
+    # 模拟已登录用户
+    return {
+        "code": 0,
+        "data": {
+            "user": {
+                "id": "demo",
+                "phone": "13800138000",
+                "expires_at": None,
+                "status": "active"
+            }
+        }
+    }
 
 # ============== 消息处理数据模型 ==============
 class ChatRequest(BaseModel):
