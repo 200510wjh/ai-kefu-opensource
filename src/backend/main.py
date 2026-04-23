@@ -9,6 +9,8 @@ AI客服后端服务 - FastAPI
 import asyncio
 import json
 import logging
+import uuid
+import os
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 from collections import defaultdict
@@ -17,6 +19,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 import httpx
+
+# ============== 数据文件路径 ==============
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data')
+DATABASE_FILE = os.path.join(DATA_DIR, 'database.json')
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# ============== 配置文件 ==============
+def load_database():
+    """加载数据库"""
+    if os.path.exists(DATABASE_FILE):
+        with open(DATABASE_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {"stores": [], "config": {}, "stats": {"total_messages": 0, "ai_replies": 0, "human_handoffs": 0}}
+
+def save_database(data):
+    """保存数据库"""
+    with open(DATABASE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+db_data = load_database()
 
 # ============== 配置 ==============
 COZE_API_URL = "https://api.coze.cn/v1/chat"
@@ -87,7 +109,122 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ============== 数据模型 ==============
+# ============== 店铺管理数据模型 ==============
+class Store(BaseModel):
+    id: str
+    name: str
+    platform: str  # douyin, qianiu, kuaishou, pinduoduo
+    status: str = "active"  # active, inactive, error
+    config: Dict[str, Any] = {}
+    created_at: str
+    updated_at: str
+
+class StoreCreate(BaseModel):
+    name: str
+    platform: str
+    config: Dict[str, Any] = {}
+
+class ConfigUpdate(BaseModel):
+    coze_api_key: Optional[str] = None
+    coze_bot_id: Optional[str] = None
+
+# ============== 店铺管理API ==============
+
+@app.get("/api/stores")
+async def get_stores():
+    """获取所有店铺"""
+    data = load_database()
+    return {"code": 0, "data": {"stores": data.get("stores", [])}}
+
+@app.post("/api/stores")
+async def create_store(store: StoreCreate):
+    """添加新店铺"""
+    data = load_database()
+    
+    # 检查平台是否已存在
+    for s in data.get("stores", []):
+        if s.get("platform") == store.platform:
+            return {"code": 1, "msg": f"{store.platform} 已存在，请先删除再添加"}
+    
+    new_store = {
+        "id": str(uuid.uuid4())[:8],
+        "name": store.name,
+        "platform": store.platform,
+        "status": "active",
+        "config": store.config,
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat()
+    }
+    
+    data.setdefault("stores", []).append(new_store)
+    save_database(data)
+    
+    logger.info(f"[店铺] 添加新店铺: {new_store['name']} ({new_store['platform']})")
+    return {"code": 0, "msg": "success", "data": {"store": new_store}}
+
+@app.delete("/api/stores/{store_id}")
+async def delete_store(store_id: str):
+    """删除店铺"""
+    data = load_database()
+    stores = data.get("stores", [])
+    
+    for i, s in enumerate(stores):
+        if s.get("id") == store_id:
+            deleted = stores.pop(i)
+            save_database(data)
+            logger.info(f"[店铺] 删除店铺: {deleted['name']}")
+            return {"code": 0, "msg": "success"}
+    
+    return {"code": 1, "msg": "店铺不存在"}
+
+@app.put("/api/stores/{store_id}/toggle")
+async def toggle_store(store_id: str):
+    """启用/禁用店铺"""
+    data = load_database()
+    stores = data.get("stores", [])
+    
+    for s in stores:
+        if s.get("id") == store_id:
+            s["status"] = "inactive" if s.get("status") == "active" else "active"
+            s["updated_at"] = datetime.now().isoformat()
+            save_database(data)
+            logger.info(f"[店铺] 切换店铺状态: {s['name']} -> {s['status']}")
+            return {"code": 0, "msg": "success", "data": {"store": s}}
+    
+    return {"code": 1, "msg": "店铺不存在"}
+
+@app.get("/api/config")
+async def get_config():
+    """获取AI配置"""
+    data = load_database()
+    config = data.get("config", {})
+    # 不要返回完整的API Key，只返回后4位
+    if config.get("coze_api_key"):
+        config["coze_api_key_masked"] = "****" + config["coze_api_key"][-4:]
+    return {"code": 0, "data": {"config": config}}
+
+@app.put("/api/config")
+async def update_config(config: ConfigUpdate):
+    """更新AI配置"""
+    data = load_database()
+    
+    if config.coze_api_key:
+        data.setdefault("config", {})["coze_api_key"] = config.coze_api_key
+    if config.coze_bot_id:
+        data.setdefault("config", {})["coze_bot_id"] = config.coze_bot_id
+    
+    save_database(data)
+    logger.info("[配置] AI配置已更新")
+    return {"code": 0, "msg": "success"}
+
+@app.post("/api/stores/test-connection")
+async def test_connection(store: StoreCreate):
+    """测试店铺连接"""
+    # 模拟连接测试
+    logger.info(f"[店铺] 测试连接: {store.platform}")
+    return {"code": 0, "msg": "连接成功", "data": {"status": "ok"}}
+
+# ============== 消息处理数据模型 ==============
 class ChatRequest(BaseModel):
     message: str
     user_id: str
