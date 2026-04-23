@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "AI客服助手 - 抖店版",
+  "version": "1.0.0",
+  "description": "抖店智能客服助手，自动回复客户消息",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "webRequest",
+    "https://*/*",
+    "http://localhost:8000/*"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.douyin.com/*",
+        "*://*.toutiao.com/*",
+        "*://*.xianghongdian.com/*"
+      ],
+      "js": ["dy.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "AI客服助手",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
