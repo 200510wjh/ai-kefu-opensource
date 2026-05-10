@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AI客服助手",
   "version": "1.0.0",
-  "description": "多平台AI客服助手，自动回复客户消息（支持抖店、淘宝千牛、快手、拼多多）",
+  "description": "多平台AI客服助手，自动回复客户消息（支持抖店、闲鱼、淘宝千牛、快手、拼多多）",
   "permissions": [
     "activeTab",
     "storage",
@@ -32,10 +32,13 @@
     {
       "matches": [
         "*://qianyu.taobao.com/*",
+        "*://www.xianyu.com/*",
+        "*://m.xianyu.com/*",
+        "*://market.xianyu.mooncell.io/*",
         "*://work.taobao.com/*",
         "*://maijia.alibaba.com/*"
       ],
-      "js": ["qianiu.js"],
+      "js": ["qianiu.js", "xianyu.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
     },

@@ -21,6 +21,14 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 import httpx
 
+# ============== 服务导入 ==============
+from services.analytics_service import analytics_service, AnalyticsService
+from services.customer_service import customer_acquisition_service, CustomerAcquisitionService
+
+# ============== 初始化服务 ==============
+analytics = AnalyticsService()
+customer_svc = CustomerAcquisitionService()
+
 # ============== 数据文件路径 ==============
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data')
 DATABASE_FILE = os.path.join(DATA_DIR, 'database.json')
@@ -528,6 +536,15 @@ def extract_message_from_webhook(platform: str, body: Dict) -> Optional[Dict]:
                 "user_id": body.get("user", {}).get("open_id", ""),
                 "order_no": body.get("order_no")
             }
+        elif platform == "xianyu":
+            # 闲鱼格式
+            return {
+                "content": body.get("content", ""),
+                "user_id": body.get("user_id", ""),
+                "user_name": body.get("user_name", ""),
+                "goods_info": body.get("goods_info"),
+                "timestamp": body.get("timestamp")
+            }
         else:
             # 通用格式
             return {
@@ -546,8 +563,11 @@ async def get_platforms():
         "data": {
             "platforms": [
                 {"id": "dy_feige", "name": "抖音飞鸽", "status": "active", "icon": "🐦"},
-                {"id": "tb_qianiu", "name": "淘宝千牛", "status": "active", "icon": "🐱"},
                 {"id": "douyin_web", "name": "抖店网页", "status": "active", "icon": "🏪"},
+                {"id": "xianyu", "name": "闲鱼", "status": "active", "icon": "🐟"},
+                {"id": "tb_qianiu", "name": "淘宝千牛", "status": "active", "icon": "🐱"},
+                {"id": "kuaishou", "name": "快手", "status": "coming", "icon": "📺"},
+                {"id": "pinduoduo", "name": "拼多多", "status": "coming", "icon": "🛒"},
             ]
         }
     }
@@ -578,6 +598,147 @@ async def get_messages(platform: str, limit: int = 50):
             "count": len(messages),
             "messages": messages
         }
+    }
+
+@app.get("/api/analytics/dashboard")
+async def get_analytics_dashboard():
+    """获取分析仪表盘数据"""
+    return {
+        "code": 0,
+        "data": analytics.get_dashboard_stats()
+    }
+
+@app.get("/api/analytics/platform/{platform}")
+async def get_platform_analytics(platform: str):
+    """获取特定平台分析"""
+    return {
+        "code": 0,
+        "data": analytics.get_platform_analysis(platform)
+    }
+
+@app.get("/api/analytics/products")
+async def get_product_insights():
+    """获取商品洞察"""
+    return {
+        "code": 0,
+        "data": analytics.get_product_insights()
+    }
+
+@app.get("/api/analytics/customers")
+async def get_customer_insights():
+    """获取客户洞察"""
+    return {
+        "code": 0,
+        "data": analytics.get_customer_insights()
+    }
+
+@app.post("/api/analytics/record")
+async def record_analytics_message(request: Request):
+    """记录消息用于分析"""
+    body = await request.json()
+    analytics.record_message(
+        platform=body.get("platform", "unknown"),
+        user_id=body.get("user_id", "unknown"),
+        content=body.get("content", ""),
+        metadata=body.get("metadata", {})
+    )
+    return {"code": 0, "msg": "recorded"}
+
+@app.get("/api/customers")
+async def get_customers(platform: str = None, status: str = None, min_score: int = None):
+    """获取客户列表"""
+    filters = {}
+    if platform:
+        filters["platform"] = platform
+    if status:
+        filters["status"] = status
+    if min_score:
+        filters["min_score"] = min_score
+    customers = customer_svc.get_customers(filters if filters else None)
+    return {"code": 0, "data": {"customers": customers, "total": len(customers)}}
+
+@app.get("/api/customers/{customer_id}")
+async def get_customer_detail(customer_id: str):
+    """获取客户详情"""
+    customer = customer_svc.get_customer_detail(customer_id)
+    if customer:
+        return {"code": 0, "data": {"customer": customer}}
+    return {"code": 1, "msg": "客户不存在"}
+
+@app.get("/api/customers/{customer_id}/conversations")
+async def get_customer_conversations(customer_id: str, limit: int = 20):
+    """获取客户对话历史"""
+    conversations = customer_svc.get_conversation_history(customer_id, limit)
+    return {"code": 0, "data": {"conversations": conversations}}
+
+@app.post("/api/customers/register")
+async def register_customer(request: Request):
+    """注册客户"""
+    body = await request.json()
+    result = customer_svc.register_customer(
+        platform=body.get("platform", "unknown"),
+        user_id=body.get("user_id", ""),
+        user_name=body.get("user_name"),
+        source=body.get("source"),
+        metadata=body.get("metadata", {})
+    )
+    return {"code": 0, "data": result}
+
+@app.post("/api/customers/{customer_id}/interaction")
+async def add_customer_interaction(customer_id: str, request: Request):
+    """添加客户互动记录"""
+    body = await request.json()
+    success = customer_svc.record_interaction(
+        customer_id=customer_id,
+        interaction_type=body.get("type", "message"),
+        content=body.get("content", ""),
+        metadata=body.get("metadata", {})
+    )
+    return {"code": 0 if success else 1, "msg": "success" if success else "failed"}
+
+@app.get("/api/leads")
+async def get_leads(status: str = None, limit: int = 50):
+    """获取线索列表"""
+    leads = customer_svc.get_leads(status, limit)
+    return {"code": 0, "data": {"leads": leads, "total": len(leads)}}
+
+@app.put("/api/leads/{lead_id}")
+async def update_lead(lead_id: str, request: Request):
+    """更新线索状态"""
+    body = await request.json()
+    success = customer_svc.update_lead_status(
+        lead_id=lead_id,
+        status=body.get("status", "new"),
+        note=body.get("note")
+    )
+    return {"code": 0 if success else 1, "msg": "success" if success else "failed"}
+
+@app.get("/api/acquisition/stats")
+async def get_acquisition_stats():
+    """获取获客统计"""
+    return {
+        "code": 0,
+        "data": customer_svc.get_acquisition_stats()
+    }
+
+@app.post("/api/campaigns")
+async def create_campaign(request: Request):
+    """创建营销活动"""
+    body = await request.json()
+    result = customer_svc.create_campaign(
+        name=body.get("name", ""),
+        target=body.get("target", ""),
+        content=body.get("content", ""),
+        channels=body.get("channels")
+    )
+    return {"code": 0, "data": result}
+
+@app.get("/api/campaigns")
+async def get_campaigns():
+    """获取营销活动列表"""
+    return {
+        "code": 0,
+        "data": {"campaigns": customer_svc.get_campaigns()}
     }
 
 # ============== 启动 ==============

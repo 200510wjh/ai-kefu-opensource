@@ -619,6 +619,14 @@
           <span class="icon">🏪</span>
           <span class="tooltip">店铺管理</span>
         </div>
+        <div class="nav-item" data-page="analytics">
+          <span class="icon">📈</span>
+          <span class="tooltip">数据分析</span>
+        </div>
+        <div class="nav-item" data-page="customers">
+          <span class="icon">👥</span>
+          <span class="tooltip">客户管理</span>
+        </div>
         <div class="nav-item" data-page="config">
           <span class="icon">⚙️</span>
           <span class="tooltip">AI配置</span>
@@ -660,6 +668,10 @@
           <span class="icon">🐦</span>
           <span class="name">抖店</span>
         </div>
+        <div class="platform-option" data-platform="xianyu" onclick="selectPlatform(this)">
+          <span class="icon">🐟</span>
+          <span class="name">闲鱼</span>
+        </div>
         <div class="platform-option" data-platform="qianiu" onclick="selectPlatform(this)">
           <span class="icon">🐱</span>
           <span class="name">淘宝千牛</span>
@@ -667,10 +679,6 @@
         <div class="platform-option" data-platform="kuaishou" onclick="selectPlatform(this)">
           <span class="icon">📺</span>
           <span class="name">快手</span>
-        </div>
-        <div class="platform-option" data-platform="pinduoduo" onclick="selectPlatform(this)">
-          <span class="icon">🛒</span>
-          <span class="name">拼多多</span>
         </div>
       </div>
       <div class="form-group">
@@ -694,6 +702,8 @@
     let selectedPlatform = null;
     let config = {};
     let stats = { total_messages: 0, ai_replies: 0, human_handoffs: 0, reply_rate: '0%' };
+    let analyticsData = {};
+    let customersData = { customers: [], leads: [] };
 
     // ============== 粒子背景 ==============
     function createParticles() {
@@ -722,8 +732,10 @@
       await loadStores();
       await loadConfig();
       await loadStats();
+      await loadAnalytics();
+      await loadCustomers();
       showPage('dashboard');
-      setInterval(() => { loadStores(); loadStats(); }, 30000);
+      setInterval(() => { loadStores(); loadStats(); loadAnalytics(); loadCustomers(); }, 30000);
     }
 
     async function loadStores() {
@@ -758,7 +770,7 @@
       document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.toggle('active', item.dataset.page === page);
       });
-      const titles = { dashboard: '控制台', stores: '店铺管理', config: 'AI配置', knowledge: '知识库' };
+      const titles = { dashboard: '控制台', stores: '店铺管理', analytics: '数据分析', customers: '客户管理', config: 'AI配置', knowledge: '知识库' };
       document.getElementById('topbar-title').textContent = titles[page] || page;
       render();
     }
@@ -768,6 +780,8 @@
       switch (currentPage) {
         case 'dashboard': content.innerHTML = renderDashboard(); animateStats(); break;
         case 'stores': content.innerHTML = renderStores(); break;
+        case 'analytics': content.innerHTML = renderAnalytics(); break;
+        case 'customers': content.innerHTML = renderCustomers(); break;
         case 'config': content.innerHTML = renderConfig(); break;
         case 'knowledge': content.innerHTML = renderKnowledge(); break;
       }
@@ -930,12 +944,220 @@
       `;
     }
 
+    // ============== 数据分析 ==============
+    async function loadAnalytics() {
+      try {
+        const res = await fetch('/api/analytics/dashboard');
+        const data = await res.json();
+        analyticsData = data.data || {};
+      } catch (e) { console.error(e); }
+    }
+
+    function renderAnalytics() {
+      const a = analyticsData;
+      return `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon cyan">💬</div>
+            <div class="stat-value">${a.total_messages || 0}</div>
+            <div class="stat-label">总消息数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">👥</div>
+            <div class="stat-value">${a.total_customers || 0}</div>
+            <div class="stat-label">总客户数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">📈</div>
+            <div class="stat-value">${a.reply_rate || '0%'}</div>
+            <div class="stat-label">回复率</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon pink">⏱️</div>
+            <div class="stat-value">${a.avg_response_time || '0s'}</div>
+            <div class="stat-label">平均响应</div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title"><span class="icon">📊</span> 平台分析</span>
+          </div>
+          <div class="platform-grid">
+            ${Object.entries(a.platforms || {}).map(([platform, data]) => `
+              <div class="platform-card connected">
+                <div class="platform-header">
+                  <div class="platform-info">
+                    <div class="platform-icon">${getPlatformIcon(platform)}</div>
+                    <div>
+                      <div class="platform-name">${getPlatformName(platform)}</div>
+                      <div class="platform-sub">活跃平台</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="platform-stats">
+                  <div class="platform-stat">
+                    <div class="platform-stat-value">${data.messages || 0}</div>
+                    <div class="platform-stat-label">消息数</div>
+                  </div>
+                  <div class="platform-stat">
+                    <div class="platform-stat-value">${data.customers || 0}</div>
+                    <div class="platform-stat-label">客户数</div>
+                  </div>
+                  <div class="platform-stat">
+                    <div class="platform-stat-value">${Object.keys(data.keywords || {}).length}</div>
+                    <div class="platform-stat-label">关键词</div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title"><span class="icon">📈</span> 趋势分析</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+            <div style="background:rgba(0,0,0,0.3);border-radius:16px;padding:24px;text-align:center;">
+              <div style="font-size:32px;font-weight:700;color:var(--accent-cyan);">${a.trends?.messages_trend?.[6] || 0}</div>
+              <div style="color:var(--text-secondary);margin-top:8px;">本周消息</div>
+            </div>
+            <div style="background:rgba(0,0,0,0.3);border-radius:16px;padding:24px;text-align:center;">
+              <div style="font-size:32px;font-weight:700;color:var(--accent-purple);">${a.trends?.customers_trend?.[6] || 0}</div>
+              <div style="color:var(--text-secondary);margin-top:8px;">本周新客</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ============== 客户管理 ==============
+    async function loadCustomers() {
+      try {
+        const [customersRes, leadsRes, statsRes] = await Promise.all([
+          fetch('/api/customers'),
+          fetch('/api/leads'),
+          fetch('/api/acquisition/stats')
+        ]);
+        const customersDataRes = await customersRes.json();
+        const leadsDataRes = await leadsRes.json();
+        const statsDataRes = await statsRes.json();
+        customersData = {
+          customers: customersDataRes.data?.customers || [],
+          leads: leadsDataRes.data?.leads || [],
+          stats: statsDataRes.data || {}
+        };
+      } catch (e) { console.error(e); }
+    }
+
+    function renderCustomers() {
+      const s = customersData.stats || {};
+      return `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon cyan">👥</div>
+            <div class="stat-value">${s.total_customers || 0}</div>
+            <div class="stat-label">总客户数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">🔥</div>
+            <div class="stat-value">${s.hot_leads || 0}</div>
+            <div class="stat-label">高意向客户</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon pink">🌡️</div>
+            <div class="stat-value">${s.warm_leads || 0}</div>
+            <div class="stat-label">意向客户</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">🎯</div>
+            <div class="stat-value">${s.total_leads || 0}</div>
+            <div class="stat-label">销售线索</div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title"><span class="icon">🔥</span> 高意向线索</span>
+          </div>
+          <div class="platform-grid">
+            ${customersData.leads.filter(l => l.score >= 80).length === 0 ? `
+              <div class="empty-state" style="grid-column:1/-1;">
+                <div class="icon">🔥</div>
+                <p>暂无高意向线索</p>
+                <small>当客户评分达到80分以上时将自动显示在这里</small>
+              </div>
+            ` : customersData.leads.filter(l => l.score >= 80).map(lead => `
+              <div class="platform-card connected">
+                <div class="platform-header">
+                  <div class="platform-info">
+                    <div class="platform-icon">${getPlatformIcon(lead.platform)}</div>
+                    <div>
+                      <div class="platform-name">${lead.user_name || '未知用户'}</div>
+                      <div class="platform-sub">${getPlatformName(lead.platform)} · 评分 ${lead.score}</div>
+                    </div>
+                  </div>
+                  <span class="platform-status connected">${lead.type === 'purchase' ? '已购买' : '高意向'}</span>
+                </div>
+                <div class="platform-actions">
+                  <button class="btn btn-sm btn-secondary" onclick="updateLeadStatus('${lead.id}', 'contacted')">联系</button>
+                  <button class="btn btn-sm btn-danger" onclick="updateLeadStatus('${lead.id}', 'converted')">成交</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <span class="card-title"><span class="icon">👥</span> 全部客户</span>
+            <button class="btn btn-sm btn-primary" onclick="loadCustomers()">刷新</button>
+          </div>
+          <div class="platform-grid">
+            ${customersData.customers.length === 0 ? `
+              <div class="empty-state" style="grid-column:1/-1;">
+                <div class="icon">👥</div>
+                <p>暂无客户数据</p>
+                <small>开始使用后客户将自动显示在这里</small>
+              </div>
+            ` : customersData.customers.slice(0, 6).map(c => `
+              <div class="platform-card">
+                <div class="platform-header">
+                  <div class="platform-info">
+                    <div class="platform-icon">${getPlatformIcon(c.platform)}</div>
+                    <div>
+                      <div class="platform-name">${c.user_name || '未知用户'}</div>
+                      <div class="platform-sub">评分 ${c.score || 0}</div>
+                    </div>
+                  </div>
+                  <span class="platform-status">${c.status || '活跃'}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    async function updateLeadStatus(leadId, status) {
+      try {
+        await fetch(`/api/leads/${leadId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        showToast('状态已更新', 'success');
+        loadCustomers();
+      } catch (e) { showToast('更新失败', 'error'); }
+    }
+
     // ============== 工具函数 ==============
     function getPlatformIcon(platform) {
-      return { douyin: '🐦', qianiu: '🐱', kuaishou: '📺', pinduoduo: '🛒' }[platform] || '🏪';
+      return { douyin: '🐦', xianyu: '🐟', qianiu: '🐱', kuaishou: '📺', pinduoduo: '🛒' }[platform] || '🏪';
     }
     function getPlatformName(platform) {
-      return { douyin: '抖店', qianiu: '淘宝千牛', kuaishou: '快手', pinduoduo: '拼多多' }[platform] || platform;
+      return { douyin: '抖店', xianyu: '闲鱼', qianiu: '淘宝千牛', kuaishou: '快手', pinduoduo: '拼多多' }[platform] || platform;
     }
 
     // ============== 动画数字 ==============
