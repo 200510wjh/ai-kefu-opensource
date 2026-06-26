@@ -1,0 +1,28 @@
+{
+  "name": "merchant-auto-cut",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "api": "python -m uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000",
+    "auto:daily-report": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/commerce_daily_report.py",
+    "desktop:reply": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_reply_assistant.py",
+    "desktop:listen": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_auto_reply_listener.py",
+    "secret-scan": "python scripts/secret_scan.py"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.16"
+  }
+}
