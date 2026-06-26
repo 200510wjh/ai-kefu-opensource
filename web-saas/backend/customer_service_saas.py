@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterator, Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel, Field
 
@@ -168,6 +168,7 @@ class KnowledgeImportResponse(BaseModel):
     imported: int
     faq_added: int
     items: list[KnowledgeItem]
+    filename: str = ""
 
 
 class ReplyDraftRequest(BaseModel):
@@ -579,6 +580,41 @@ def extract_knowledge_items(payload: KnowledgeImportRequest) -> list[KnowledgeIt
     if not items:
         items.append(KnowledgeItem(title=payload.title, content=payload.content, source_type=payload.source_type, tags=payload.tags))
     return items[:80]
+
+
+def persist_knowledge_items(merchant: MerchantProfile, payload: KnowledgeImportRequest, items: list[KnowledgeItem]) -> KnowledgeImportResponse:
+    marker = param()
+    created: list[KnowledgeItem] = []
+    with db() as conn:
+        for item in items:
+            cursor = conn.execute(
+                f"""
+                INSERT INTO knowledge_base (merchant_id, title, content, source_type, tags, created_at, updated_at)
+                VALUES ({marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker})
+                """,
+                (merchant.id, item.title, item.content, item.source_type, item.tags, now_sql(), now_sql()),
+            )
+            created.append(item.model_copy(update={"id": getattr(cursor, "lastrowid", None), "created_at": now_sql()}))
+
+    faq_added = 0
+    if payload.sync_to_faq:
+        profile = merchant_by_id(merchant.id or 0)
+        existing = {faq.question.strip() for faq in profile.faq}
+        next_faq = list(profile.faq)
+        for item in items:
+            if item.title and item.content and item.title not in existing:
+                next_faq.append(FAQItem(question=item.title, answer=item.content))
+                existing.add(item.title)
+                faq_added += 1
+        profile.faq = next_faq[:80]
+        marker = param()
+        with db() as conn:
+            conn.execute(
+                f"UPDATE merchants SET prompt_template={marker}, updated_at={marker} WHERE id={marker}",
+                (profile_to_prompt(profile), now_sql(), merchant.id),
+            )
+
+    return KnowledgeImportResponse(imported=len(created), faq_added=faq_added, items=created)
 
 
 def parse_profile(row: dict[str, Any]) -> MerchantProfile:
@@ -1105,38 +1141,38 @@ async def list_knowledge(merchant: MerchantProfile = Depends(current_merchant)) 
 @router.post("/knowledge/import", response_model=KnowledgeImportResponse)
 async def import_knowledge(payload: KnowledgeImportRequest, merchant: MerchantProfile = Depends(current_merchant)) -> KnowledgeImportResponse:
     items = extract_knowledge_items(payload)
-    marker = param()
-    created: list[KnowledgeItem] = []
-    with db() as conn:
-        for item in items:
-            cursor = conn.execute(
-                f"""
-                INSERT INTO knowledge_base (merchant_id, title, content, source_type, tags, created_at, updated_at)
-                VALUES ({marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker})
-                """,
-                (merchant.id, item.title, item.content, item.source_type, item.tags, now_sql(), now_sql()),
-            )
-            created.append(item.model_copy(update={"id": getattr(cursor, "lastrowid", None), "created_at": now_sql()}))
+    return persist_knowledge_items(merchant, payload, items)
 
-    faq_added = 0
-    if payload.sync_to_faq:
-        profile = merchant_by_id(merchant.id or 0)
-        existing = {faq.question.strip() for faq in profile.faq}
-        next_faq = list(profile.faq)
-        for item in items:
-            if item.title and item.content and item.title not in existing:
-                next_faq.append(FAQItem(question=item.title, answer=item.content))
-                existing.add(item.title)
-                faq_added += 1
-        profile.faq = next_faq[:80]
-        marker = param()
-        with db() as conn:
-            conn.execute(
-                f"UPDATE merchants SET prompt_template={marker}, updated_at={marker} WHERE id={marker}",
-                (profile_to_prompt(profile), now_sql(), merchant.id),
-            )
 
-    return KnowledgeImportResponse(imported=len(created), faq_added=faq_added, items=created)
+@router.post("/knowledge/upload", response_model=KnowledgeImportResponse)
+async def upload_knowledge(
+    title: str = "上传文档",
+    source_type: Literal["script", "faq", "product", "policy", "manual"] = "manual",
+    tags: str = "文档导入",
+    sync_to_faq: bool = True,
+    file: UploadFile = File(...),
+    merchant: MerchantProfile = Depends(current_merchant),
+) -> KnowledgeImportResponse:
+    filename = file.filename or "knowledge.txt"
+    suffix = Path(filename).suffix.lower()
+    if suffix not in {".txt", ".md", ".csv", ".json"}:
+        raise HTTPException(status_code=400, detail="当前仅支持 txt/md/csv/json 文本文档，PDF/Word 后续接解析器")
+    raw = await file.read()
+    if len(raw) > 1024 * 1024:
+        raise HTTPException(status_code=400, detail="文件不能超过 1MB")
+    try:
+        content = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        content = raw.decode("gb18030", errors="ignore")
+    payload = KnowledgeImportRequest(
+        title=title or Path(filename).stem,
+        source_type=source_type,
+        tags=tags,
+        content=content,
+        sync_to_faq=sync_to_faq,
+    )
+    response = persist_knowledge_items(merchant, payload, extract_knowledge_items(payload))
+    return response.model_copy(update={"filename": filename})
 
 
 @router.post("/reply/draft", response_model=ReplyDraftResponse)

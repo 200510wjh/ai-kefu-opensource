@@ -172,6 +172,7 @@ function App() {
     tags: '客服,成交',
     content: 'Q: 你们怎么收费？\nA: Starter 99 元/月，Pro 299 元/月，定制部署按需求报价。\nQ: 可以接入官网吗？\nA: 可以，复制后台生成的 script 到网站即可出现客服气泡。'
   });
+  const [knowledgeFile, setKnowledgeFile] = useState<File | null>(null);
   const [scriptDraft, setScriptDraft] = useState({
     channel: 'wechat',
     scenario: 'full_pack',
@@ -317,6 +318,39 @@ function App() {
       await refreshAll();
     } catch {
       setStatus('导入失败，请检查话术内容。');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function uploadKnowledgeFile() {
+    if (!knowledgeFile) {
+      setStatus('请先选择 txt、md、csv 或 json 文档。');
+      return;
+    }
+    setLoading(true);
+    setStatus('');
+    try {
+      const form = new FormData();
+      form.append('file', knowledgeFile);
+      const query = new URLSearchParams({
+        title: importDraft.title || knowledgeFile.name,
+        source_type: importDraft.source_type,
+        tags: importDraft.tags || '文档导入',
+        sync_to_faq: 'true'
+      });
+      const response = await fetch(apiUrl(`/api/knowledge/upload?${query.toString()}`), {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: form
+      });
+      if (!response.ok) throw new Error(await response.text());
+      const data = await response.json();
+      setStatus(`已从 ${data.filename || knowledgeFile.name} 导入 ${data.imported} 条知识，追加 ${data.faq_added} 条 FAQ。`);
+      setKnowledgeFile(null);
+      await refreshAll();
+    } catch {
+      setStatus('文档导入失败。目前仅支持 txt/md/csv/json，PDF/Word 后续再接解析。');
     } finally {
       setLoading(false);
     }
@@ -645,6 +679,23 @@ function App() {
                   </select>
                 </label>
                 <label className="wide">内容<textarea className="largeText" value={importDraft.content} onChange={(event) => setImportDraft({...importDraft, content: event.target.value})} /></label>
+              </div>
+              <div className="uploadStrip">
+                <div>
+                  <strong>添加文档到知识库</strong>
+                  <small>支持 txt、md、csv、json。把客服 FAQ、商品说明、售后政策放进去，AI 回复会读取这些知识。</small>
+                </div>
+                <label className="filePicker">
+                  <input
+                    type="file"
+                    accept=".txt,.md,.csv,.json,text/plain,text/markdown,application/json"
+                    onChange={(event) => setKnowledgeFile(event.target.files?.[0] ?? null)}
+                  />
+                  {knowledgeFile ? knowledgeFile.name : '选择文档'}
+                </label>
+                <button className="primaryButton fit" onClick={uploadKnowledgeFile} disabled={loading || !knowledgeFile}>
+                  <Database size={16} />上传并解析
+                </button>
               </div>
             </div>
             <div className="knowledgeList">

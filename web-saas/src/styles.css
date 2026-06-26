@@ -568,6 +568,39 @@ select:focus {
   gap: 14px;
 }
 
+.uploadStrip {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(180px, 0.45fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(232, 202, 128, 0.16);
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(255, 241, 170, 0.08), rgba(122, 242, 190, 0.05));
+  animation: riseIn 0.45s ease both;
+}
+
+.uploadStrip strong,
+.uploadStrip small {
+  display: block;
+}
+
+.filePicker {
+  display: grid;
+  min-height: 42px;
+  place-items: center;
+  border: 1px dashed rgba(232, 202, 128, 0.32);
+  border-radius: 10px;
+  padding: 0 12px;
+  color: #fff8df;
+  background: rgba(255, 255, 255, 0.055);
+  text-align: center;
+}
+
+.filePicker input {
+  display: none;
+}
+
 .wide {
   grid-column: 1 / -1;
 }
@@ -790,6 +823,7 @@ select:focus {
   .metricGrid,
   .metricGrid.six,
   .formGrid,
+  .uploadStrip,
   .faqRow,
   .channelGrid,
   .knowledgeList,
