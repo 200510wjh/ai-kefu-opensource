@@ -434,8 +434,10 @@ function App() {
   const widgetCode = `<script src="${widgetOrigin}${apiUrl(`/api/widget.js?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}"></script>`;
   const testUrl = `${widgetOrigin}${apiUrl(`/api/widget-test?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}`;
   const desktopLauncherBat = '启动AI自动客服.bat';
+  const desktopAcceptanceBat = '验收真实平台.bat';
   const desktopAutoCommand = 'npm run desktop:auto';
   const desktopLauncherCommand = 'npm run desktop:launcher';
+  const desktopAcceptanceLauncherCommand = 'npm run desktop:acceptance-launcher';
   const desktopSafeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste';
   const desktopTargetCommand = 'npm run desktop:listen -- --platform wechat --target-title "微信|WeChat|企业微信" --source auto --paste';
   const desktopKnowledgeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste --knowledge-file docs/examples/merchant_knowledge.example.txt';
@@ -785,9 +787,19 @@ function App() {
                 <small>不用复制命令。双击后会列出当前窗口，选中微信/抖音/千牛/拼多多客服窗口即可自动监听。</small>
               </article>
               <article className="panel">
+                <div className="panelHeader"><strong>先验收真实平台</strong><button onClick={() => navigator.clipboard?.writeText(desktopAcceptanceBat)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopAcceptanceBat}</pre>
+                <small>双击后会用中文告诉你哪个平台没打开、哪个只读到窗口壳、哪个已经能自动读取聊天。</small>
+              </article>
+              <article className="panel">
                 <div className="panelHeader"><strong>启动器命令</strong><button onClick={() => navigator.clipboard?.writeText(desktopLauncherCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopLauncherCommand}</pre>
                 <small>适合开发或排查时从终端打开同一个图形化启动器。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>验收器命令</strong><button onClick={() => navigator.clipboard?.writeText(desktopAcceptanceLauncherCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopAcceptanceLauncherCommand}</pre>
+                <small>适合开发或排查时从终端打开图形化真实平台验收器。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>旧版配置启动</strong><button onClick={() => navigator.clipboard?.writeText(desktopAutoCommand)}><Clipboard size={16} />复制</button></div>
