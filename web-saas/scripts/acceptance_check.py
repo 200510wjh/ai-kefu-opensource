@@ -296,9 +296,25 @@ def main() -> int:
         checks["chat_text_filter"] = {
             "ok": (
                 not desktop_listener.looks_like_chat_text("微信多开\nCefView\nzip://example\n系统\n还原\n最大化\n关闭")
+                and not desktop_listener.looks_like_chat_text(
+                    "淘宝 - Google Chrome\n地址和搜索栏\ntaobao.com\nAI客服助手 可以访问此网站\n"
+                    "扩展程序\n书签\n标签页搜索\n扣子 - 技能商店 - 内存用量 - 293 MB"
+                )
+                and not desktop_listener.looks_like_chat_text(
+                    "抖音\n抖音精选电脑版 - 抖音旗下优质视频平台\n全部\n公开课\n游戏\n影视\n"
+                    "音乐\n二次元\n知识\n体育\n美食\n汽车\n小剧场\n生活vlog\n旅行\n三农\n动物\n亲子\n美妆穿搭"
+                )
                 and desktop_listener.looks_like_chat_text("客户：99元花束还有吗？现在下单多久能送到？")
             ),
             "shell_candidate": desktop_listener.normalize_chat_candidate("微信多开\nCefView\nzip://example\n系统\n还原\n最大化\n关闭"),
+            "browser_shell_candidate": desktop_listener.normalize_chat_candidate(
+                "淘宝 - Google Chrome\n地址和搜索栏\ntaobao.com\nAI客服助手 可以访问此网站\n"
+                "扩展程序\n书签\n标签页搜索\n扣子 - 技能商店 - 内存用量 - 293 MB"
+            ),
+            "douyin_home_candidate": desktop_listener.normalize_chat_candidate(
+                "抖音\n抖音精选电脑版 - 抖音旗下优质视频平台\n全部\n公开课\n游戏\n影视\n"
+                "音乐\n二次元\n知识\n体育\n美食\n汽车\n小剧场\n生活vlog\n旅行\n三农\n动物\n亲子\n美妆穿搭"
+            ),
             "chat_candidate": desktop_listener.normalize_chat_candidate("客户：99元花束还有吗？现在下单多久能送到？"),
         }
         original_write_clipboard = desktop_listener.write_clipboard
