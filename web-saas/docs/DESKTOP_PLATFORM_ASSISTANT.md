@@ -77,6 +77,27 @@ data/desktop-listener/latest-window.png
 
 如果 OCR 没装，脚本会明确提示 `Tesseract OCR executable not found`，不会假装已经识别。
 
+一键安装 OCR：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/setup_desktop_ocr.ps1
+```
+
+诊断当前窗口读取情况：
+
+```powershell
+npm run desktop:diagnose
+```
+
+诊断结果会告诉你：
+
+- 当前前台窗口标题
+- 是否识别成微信/抖音/淘宝/拼多多
+- UIA 读到了什么
+- OCR 读到了什么
+- 剪贴板兜底读到了什么
+- 截图保存到了哪里
+
 兜底命令：
 
 ```powershell

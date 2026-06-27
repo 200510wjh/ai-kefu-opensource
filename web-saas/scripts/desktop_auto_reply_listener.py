@@ -318,7 +318,7 @@ def read_ocr_text(config: ListenerConfig) -> str:
         raise RuntimeError("pytesseract/Pillow is not installed; run pip install pytesseract pillow") from exc
 
     image = capture_foreground_window(config.debug_screenshot)
-    tesseract_cmd = os.getenv("TESSERACT_CMD") or shutil.which("tesseract")
+    tesseract_cmd = find_tesseract_cmd()
     if not tesseract_cmd:
         raise RuntimeError("Tesseract OCR executable not found. Install Tesseract, or set TESSERACT_CMD.")
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
@@ -326,6 +326,19 @@ def read_ocr_text(config: ListenerConfig) -> str:
     # A light contrast pass helps small chat text without making screenshots unreadable.
     text = pytesseract.image_to_string(gray, lang=config.ocr_lang)
     return text.strip()[-config.max_chars:]
+
+
+def find_tesseract_cmd() -> str:
+    candidates = [
+        os.getenv("TESSERACT_CMD", ""),
+        shutil.which("tesseract") or "",
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+        r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+    ]
+    for candidate in candidates:
+        if candidate and Path(candidate).exists():
+            return candidate
+    return ""
 
 
 def read_knowledge_file(path: str, max_chars: int = 6000) -> str:
@@ -477,6 +490,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
     args = build_parser().parse_args()
     if args.send and (not args.paste or args.confirm_send != CONFIRM_AUTO_SEND):
         print(f"Auto-send blocked. Pass --paste --send --confirm-send {CONFIRM_AUTO_SEND!r}.", file=sys.stderr)

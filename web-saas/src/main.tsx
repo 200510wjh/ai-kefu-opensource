@@ -436,6 +436,9 @@ function App() {
   const desktopAutoCommand = 'npm run desktop:auto';
   const desktopSafeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste';
   const desktopKnowledgeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste --knowledge-file docs/examples/merchant_knowledge.example.txt';
+  const desktopDiagnoseCommand = 'npm run desktop:diagnose';
+  const desktopDiagnoseBat = 'scripts/start_desktop_diagnostics.bat';
+  const desktopOcrSetupCommand = 'powershell -ExecutionPolicy Bypass -File scripts/setup_desktop_ocr.ps1';
 
   if (!token) {
     return (
@@ -785,6 +788,16 @@ function App() {
                 <div className="panelHeader"><strong>带本地知识库</strong><button onClick={() => navigator.clipboard?.writeText(desktopKnowledgeCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopKnowledgeCommand}</pre>
                 <small>把商家 FAQ、价格、售后政策放进 txt/md/csv/json 文件，桌面助手会一起交给 AI。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>窗口诊断</strong><button onClick={() => navigator.clipboard?.writeText(desktopDiagnoseCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopDiagnoseCommand}</pre>
+                <small>也可以双击 {desktopDiagnoseBat}。打开真实平台客服窗口后运行，能看到 UIA、OCR、剪贴板分别读到了什么。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>安装 OCR</strong><button onClick={() => navigator.clipboard?.writeText(desktopOcrSetupCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopOcrSetupCommand}</pre>
+                <small>如果平台窗口读不到控件文字，就安装 Tesseract OCR 和中文语言包。</small>
               </article>
             </div>
             <div className="channelGrid">

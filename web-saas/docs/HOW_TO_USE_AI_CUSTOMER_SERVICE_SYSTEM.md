@@ -1,0 +1,136 @@
+# AI 客服 SaaS 使用说明
+
+## 1. 后台入口
+
+线上后台：
+
+```text
+https://wjhai.cn/merchant-admin/
+```
+
+默认测试账号以实际服务器数据库为准。本地开发通常是：
+
+```text
+admin / admin123
+```
+
+后台不是单页演示，当前分成这些板块：
+
+- 商家大脑：看会话、自动回复、线索、知识库数量。
+- 客服脚本：生成开场、跟进、异议处理、收口话术。
+- 渠道接入：网页客服、微信、抖音、淘宝/千牛、拼多多。
+- 知识库导入：导入 FAQ、价格、售后、商品资料。
+- 会话收件箱：查看真实会话和 AI 回复。
+- 桌面自动客服：微信/抖音/千牛/拼多多桌面助手说明和命令。
+- 网页气泡：生成网站接入代码。
+
+## 2. 先导入知识库
+
+后台方式：
+
+1. 登录后台。
+2. 打开“知识库导入”。
+3. 填商家资料、产品、价格、优惠、售后政策。
+4. 上传 txt/md/csv/json 文档。
+5. 点导入，刷新后能看到知识条目。
+
+桌面助手本地文件方式：
+
+```text
+docs/examples/merchant_knowledge.example.txt
+```
+
+把客户的 FAQ、价格、售后、禁用承诺写进去。
+
+## 3. 网页客服怎么用
+
+打开“网页气泡”，复制 script 代码放到客户网站。
+
+测试页：
+
+```text
+https://wjhai.cn/merchant-admin/api/widget-test?merchant_code=WJDEMO001
+```
+
+访客发消息后，后台“会话收件箱”能看到记录。
+
+## 4. 微信/抖音/淘宝/拼多多桌面自动客服
+
+先安装 OCR：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/setup_desktop_ocr.ps1
+```
+
+启动自动客服：
+
+```text
+双击 scripts/start_desktop_auto_listener.bat
+```
+
+或者命令：
+
+```powershell
+npm run desktop:auto
+```
+
+使用方式：
+
+1. 打开微信、抖音、千牛或拼多多客服窗口。
+2. 停留在聊天页，让窗口保持前台。
+3. 桌面助手会自动识别平台。
+4. 读取顺序：UIA 控件文字 -> OCR 截图 -> 剪贴板兜底。
+5. 生成回复后默认粘贴到输入框。
+6. 默认不按 Enter，需要人工确认。
+
+真正自动发送：
+
+```powershell
+npm run desktop:listen -- --platform auto --source auto --paste --send --confirm-send "我确认发送"
+```
+
+## 5. 诊断怎么跑
+
+如果不知道为什么读不到窗口，先双击：
+
+```text
+scripts/start_desktop_diagnostics.bat
+```
+
+或者命令：
+
+```powershell
+npm run desktop:diagnose
+```
+
+诊断会输出：
+
+- 当前前台窗口标题。
+- 是否识别成微信/抖音/淘宝/拼多多。
+- UIA 读到的内容。
+- OCR 读到的内容。
+- 剪贴板内容。
+- 截图文件路径。
+
+截图默认保存到：
+
+```text
+data/desktop-listener/diagnostics-window.png
+```
+
+## 6. 验收标准
+
+- 后台能打开，登录后不是单页，而是多个 SaaS 板块。
+- 知识库能导入，刷新后仍能看到。
+- 网页客服能创建会话、自动回复、落库。
+- 桌面助手打开后，能识别微信/抖音/千牛/拼多多窗口。
+- `npm run desktop:diagnose` 能显示 UIA/OCR/剪贴板读取结果。
+- `npm run desktop:auto` 能生成回复并粘贴。
+- 默认不自动发送，防止误发；确认后才允许按 Enter。
+
+## 7. 当前边界
+
+- 没有官方 API 权限时，微信/抖音/淘宝/拼多多不能保证后台无人值守读取所有私信。
+- 桌面助手依赖当前前台窗口，适合人工盯屏提效。
+- 如果某个平台 UIA 读不到，就依赖 OCR；OCR 需要 Tesseract 和中文语言包。
+- 如果平台更新 UI，可能要重新调窗口识别或 OCR 截图范围。
