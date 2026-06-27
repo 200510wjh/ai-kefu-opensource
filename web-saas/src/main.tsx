@@ -434,8 +434,8 @@ function App() {
   const widgetCode = `<script src="${widgetOrigin}${apiUrl(`/api/widget.js?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}"></script>`;
   const testUrl = `${widgetOrigin}${apiUrl(`/api/widget-test?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}`;
   const desktopAutoCommand = 'npm run desktop:auto';
-  const desktopSafeCommand = 'npm run desktop:listen -- --platform auto --source uia --paste';
-  const desktopKnowledgeCommand = 'npm run desktop:listen -- --platform auto --source uia --paste --knowledge-file docs/examples/merchant_knowledge.example.txt';
+  const desktopSafeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste';
+  const desktopKnowledgeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste --knowledge-file docs/examples/merchant_knowledge.example.txt';
 
   if (!token) {
     return (
@@ -779,7 +779,7 @@ function App() {
               <article className="panel">
                 <div className="panelHeader"><strong>命令启动</strong><button onClick={() => navigator.clipboard?.writeText(desktopSafeCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopSafeCommand}</pre>
-                <small>适合测试窗口识别和读取效果。读不到时会提示，可临时退回剪贴板模式。</small>
+                <small>适合测试窗口识别和读取效果。默认先读 UIA，读不到会尝试 OCR，再退回剪贴板。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>带本地知识库</strong><button onClick={() => navigator.clipboard?.writeText(desktopKnowledgeCommand)}><Clipboard size={16} />复制</button></div>
@@ -804,7 +804,7 @@ function App() {
             <div className="cosmosPanel compactPanel">
               <div>
                 <small>验收方式</small>
-                <p>先打开对应平台客服窗口，再运行桌面助手。看到终端打印 should_reply=true 且输入框出现候选回复，就说明读取、生成、粘贴链路跑通。</p>
+                <p>先打开对应平台客服窗口，再运行桌面助手。看到终端打印 should_reply=true 且输入框出现候选回复，就说明读取、生成、粘贴链路跑通。OCR 需要安装 Tesseract。</p>
               </div>
               <ShieldAlert size={24} />
             </div>

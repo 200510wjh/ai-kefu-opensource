@@ -48,6 +48,7 @@ npm run desktop:auto
 默认行为：
 
 - 自动读当前客服窗口，不需要你复制聊天记录。
+- 读取顺序是：UI Automation 控件文字 -> OCR 截图识别 -> 剪贴板兜底。
 - 自动把本地知识库一起交给 AI。
 - 自动生成回复。
 - 自动粘贴候选回复到当前输入框。
@@ -59,7 +60,22 @@ npm run desktop:auto
 npm run desktop:listen -- --platform auto --source uia --paste --send --confirm-send "我确认发送"
 ```
 
-如果某个平台窗口读不到文字，说明客户端控件不开放给 Windows UI Automation。这个时候脚本会提示读取失败或文本太短；第一兜底是 clipboard 模式，第二步再接截图 OCR 或官方 API。
+如果某个平台窗口读不到文字，说明客户端控件不开放给 Windows UI Automation。当前脚本已经有 OCR 截图兜底，但本机必须安装 Tesseract OCR 程序，并且最好带中文语言包 `chi_sim`。
+
+OCR 环境变量：
+
+```powershell
+$env:TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
+$env:DESKTOP_OCR_LANG="chi_sim+eng"
+```
+
+配置里已经会把最新窗口截图保存到：
+
+```text
+data/desktop-listener/latest-window.png
+```
+
+如果 OCR 没装，脚本会明确提示 `Tesseract OCR executable not found`，不会假装已经识别。
 
 兜底命令：
 

@@ -1,6 +1,6 @@
 {
   "platform": "auto",
-  "source": "uia",
+  "source": "auto",
   "paste": true,
   "send": false,
   "merchant_profile": "同城鲜花店客服。回复要自然、短、像真人，不乱承诺退款和准时。",
@@ -9,5 +9,7 @@
   "poll_seconds": 2,
   "min_send_gap_seconds": 20,
   "max_chars": 6000,
-  "min_text_chars": 30
+  "min_text_chars": 30,
+  "ocr_lang": "chi_sim+eng",
+  "debug_screenshot": "data/desktop-listener/latest-window.png"
 }

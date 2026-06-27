@@ -6,6 +6,7 @@ from ctypes import wintypes
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -19,7 +20,7 @@ from typing import Any, Literal
 DEFAULT_API_BASE = os.getenv("MERCHANT_DESKTOP_API_BASE", "https://wjhai.cn/merchant-admin/api")
 CONFIRM_AUTO_SEND = "\u6211\u786e\u8ba4\u53d1\u9001"
 
-SourceName = Literal["uia", "clipboard"]
+SourceName = Literal["auto", "uia", "ocr", "clipboard"]
 
 ZH = {
     "wechat": "\u5fae\u4fe1",
@@ -87,6 +88,8 @@ class ListenerConfig:
     dry_run: bool
     max_chars: int
     min_text_chars: int
+    ocr_lang: str
+    debug_screenshot: str
 
 
 def endpoint_url(api_base: str) -> str:
@@ -109,6 +112,16 @@ def foreground_window_title() -> str:
     buffer = ctypes.create_unicode_buffer(length + 1)
     user32.GetWindowTextW(hwnd, buffer, length + 1)
     return buffer.value
+
+
+def foreground_window_rect() -> tuple[int, int, int, int]:
+    hwnd = foreground_window_handle()
+    if not hwnd:
+        raise RuntimeError("No foreground window")
+    rect = wintypes.RECT()
+    if not ctypes.windll.user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+        raise RuntimeError("Cannot read foreground window rectangle")
+    return int(rect.left), int(rect.top), int(rect.right), int(rect.bottom)
 
 
 def match_any(text: str, patterns: list[str]) -> bool:
@@ -282,6 +295,39 @@ def read_uia_text(max_chars: int) -> str:
     return "\n".join(texts)[-max_chars:]
 
 
+def capture_foreground_window(debug_path: str = "") -> Any:
+    try:
+        from PIL import ImageGrab
+    except ImportError as exc:
+        raise RuntimeError("Pillow is not installed; cannot capture foreground window") from exc
+
+    left, top, right, bottom = foreground_window_rect()
+    image = ImageGrab.grab(bbox=(left, top, right, bottom))
+    if debug_path:
+        path = Path(debug_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        image.save(path)
+    return image
+
+
+def read_ocr_text(config: ListenerConfig) -> str:
+    try:
+        import pytesseract  # type: ignore
+        from PIL import ImageOps
+    except ImportError as exc:
+        raise RuntimeError("pytesseract/Pillow is not installed; run pip install pytesseract pillow") from exc
+
+    image = capture_foreground_window(config.debug_screenshot)
+    tesseract_cmd = os.getenv("TESSERACT_CMD") or shutil.which("tesseract")
+    if not tesseract_cmd:
+        raise RuntimeError("Tesseract OCR executable not found. Install Tesseract, or set TESSERACT_CMD.")
+    pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+    gray = ImageOps.grayscale(image)
+    # A light contrast pass helps small chat text without making screenshots unreadable.
+    text = pytesseract.image_to_string(gray, lang=config.ocr_lang)
+    return text.strip()[-config.max_chars:]
+
+
 def read_knowledge_file(path: str, max_chars: int = 6000) -> str:
     if not path:
         return ""
@@ -308,14 +354,31 @@ def build_merchant_profile(config: ListenerConfig, target: ActiveTarget) -> str:
 def read_chat_text(config: ListenerConfig) -> str:
     if config.source == "clipboard":
         return read_clipboard()
-    text = read_uia_text(config.max_chars)
-    if len(text.strip()) >= config.min_text_chars:
-        return text
+    if config.source in {"auto", "uia"}:
+        text = read_uia_text(config.max_chars)
+        if len(text.strip()) >= config.min_text_chars:
+            return text
+        if config.source == "uia":
+            fallback = read_clipboard()
+            if fallback:
+                print("UIA text was too short; used clipboard fallback.")
+                return fallback
+            return text
+        print("UIA text was too short; trying OCR fallback.")
+    if config.source in {"auto", "ocr"}:
+        try:
+            text = read_ocr_text(config)
+            if len(text.strip()) >= config.min_text_chars:
+                return text
+        except Exception as exc:
+            if config.source == "ocr":
+                raise
+            print(f"OCR fallback unavailable: {exc}")
     fallback = read_clipboard()
     if fallback:
-        print("UIA text was too short; used clipboard fallback.")
+        print("Used clipboard fallback.")
         return fallback
-    return text
+    return ""
 
 
 def call_agent(config: ListenerConfig, target: ActiveTarget, chat_text: str) -> dict[str, Any]:
@@ -383,6 +446,8 @@ def load_config(args: argparse.Namespace) -> ListenerConfig:
         dry_run=args.dry_run,
         max_chars=args.max_chars,
         min_text_chars=args.min_text_chars,
+        ocr_lang=args.ocr_lang,
+        debug_screenshot=args.debug_screenshot,
     )
 
 
@@ -392,7 +457,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--api-base", default=DEFAULT_API_BASE)
     parser.add_argument("--platform", choices=["auto", *sorted(PLATFORMS)], default="auto")
     parser.add_argument("--channel", choices=["auto", *sorted(PLATFORMS)], help="Backward-compatible alias for --platform.")
-    parser.add_argument("--source", choices=["uia", "clipboard"], default="uia")
+    parser.add_argument("--source", choices=["auto", "uia", "ocr", "clipboard"], default="auto")
     parser.add_argument("--merchant-profile", default="General merchant customer-service assistant.")
     parser.add_argument("--knowledge-file", default="", help="Local txt/md/json/csv knowledge file appended to the reply prompt.")
     parser.add_argument("--reply-goal", default="Reply naturally, answer the customer, and move toward lead capture, order, appointment, or human follow-up.")
@@ -401,6 +466,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-send-gap-seconds", type=float, default=20)
     parser.add_argument("--max-chars", type=int, default=6000)
     parser.add_argument("--min-text-chars", type=int, default=30)
+    parser.add_argument("--ocr-lang", default=os.getenv("DESKTOP_OCR_LANG", "chi_sim+eng"))
+    parser.add_argument("--debug-screenshot", default="", help="Optional path to save the latest foreground-window screenshot for OCR debugging.")
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--paste", action="store_true")
     parser.add_argument("--send", action="store_true")
