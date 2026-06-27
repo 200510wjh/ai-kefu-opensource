@@ -439,6 +439,7 @@ function App() {
   const desktopDiagnoseCommand = 'npm run desktop:diagnose';
   const desktopDiagnoseBat = 'scripts/start_desktop_diagnostics.bat';
   const desktopOcrSetupCommand = 'powershell -ExecutionPolicy Bypass -File scripts/setup_desktop_ocr.ps1';
+  const acceptanceCommand = 'npm run acceptance:check';
 
   if (!token) {
     return (
@@ -798,6 +799,11 @@ function App() {
                 <div className="panelHeader"><strong>安装 OCR</strong><button onClick={() => navigator.clipboard?.writeText(desktopOcrSetupCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopOcrSetupCommand}</pre>
                 <small>如果平台窗口读不到控件文字，就安装 Tesseract OCR 和中文语言包。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>一键验收</strong><button onClick={() => navigator.clipboard?.writeText(acceptanceCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{acceptanceCommand}</pre>
+                <small>检查后台、构建、四个平台回复接口、桌面诊断脚本和文档配置。</small>
               </article>
             </div>
             <div className="channelGrid">

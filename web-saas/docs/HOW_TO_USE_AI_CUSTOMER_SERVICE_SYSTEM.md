@@ -128,6 +128,28 @@ data/desktop-listener/diagnostics-window.png
 - `npm run desktop:auto` 能生成回复并粘贴。
 - 默认不自动发送，防止误发；确认后才允许按 Enter。
 
+一键验收命令：
+
+```powershell
+npm run acceptance:check
+```
+
+它会检查：
+
+- 文档和配置文件是否存在。
+- Python 后端和桌面脚本是否能编译。
+- 前端 SaaS 是否能构建。
+- 线上 `/api/health` 是否正常。
+- 微信、抖音、淘宝、拼多多四个平台回复接口是否都能返回。
+- 桌面诊断脚本是否能读取当前窗口、OCR、剪贴板状态。
+
+桌面真实平台验收仍要打开对应窗口：
+
+```powershell
+npm run desktop:diagnose
+npm run desktop:auto
+```
+
 ## 7. 当前边界
 
 - 没有官方 API 权限时，微信/抖音/淘宝/拼多多不能保证后台无人值守读取所有私信。

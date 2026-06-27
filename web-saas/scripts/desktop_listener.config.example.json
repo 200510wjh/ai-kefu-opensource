@@ -11,5 +11,7 @@
   "max_chars": 6000,
   "min_text_chars": 30,
   "ocr_lang": "chi_sim+eng",
-  "debug_screenshot": "data/desktop-listener/latest-window.png"
+  "debug_screenshot": "data/desktop-listener/latest-window.png",
+  "history_file": "data/desktop-listener/history.jsonl",
+  "history_limit": 8
 }

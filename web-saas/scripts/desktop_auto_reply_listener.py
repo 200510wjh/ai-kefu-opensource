@@ -13,6 +13,7 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
 
@@ -90,6 +91,8 @@ class ListenerConfig:
     min_text_chars: int
     ocr_lang: str
     debug_screenshot: str
+    history_file: str
+    history_limit: int
 
 
 def endpoint_url(api_base: str) -> str:
@@ -356,12 +359,62 @@ def read_knowledge_file(path: str, max_chars: int = 6000) -> str:
     return raw.decode("utf-8", errors="ignore")[-max_chars:]
 
 
+def load_history(path: str, limit: int) -> list[dict[str, Any]]:
+    if not path or limit <= 0:
+        return []
+    file_path = Path(path)
+    if not file_path.exists():
+        return []
+    items: list[dict[str, Any]] = []
+    for line in file_path.read_text(encoding="utf-8", errors="ignore").splitlines()[-max(limit * 3, limit):]:
+        try:
+            item = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(item, dict):
+            items.append(item)
+    return items[-limit:]
+
+
+def append_history(path: str, item: dict[str, Any]) -> None:
+    if not path:
+        return
+    file_path = Path(path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with file_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(item, ensure_ascii=False) + "\n")
+
+
+def history_context(config: ListenerConfig, target: ActiveTarget) -> str:
+    rows = [
+        row
+        for row in load_history(config.history_file, config.history_limit)
+        if row.get("platform") in {target.platform, target.backend_channel, target.label}
+    ]
+    if not rows:
+        return ""
+    lines = ["Previous desktop assistant context:"]
+    for row in rows:
+        pending = " / ".join(str(item) for item in row.get("pending", []) if item)
+        reply = str(row.get("reply") or "")
+        if pending or reply:
+            lines.append(f"- customer: {pending[:400]}\n  assistant: {reply[:500]}")
+    return "\n".join(lines)
+
+
 def build_merchant_profile(config: ListenerConfig, target: ActiveTarget) -> str:
     pieces = [f"{target.label} desktop customer-service assistant.", config.merchant_profile]
     knowledge = read_knowledge_file(config.knowledge_file)
     if knowledge:
         pieces.append("Imported local knowledge base:\n" + knowledge)
     return "\n\n".join(piece for piece in pieces if piece)
+
+
+def build_chat_payload(config: ListenerConfig, target: ActiveTarget, chat_text: str) -> str:
+    context = history_context(config, target)
+    if not context:
+        return chat_text
+    return f"{context}\n\nCurrent visible chat:\n{chat_text}"
 
 
 def read_chat_text(config: ListenerConfig) -> str:
@@ -397,7 +450,7 @@ def read_chat_text(config: ListenerConfig) -> str:
 def call_agent(config: ListenerConfig, target: ActiveTarget, chat_text: str) -> dict[str, Any]:
     payload = {
         "channel": target.backend_channel,
-        "ocr_text": chat_text,
+        "ocr_text": build_chat_payload(config, target, chat_text),
         "merchant_profile": build_merchant_profile(config, target),
         "reply_goal": config.reply_goal,
         "auto_send": False,
@@ -461,6 +514,8 @@ def load_config(args: argparse.Namespace) -> ListenerConfig:
         min_text_chars=args.min_text_chars,
         ocr_lang=args.ocr_lang,
         debug_screenshot=args.debug_screenshot,
+        history_file=args.history_file,
+        history_limit=args.history_limit,
     )
 
 
@@ -481,6 +536,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-text-chars", type=int, default=30)
     parser.add_argument("--ocr-lang", default=os.getenv("DESKTOP_OCR_LANG", "chi_sim+eng"))
     parser.add_argument("--debug-screenshot", default="", help="Optional path to save the latest foreground-window screenshot for OCR debugging.")
+    parser.add_argument("--history-file", default="data/desktop-listener/history.jsonl")
+    parser.add_argument("--history-limit", type=int, default=8)
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--paste", action="store_true")
     parser.add_argument("--send", action="store_true")
@@ -541,6 +598,19 @@ def main() -> int:
         print(json.dumps({"window": target.title, "platform": target.label, "should_reply": should_reply, "pending": pending, "reply": reply}, ensure_ascii=False, indent=2))
 
         if should_reply and reply:
+            append_history(
+                config.history_file,
+                {
+                    "created_at": datetime.now().isoformat(timespec="seconds"),
+                    "window": target.title,
+                    "platform": target.platform,
+                    "backend_channel": target.backend_channel,
+                    "pending": pending,
+                    "reply": reply,
+                    "source": config.source,
+                    "sent": bool(config.auto_send and config.paste and not config.dry_run),
+                },
+            )
             now = time.time()
             if config.dry_run:
                 print("dry-run: not copied, pasted, or sent.")

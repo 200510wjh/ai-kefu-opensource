@@ -68,6 +68,8 @@ def build_config(args: argparse.Namespace) -> ListenerConfig:
         min_text_chars=args.min_text_chars,
         ocr_lang=args.ocr_lang,
         debug_screenshot=args.debug_screenshot,
+        history_file="data/desktop-listener/history.jsonl",
+        history_limit=8,
     )
 
 
