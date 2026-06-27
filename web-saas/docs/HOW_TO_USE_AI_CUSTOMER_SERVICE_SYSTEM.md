@@ -132,6 +132,14 @@ npm run desktop:listen -- --platform taobao --target-title "千牛|淘宝|旺旺
 5. 默认不按 Enter，需要人工确认。
 6. 粘贴后会进入最小间隔冷却，避免把自己刚粘贴的候选回复再次读进去循环生成。
 
+桌面助手会保存最近几轮本地历史到：
+
+```text
+data/desktop-listener/history.jsonl
+```
+
+下一次生成回复时，会把同一平台的最近历史一起带给 AI，用来避免重复问、接住上一轮上下文。默认最多读取 8 条，可在启动配置里改 `history_limit`。
+
 真正自动发送：
 
 ```powershell
@@ -198,6 +206,7 @@ npm run acceptance:check
 - 线上 `/api/health` 是否正常。
 - 微信、抖音、淘宝、拼多多四个平台回复接口是否都能返回。
 - 桌面诊断脚本是否能读取当前窗口、OCR、剪贴板状态。
+- 桌面历史是否会进入下一轮回复提示词。
 
 核心回复链路演练：
 

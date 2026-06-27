@@ -240,10 +240,52 @@ def main() -> int:
             },
         )
         rows = desktop_listener.load_history(str(history_path), 3)
+        target = desktop_listener.ActiveTarget(
+            hwnd=0,
+            title="验收窗口",
+            platform="wechat",
+            backend_channel="wechat",
+            label="微信",
+        )
+        config = desktop_listener.ListenerConfig(
+            api_base=args.base_url,
+            platform="wechat",
+            source="clipboard",
+            merchant_profile="验收商家",
+            knowledge_file="",
+            reply_goal="验收历史上下文",
+            target_title="",
+            window_allowlist=[],
+            poll_seconds=1,
+            min_send_gap_seconds=20,
+            once=True,
+            paste=False,
+            auto_send=False,
+            dry_run=True,
+            max_chars=2000,
+            min_text_chars=30,
+            min_chat_chars=12,
+            allow_non_chat_text=False,
+            allow_clipboard_fallback=False,
+            ocr_lang="chi_sim+eng",
+            debug_screenshot="",
+            history_file=str(history_path),
+            history_limit=3,
+        )
+        payload_with_history = desktop_listener.build_chat_payload(config, target, "客户：那今天能送到吗？")
         checks["desktop_history"] = {
             "ok": bool(rows and rows[-1].get("reply")),
             "history_file": str(history_path),
             "rows": len(rows),
+        }
+        checks["desktop_history_context"] = {
+            "ok": (
+                "Previous desktop assistant context:" in payload_with_history
+                and "客户：99元花束还有吗？" in payload_with_history
+                and "可以先发地址和色系" in payload_with_history
+                and "客户：那今天能送到吗？" in payload_with_history
+            ),
+            "sample": payload_with_history[:500],
         }
         checks["chat_text_filter"] = {
             "ok": (
@@ -255,6 +297,7 @@ def main() -> int:
         }
     except Exception as exc:
         checks["desktop_history"] = {"ok": False, "error": str(exc)}
+        checks["desktop_history_context"] = {"ok": False, "error": str(exc)}
         checks["chat_text_filter"] = {"ok": False, "error": str(exc)}
 
     try:
