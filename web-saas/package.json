@@ -12,6 +12,7 @@
     "desktop:reply": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_reply_assistant.py",
     "desktop:listen": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_auto_reply_listener.py",
     "desktop:launcher": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_listener_launcher.py",
+    "desktop:prepare": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_platform_prepare.py",
     "desktop:acceptance-launcher": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_acceptance_launcher.py",
     "desktop:auto": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_auto_reply_listener.py --config scripts/desktop_listener.config.example.json",
     "desktop:diagnose": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_diagnostics.py",

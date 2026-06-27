@@ -434,6 +434,8 @@ function App() {
   const widgetCode = `<script src="${widgetOrigin}${apiUrl(`/api/widget.js?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}"></script>`;
   const testUrl = `${widgetOrigin}${apiUrl(`/api/widget-test?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}`;
   const desktopLauncherBat = '启动AI自动客服.bat';
+  const desktopPrepareBat = '自动准备客服平台.bat';
+  const desktopPrepareCommand = 'npm run desktop:prepare -- --launch';
   const desktopAcceptanceBat = '验收真实平台.bat';
   const desktopAutoCommand = 'npm run desktop:auto';
   const desktopLauncherCommand = 'npm run desktop:launcher';
@@ -784,6 +786,11 @@ function App() {
             </div>
             <div className="desktopGrid">
               <article className="panel">
+                <div className="panelHeader"><strong>先自动准备平台</strong><button onClick={() => navigator.clipboard?.writeText(desktopPrepareBat)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopPrepareBat}</pre>
+                <small>自动查找微信、抖音、千牛、拼多多客户端或快捷方式；能启动就启动，并生成中文巡检报告。</small>
+              </article>
+              <article className="panel">
                 <div className="panelHeader"><strong>推荐入口</strong><button onClick={() => navigator.clipboard?.writeText(desktopLauncherBat)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopLauncherBat}</pre>
                 <small>不用复制命令。双击后会列出当前窗口，选中微信/抖音/千牛/拼多多客服窗口即可自动监听。</small>
@@ -792,6 +799,11 @@ function App() {
                 <div className="panelHeader"><strong>先验收真实平台</strong><button onClick={() => navigator.clipboard?.writeText(desktopAcceptanceBat)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopAcceptanceBat}</pre>
                 <small>双击后会用中文告诉你哪个平台没打开、哪个只读到窗口壳、哪个已经能自动读取聊天。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>准备命令</strong><button onClick={() => navigator.clipboard?.writeText(desktopPrepareCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopPrepareCommand}</pre>
+                <small>适合开发或排查时从终端自动发现并尝试打开已安装平台。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>启动器命令</strong><button onClick={() => navigator.clipboard?.writeText(desktopLauncherCommand)}><Clipboard size={16} />复制</button></div>

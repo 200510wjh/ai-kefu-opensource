@@ -110,6 +110,9 @@ def main() -> int:
                 "docs/DESKTOP_PLATFORM_ASSISTANT.md",
                 "docs/HOW_TO_USE_AI_CUSTOMER_SERVICE_SYSTEM.md",
                 "docs/examples/merchant_knowledge.example.txt",
+                "自动准备客服平台.bat",
+                "启动AI自动客服.bat",
+                "验收真实平台.bat",
                 "scripts/desktop_listener.config.example.json",
             ]
         )
@@ -124,6 +127,7 @@ def main() -> int:
             "scripts/desktop_diagnostics.py",
             "scripts/desktop_acceptance_launcher.py",
             "scripts/desktop_listener_launcher.py",
+            "scripts/desktop_platform_prepare.py",
             "scripts/desktop_real_platform_acceptance.py",
             "scripts/desktop_reply_e2e_acceptance.py",
             "scripts/desktop_reply_assistant.py",
@@ -339,6 +343,29 @@ def main() -> int:
         timeout=120,
     )
     checks["desktop_diagnostics"] = diagnose
+
+    prepare_report = root / "data" / "desktop-listener" / "platform-prepare-report.md"
+    if prepare_report.exists():
+        prepare_report.unlink()
+    prepare = run(
+        [
+            str(python),
+            "scripts/desktop_platform_prepare.py",
+            "--soft",
+            "--wait-seconds",
+            "0",
+            "--report",
+            str(prepare_report),
+        ],
+        root,
+        timeout=60,
+    )
+    checks["desktop_platform_prepare"] = {
+        **prepare,
+        "ok": bool(prepare.get("ok") and prepare_report.exists()),
+        "report_exists": prepare_report.exists(),
+        "report": str(prepare_report),
+    }
 
     if args.require_real_platforms:
         checks["real_platform_windows"] = run(

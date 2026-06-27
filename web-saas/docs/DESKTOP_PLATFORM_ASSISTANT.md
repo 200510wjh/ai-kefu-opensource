@@ -19,7 +19,21 @@
 
 ## 自动监听：不用复制聊天内容
 
-推荐先用图形化验收器。双击项目根目录：
+推荐先用自动准备器。双击项目根目录：
+
+```text
+自动准备客服平台.bat
+```
+
+它会自动查找微信、企业微信、抖音、千牛、拼多多客户端或快捷方式；找不到窗口时会尝试启动已安装的平台，并生成报告：
+
+```text
+data/desktop-listener/platform-prepare-report.md
+```
+
+准备器不会发送消息，只负责帮你把平台窗口准备好。平台打开后，需要你进入真实客服聊天页。
+
+然后用图形化验收器。双击项目根目录：
 
 ```text
 验收真实平台.bat
@@ -108,6 +122,12 @@ npm run desktop:listen -- --platform auto --source uia --paste --send --confirm-
 ```
 
 如果某个平台窗口读不到文字，说明客户端控件不开放给 Windows UI Automation。当前脚本已经有 OCR 截图兜底，但本机必须安装 Tesseract OCR 程序，并且最好带中文语言包 `chi_sim`。
+
+自动准备平台的命令行方式：
+
+```powershell
+npm run desktop:prepare -- --launch
+```
 
 OCR 环境变量：
 

@@ -56,7 +56,19 @@ https://wjhai.cn/merchant-admin/api/widget-test?merchant_code=WJDEMO001
 
 ## 4. 微信/抖音/淘宝/拼多多桌面自动客服
 
-先验收真实平台，不要直接猜能不能读。双击项目根目录里的：
+先自动准备平台，不要直接猜有没有窗口。双击项目根目录里的：
+
+```text
+自动准备客服平台.bat
+```
+
+它会自动查找微信、抖音、千牛、拼多多客户端或快捷方式，能启动就尝试启动，并生成中文报告：
+
+```text
+data/desktop-listener/platform-prepare-report.md
+```
+
+准备完成后，进入真实客服聊天页，再验收真实平台。双击项目根目录里的：
 
 ```text
 验收真实平台.bat
@@ -189,6 +201,7 @@ data/desktop-listener/diagnostics-window.png
 - 桌面助手打开后，能识别微信/抖音/千牛/拼多多窗口。
 - 启动器不会把普通浏览器窗口误标成客服窗口。
 - `npm run desktop:diagnose` 能显示 UIA/OCR/剪贴板读取结果。
+- `npm run desktop:prepare` 能自动发现/尝试启动已安装客服平台，并生成中文巡检报告。
 - `npm run desktop:auto` 能生成回复并粘贴。
 - 默认不自动发送，防止误发；确认后才允许按 Enter。
 
