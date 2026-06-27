@@ -92,6 +92,7 @@ npm run desktop:listen -- --platform taobao --target-title "千牛|淘宝|旺旺
 - 自动粘贴候选回复到当前输入框。
 - 不会自动按 Enter 发送。
 - 粘贴后会冷却一段时间，避免把自己粘贴的候选回复当成新客户消息继续生成。
+- 默认不会用剪贴板兜底；只有启动器里勾选“允许剪贴板兜底”或命令加 `--allow-clipboard-fallback` 才会启用。
 
 真要自动发送，需要显式确认：
 

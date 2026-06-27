@@ -52,6 +52,7 @@ class DesktopListenerLauncher(tk.Tk):
         self.paste_enabled = tk.BooleanVar(value=True)
         self.send_enabled = tk.BooleanVar(value=False)
         self.dry_run = tk.BooleanVar(value=False)
+        self.clipboard_fallback = tk.BooleanVar(value=False)
         self.status_text = tk.StringVar(value="先打开微信/抖音/千牛/拼多多客服窗口，再点刷新窗口。")
 
         self.configure(bg="#0b1020")
@@ -134,6 +135,7 @@ class DesktopListenerLauncher(tk.Tk):
         options.pack(fill="x", pady=(12, 0))
         ttk.Checkbutton(options, text="生成后自动粘贴到输入框", variable=self.paste_enabled).pack(anchor="w")
         ttk.Checkbutton(options, text="自动按 Enter 发送", variable=self.send_enabled).pack(anchor="w", pady=(6, 0))
+        ttk.Checkbutton(options, text="允许剪贴板兜底（只适合排查，不算真正自动读取）", variable=self.clipboard_fallback).pack(anchor="w", pady=(6, 0))
         ttk.Checkbutton(options, text="只测试，不粘贴不发送", variable=self.dry_run).pack(anchor="w", pady=(6, 0))
 
         actions = ttk.Frame(left, style="Card.TFrame")
@@ -222,6 +224,8 @@ class DesktopListenerLauncher(tk.Tk):
         ]
         if self.paste_enabled.get():
             command.append("--paste")
+        if self.clipboard_fallback.get():
+            command.append("--allow-clipboard-fallback")
         if self.dry_run.get():
             command.append("--dry-run")
         if self.send_enabled.get():

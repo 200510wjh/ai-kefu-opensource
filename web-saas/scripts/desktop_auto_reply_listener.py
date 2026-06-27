@@ -109,6 +109,7 @@ class ListenerConfig:
     min_text_chars: int
     min_chat_chars: int
     allow_non_chat_text: bool
+    allow_clipboard_fallback: bool
     ocr_lang: str
     debug_screenshot: str
     history_file: str
@@ -494,28 +495,53 @@ def read_chat_text(config: ListenerConfig, target: ActiveTarget | None = None) -
     hwnd = target.hwnd if target else active_window_handle(config)
     if config.source in {"auto", "uia"}:
         text = read_uia_text(config.max_chars, hwnd=hwnd)
-        if len(text.strip()) >= config.min_text_chars:
+        if len(text.strip()) >= config.min_text_chars and (config.allow_non_chat_text or looks_like_chat_text(text, config.min_chat_chars)):
             return text
         if config.source == "uia":
-            fallback = read_clipboard()
-            if fallback:
-                print("UIA text was too short; used clipboard fallback.")
-                return fallback
+            if config.allow_clipboard_fallback:
+                fallback = read_clipboard()
+                if fallback:
+                    print("UIA text was not chat-like; used clipboard fallback.")
+                    return fallback
+            if text:
+                print("UIA text was not chat-like; returning it for diagnostics.")
+                return text
+            if config.allow_clipboard_fallback:
+                fallback = read_clipboard()
+                if fallback:
+                    print("UIA text was too short; used clipboard fallback.")
+                    return fallback
             return text
-        print("UIA text was too short; trying OCR fallback.")
+        if text:
+            print("UIA text was not chat-like; trying OCR fallback.")
+        else:
+            print("UIA text was too short; trying OCR fallback.")
     if config.source in {"auto", "ocr"}:
         try:
             text = read_ocr_text(config)
-            if len(text.strip()) >= config.min_text_chars:
+            if len(text.strip()) >= config.min_text_chars and (config.allow_non_chat_text or looks_like_chat_text(text, config.min_chat_chars)):
                 return text
+            if config.source == "ocr":
+                if text:
+                    print("OCR text was not chat-like; returning it for diagnostics.")
+                    return text
+                if config.allow_clipboard_fallback:
+                    fallback = read_clipboard()
+                    if fallback:
+                        print("OCR text was too short; used clipboard fallback.")
+                        return fallback
+                return text
+            if text:
+                print("OCR text was not chat-like.")
         except Exception as exc:
             if config.source == "ocr":
                 raise
             print(f"OCR fallback unavailable: {exc}")
-    fallback = read_clipboard()
-    if fallback:
-        print("Used clipboard fallback.")
-        return fallback
+    if config.allow_clipboard_fallback:
+        fallback = read_clipboard()
+        if fallback:
+            print("Used clipboard fallback.")
+            return fallback
     return ""
 
 
@@ -597,6 +623,7 @@ def load_config(args: argparse.Namespace) -> ListenerConfig:
         min_text_chars=args.min_text_chars,
         min_chat_chars=args.min_chat_chars,
         allow_non_chat_text=args.allow_non_chat_text,
+        allow_clipboard_fallback=args.allow_clipboard_fallback,
         ocr_lang=args.ocr_lang,
         debug_screenshot=args.debug_screenshot,
         history_file=args.history_file,
@@ -622,6 +649,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-text-chars", type=int, default=30)
     parser.add_argument("--min-chat-chars", type=int, default=12, help="Minimum filtered chat-like characters required before calling AI.")
     parser.add_argument("--allow-non-chat-text", action="store_true", help="Allow replying even when the visible text looks like window chrome instead of chat.")
+    parser.add_argument("--allow-clipboard-fallback", action="store_true", help="Allow auto/uia/ocr modes to use clipboard when window reading fails.")
     parser.add_argument("--ocr-lang", default=os.getenv("DESKTOP_OCR_LANG", "chi_sim+eng"))
     parser.add_argument("--debug-screenshot", default="", help="Optional path to save the latest foreground-window screenshot for OCR debugging.")
     parser.add_argument("--history-file", default="data/desktop-listener/history.jsonl")

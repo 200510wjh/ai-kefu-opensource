@@ -87,13 +87,16 @@ def run_diagnostics(root: Path, python: Path, platform: str, title: str, timeout
     uia = checks.get("uia", {}) if isinstance(checks, dict) else {}
     ocr = checks.get("ocr", {}) if isinstance(checks, dict) else {}
     auto = checks.get("auto", {}) if isinstance(checks, dict) else {}
+    clipboard = checks.get("clipboard", {}) if isinstance(checks, dict) else {}
     uia_sample = str(uia.get("sample") or "") if isinstance(uia, dict) else ""
     ocr_sample = str(ocr.get("sample") or "") if isinstance(ocr, dict) else ""
+    clipboard_sample = str(clipboard.get("sample") or "") if isinstance(clipboard, dict) else ""
     auto_ok = bool(isinstance(auto, dict) and auto.get("ok"))
     uia_chat_ok = bool(isinstance(uia, dict) and uia.get("ok") and looks_like_chat_text(uia_sample, min_read_chars))
     ocr_chat_ok = bool(isinstance(ocr, dict) and ocr.get("ok") and looks_like_chat_text(ocr_sample, min_read_chars))
+    clipboard_chat_ok = bool(isinstance(clipboard, dict) and clipboard.get("ok") and looks_like_chat_text(clipboard_sample, 12))
     real_read_ok = bool(uia_chat_ok or ocr_chat_ok)
-    read_mode = "uia" if uia_chat_ok else "ocr" if ocr_chat_ok else "clipboard_fallback" if auto_ok else "none"
+    read_mode = "uia" if uia_chat_ok else "ocr" if ocr_chat_ok else "clipboard_fallback" if clipboard_chat_ok else "none"
     return {
         "ok": completed.returncode == 0 and real_read_ok,
         "returncode": completed.returncode,
@@ -103,6 +106,7 @@ def run_diagnostics(root: Path, python: Path, platform: str, title: str, timeout
         "read_mode": read_mode,
         "uia_chat_candidate": normalize_chat_candidate(uia_sample)[:500],
         "ocr_chat_candidate": normalize_chat_candidate(ocr_sample)[:500],
+        "clipboard_chat_candidate": normalize_chat_candidate(clipboard_sample)[:500],
         "min_read_chars": min_read_chars,
         "diagnostics": parsed,
         "stdout_tail": completed.stdout[-1500:],
@@ -149,7 +153,7 @@ def main() -> int:
         }
         if results[platform]["ok"]:
             results[platform]["status"] = "ok"
-        elif results[platform].get("auto_ok") and results[platform].get("read_mode") == "clipboard_fallback":
+        elif results[platform].get("read_mode") == "clipboard_fallback":
             results[platform]["status"] = "clipboard_fallback_only"
             results[platform]["message"] = "找到了窗口，但窗口文字/OCR 没读到足够聊天内容，或只读到了窗口壳文字；这不算真正自动读取。"
         else:

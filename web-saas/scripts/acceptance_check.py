@@ -275,6 +275,7 @@ def main() -> int:
             ".*",
             "--source",
             "auto",
+            "--allow-clipboard-fallback",
             "--max-chars",
             "800",
         ],

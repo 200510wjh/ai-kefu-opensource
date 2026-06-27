@@ -73,6 +73,7 @@ def build_config(args: argparse.Namespace) -> ListenerConfig:
         min_text_chars=args.min_text_chars,
         min_chat_chars=args.min_chat_chars,
         allow_non_chat_text=False,
+        allow_clipboard_fallback=args.allow_clipboard_fallback,
         ocr_lang=args.ocr_lang,
         debug_screenshot=args.debug_screenshot,
         history_file="data/desktop-listener/history.jsonl",
@@ -97,6 +98,7 @@ def main() -> int:
     parser.add_argument("--max-chars", type=int, default=2000)
     parser.add_argument("--min-text-chars", type=int, default=30)
     parser.add_argument("--min-chat-chars", type=int, default=12)
+    parser.add_argument("--allow-clipboard-fallback", action="store_true")
     parser.add_argument("--ocr-lang", default="chi_sim+eng")
     parser.add_argument("--debug-screenshot", default="data/desktop-listener/diagnostics-window.png")
     args = parser.parse_args()
