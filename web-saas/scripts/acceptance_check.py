@@ -85,6 +85,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Acceptance checks for the AI customer-service SaaS and desktop assistant.")
     parser.add_argument("--base-url", default="https://wjhai.cn/merchant-admin")
     parser.add_argument("--skip-build", action="store_true")
+    parser.add_argument("--require-real-platforms", action="store_true", help="Also require real WeChat/Douyin/Taobao/PDD windows to be open and readable.")
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parents[1]
@@ -111,6 +112,7 @@ def main() -> int:
             "scripts/desktop_auto_reply_listener.py",
             "scripts/desktop_diagnostics.py",
             "scripts/desktop_listener_launcher.py",
+            "scripts/desktop_real_platform_acceptance.py",
             "scripts/desktop_reply_assistant.py",
             "backend/main.py",
             "backend/customer_service_saas.py",
@@ -262,6 +264,16 @@ def main() -> int:
         timeout=120,
     )
     checks["desktop_diagnostics"] = diagnose
+
+    if args.require_real_platforms:
+        checks["real_platform_windows"] = run(
+            [
+                str(python),
+                "scripts/desktop_real_platform_acceptance.py",
+            ],
+            root,
+            timeout=240,
+        )
 
     ok = all(item.get("ok") for item in checks.values())
     print(json.dumps({"ok": ok, "checks": checks}, ensure_ascii=False, indent=2))

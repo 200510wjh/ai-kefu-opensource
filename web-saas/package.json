@@ -15,6 +15,7 @@
     "desktop:auto": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_auto_reply_listener.py --config scripts/desktop_listener.config.example.json",
     "desktop:diagnose": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_diagnostics.py",
     "acceptance:check": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/acceptance_check.py",
+    "acceptance:real-platforms": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_real_platform_acceptance.py",
     "secret-scan": "python scripts/secret_scan.py"
   },
   "dependencies": {

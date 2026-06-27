@@ -443,6 +443,7 @@ function App() {
   const desktopDiagnoseBat = 'scripts/start_desktop_diagnostics.bat';
   const desktopOcrSetupCommand = 'powershell -ExecutionPolicy Bypass -File scripts/setup_desktop_ocr.ps1';
   const acceptanceCommand = 'npm run acceptance:check';
+  const realPlatformAcceptanceCommand = 'npm run acceptance:real-platforms';
 
   if (!token) {
     return (
@@ -823,6 +824,11 @@ function App() {
                 <pre className="miniCode">{acceptanceCommand}</pre>
                 <small>检查后台、构建、四个平台回复接口、桌面诊断脚本和文档配置。</small>
               </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>真实平台验收</strong><button onClick={() => navigator.clipboard?.writeText(realPlatformAcceptanceCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{realPlatformAcceptanceCommand}</pre>
+                <small>先打开微信、抖音、千牛、拼多多客服聊天窗口，再运行。缺哪个窗口就会明确报 missing_window。</small>
+              </article>
             </div>
             <div className="channelGrid">
               {[
@@ -841,7 +847,7 @@ function App() {
             <div className="cosmosPanel compactPanel">
               <div>
                 <small>验收方式</small>
-                <p>先打开对应平台客服窗口，再运行桌面助手。看到终端打印 should_reply=true 且输入框出现候选回复，就说明读取、生成、粘贴链路跑通。OCR 需要安装 Tesseract。</p>
+                <p>普通验收用 npm run acceptance:check。真实平台验收要先打开对应客服窗口，再运行 npm run acceptance:real-platforms。看到 should_reply=true 且输入框出现候选回复，才算读取、生成、粘贴链路跑通。</p>
               </div>
               <ShieldAlert size={24} />
             </div>

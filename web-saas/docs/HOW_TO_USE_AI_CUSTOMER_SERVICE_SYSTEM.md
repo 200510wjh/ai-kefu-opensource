@@ -186,11 +186,38 @@ npm run acceptance:check
 - 微信、抖音、淘宝、拼多多四个平台回复接口是否都能返回。
 - 桌面诊断脚本是否能读取当前窗口、OCR、剪贴板状态。
 
-桌面真实平台验收仍要打开对应窗口：
+桌面真实平台验收仍要打开对应窗口。这个命令会逐个平台检查可见窗口和读取结果：
 
 ```powershell
-npm run desktop:diagnose
-npm run desktop:auto
+npm run acceptance:real-platforms
+```
+
+如果没有打开某个平台，会看到：
+
+```text
+missing_window
+```
+
+这不是代码坏了，而是说明当前机器没有可验收的真实平台窗口。打开微信、抖音、千牛、拼多多客服聊天窗口后再跑。
+
+如果看到：
+
+```text
+clipboard_fallback_only
+```
+
+说明找到了窗口，但没有真正从窗口文字或 OCR 里读到聊天内容，只用了剪贴板兜底。这种情况不能算“打开窗口就能回”，需要把窗口切到真实聊天页，或安装/调整 OCR。
+
+只验收其中一个平台：
+
+```powershell
+npm run acceptance:real-platforms -- --platforms wechat
+```
+
+验收通过后，再打开启动器做最后一步端到端测试：
+
+```text
+启动AI自动客服.bat
 ```
 
 ## 7. 当前边界

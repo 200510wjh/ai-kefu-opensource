@@ -137,6 +137,40 @@ npm run desktop:diagnose
 - 剪贴板兜底读到了什么
 - 截图保存到了哪里
 
+## 真实平台验收
+
+普通验收：
+
+```powershell
+npm run acceptance:check
+```
+
+真实平台验收：
+
+```powershell
+npm run acceptance:real-platforms
+```
+
+运行前必须先打开这些窗口：
+
+- 微信或企业微信客服聊天窗口。
+- 抖音私信或巨量线索窗口。
+- 千牛、淘宝或旺旺客服窗口。
+- 拼多多商家客服窗口。
+
+结果含义：
+
+- `ok`：找到了窗口，并且自动读取模式能读到内容。
+- `missing_window`：当前机器没打开对应平台窗口。
+- `clipboard_fallback_only`：找到了窗口，但 UIA/OCR 没读到足够聊天内容，只用了剪贴板兜底；这不算真正自动读取。
+- `read_failed`：找到了窗口，但 UIA/OCR/剪贴板都没读到可用内容，需要先跑 `npm run desktop:diagnose` 看原因。
+
+只验收微信：
+
+```powershell
+npm run acceptance:real-platforms -- --platforms wechat
+```
+
 兜底命令：
 
 ```powershell
