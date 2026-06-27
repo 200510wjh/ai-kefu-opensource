@@ -90,7 +90,7 @@ def main() -> int:
 
     parser = argparse.ArgumentParser(description="Diagnose desktop customer-service window reading.")
     parser.add_argument("--api-base", default="https://wjhai.cn/merchant-admin/api")
-    parser.add_argument("--platform", choices=["auto", "wechat", "douyin", "douyin_dm", "taobao", "pdd"], default="auto")
+    parser.add_argument("--platform", choices=["auto", "wechat", "douyin", "douyin_dm", "taobao", "pdd", "xianyu"], default="auto")
     parser.add_argument("--source", choices=["auto", "uia", "ocr", "clipboard"], default="auto")
     parser.add_argument("--target-title", default="")
     parser.add_argument("--window-allowlist", action="append", default=[])
@@ -115,7 +115,7 @@ def main() -> int:
         "visible_platform_windows": [
             title
             for title in visible_windows()
-            if any(word in title.lower() for word in ["微信", "wechat", "抖音", "douyin", "千牛", "淘宝", "拼多多", "pdd"])
+            if any(word in title.lower() for word in ["微信", "wechat", "抖音", "douyin", "千牛", "淘宝", "拼多多", "pdd", "闲鱼", "咸鱼", "xianyu", "goofish"])
         ],
         "checks": {},
     }

@@ -24,6 +24,7 @@ PLATFORMS: dict[str, dict[str, str]] = {
     "douyin_dm": {"backend": "douyin_dm", "label": "抖音私信"},
     "taobao": {"backend": "taobao", "label": "淘宝/千牛"},
     "pdd": {"backend": "pdd", "label": "拼多多"},
+    "xianyu": {"backend": "xianyu", "label": "闲鱼"},
 }
 
 
@@ -206,10 +207,10 @@ def platform_from_args(args: argparse.Namespace) -> str:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="桌面客服单次回复助手：复制聊天内容 -> 生成回复 -> 复制/粘贴到微信、抖音、淘宝、拼多多。"
+        description="桌面客服单次回复助手：复制聊天内容 -> 生成回复 -> 复制/粘贴到微信、抖音、淘宝、拼多多、闲鱼。"
     )
     parser.add_argument("--api-base", default=DEFAULT_API_BASE, help="后端 API 根地址，默认使用线上 wjhai.cn。")
-    parser.add_argument("--platform", choices=sorted(PLATFORMS), help="目标平台：wechat/douyin/taobao/pdd。")
+    parser.add_argument("--platform", choices=sorted(PLATFORMS), help="目标平台：wechat/douyin/taobao/pdd/xianyu。")
     parser.add_argument("--channel", choices=sorted(PLATFORMS), help="兼容旧参数；建议改用 --platform。")
     parser.add_argument("--text-file", help="从文本文件读取聊天记录；不传则读取剪贴板。")
     parser.add_argument("--merchant-profile", default="通用商家客服助手", help="商家资料、商品卖点、优惠、禁用承诺等。")

@@ -13,7 +13,7 @@ from desktop_auto_reply_listener import PLATFORMS, enum_visible_windows, looks_l
 
 
 PYTHON = Path(r"C:\Users\Administrator\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe")
-DEFAULT_PLATFORMS = ["wechat", "douyin", "taobao", "pdd"]
+DEFAULT_PLATFORMS = ["wechat", "douyin", "taobao", "pdd", "xianyu"]
 
 
 def platform_patterns(platform: str) -> list[str]:
@@ -122,7 +122,7 @@ def main() -> int:
         pass
 
     parser = argparse.ArgumentParser(description="Verify real desktop customer-service windows are open and readable.")
-    parser.add_argument("--platforms", default=",".join(DEFAULT_PLATFORMS), help="Comma-separated platforms: wechat,douyin,taobao,pdd")
+    parser.add_argument("--platforms", default=",".join(DEFAULT_PLATFORMS), help="Comma-separated platforms: wechat,douyin,taobao,pdd,xianyu")
     parser.add_argument("--soft", action="store_true", help="Report missing platforms without failing the command.")
     parser.add_argument("--timeout", type=int, default=90)
     parser.add_argument("--min-read-chars", type=int, default=80, help="Minimum UIA/OCR characters required to count as real window reading.")
@@ -167,7 +167,7 @@ def main() -> int:
         "visible_platform_windows": [
             title
             for _, title in windows
-            if any(word in title.lower() for word in ["微信", "wechat", "抖音", "douyin", "千牛", "淘宝", "拼多多", "pdd"])
+            if any(word in title.lower() for word in ["微信", "wechat", "抖音", "douyin", "千牛", "淘宝", "拼多多", "pdd", "闲鱼", "咸鱼", "xianyu", "goofish"])
         ],
         "results": results,
     }

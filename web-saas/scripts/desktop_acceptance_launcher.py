@@ -19,6 +19,7 @@ PLATFORM_LABELS = {
     "douyin": "抖音/巨量",
     "taobao": "淘宝/千牛",
     "pdd": "拼多多",
+    "xianyu": "闲鱼",
 }
 
 STATUS_LABELS = {

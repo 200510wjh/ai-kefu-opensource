@@ -20,7 +20,7 @@ from desktop_auto_reply_listener import PLATFORMS, enum_visible_windows
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT_PATH = ROOT / "data" / "desktop-listener" / "platform-prepare-report.md"
-DEFAULT_PLATFORMS = ["wechat", "douyin", "taobao", "pdd"]
+DEFAULT_PLATFORMS = ["wechat", "douyin", "taobao", "pdd", "xianyu"]
 
 
 @dataclass(frozen=True)
@@ -68,6 +68,18 @@ PLATFORM_HINTS: dict[str, PlatformHints] = {
             r"C:\Program Files\Pinduoduo\Pinduoduo.exe",
             r"C:\Program Files (x86)\Pinduoduo\Pinduoduo.exe",
             r"%LOCALAPPDATA%\Programs\Pinduoduo\Pinduoduo.exe",
+        ),
+    ),
+    "xianyu": PlatformHints(
+        label="闲鱼",
+        keywords=("闲鱼", "咸鱼", "Xianyu", "Goofish", "Idle Fish"),
+        common_paths=(
+            r"C:\Program Files\Xianyu\Xianyu.exe",
+            r"C:\Program Files (x86)\Xianyu\Xianyu.exe",
+            r"%LOCALAPPDATA%\Programs\Xianyu\Xianyu.exe",
+            r"C:\Program Files\Goofish\Goofish.exe",
+            r"C:\Program Files (x86)\Goofish\Goofish.exe",
+            r"%LOCALAPPDATA%\Programs\Goofish\Goofish.exe",
         ),
     ),
 }
@@ -175,6 +187,8 @@ def guidance_for(platform: str, has_window: bool, has_candidate: bool) -> str:
         return "未找到千牛。请安装并登录千牛工作台，打开买家咨询聊天窗口后重新巡检。"
     if platform == "pdd":
         return "未找到拼多多商家端。请安装商家工作台或在浏览器打开商家后台客服页面后重新巡检。"
+    if platform == "xianyu":
+        return "未找到闲鱼客服窗口。请打开闲鱼客户端或浏览器闲鱼消息/卖家聊天页后重新巡检。"
     return "未找到微信或企业微信。请安装并登录，打开真实聊天窗口后重新巡检。"
 
 
@@ -275,7 +289,7 @@ def main() -> int:
     except Exception:
         pass
     parser = argparse.ArgumentParser(description="自动巡检/准备微信、抖音、千牛、拼多多客服窗口。")
-    parser.add_argument("--platforms", default=",".join(DEFAULT_PLATFORMS), help="逗号分隔：wechat,douyin,taobao,pdd")
+    parser.add_argument("--platforms", default=",".join(DEFAULT_PLATFORMS), help="逗号分隔：wechat,douyin,taobao,pdd,xianyu")
     parser.add_argument("--launch", action="store_true", help="找不到窗口时，尝试启动已安装的客户端或快捷方式。")
     parser.add_argument("--soft", action="store_true", help="即使平台窗口没全部准备好，也返回 0；用于普通验收和巡检报告。")
     parser.add_argument("--wait-seconds", type=float, default=3)

@@ -353,7 +353,7 @@ class HyperFramesRenderPlan(BaseModel):
 
 
 class ReplyAssistantRequest(BaseModel):
-    channel: Literal["wechat", "douyin_dm", "taobao", "pdd", "customer_service", "dating"] = "wechat"
+    channel: Literal["wechat", "douyin_dm", "taobao", "pdd", "xianyu", "customer_service", "dating"] = "wechat"
     scenario: str = "商家私信转化"
     conversation: str = Field(min_length=1)
     goal: str = "自然回复并推进下一步"
@@ -403,7 +403,7 @@ class ParsedChatMessage(BaseModel):
 
 
 class ChatReplyAgentRequest(BaseModel):
-    channel: Literal["wechat", "douyin_dm", "taobao", "pdd", "customer_service"] = "wechat"
+    channel: Literal["wechat", "douyin_dm", "taobao", "pdd", "xianyu", "customer_service"] = "wechat"
     ocr_text: str = Field(min_length=1)
     merchant_profile: str = "商家增长顾问"
     reply_goal: str = "自然回复并推进下一步"
@@ -905,6 +905,7 @@ def build_reply_assistant_response(payload: ReplyAssistantRequest) -> ReplyAssis
         "douyin_dm": "抖音私信",
         "taobao": "淘宝/千牛",
         "pdd": "拼多多",
+        "xianyu": "闲鱼",
         "customer_service": "客服会话",
         "dating": "关系沟通",
     }[payload.channel]
@@ -1994,7 +1995,7 @@ async def chat_reply_agent(payload: ChatReplyAgentRequest) -> ChatReplyAgentResp
     next_actions = [
         "把当前聊天截图或复制文本传入 ocr_text。",
         "系统只生成候选回复，发送前必须人工确认。",
-        "接企业微信/微信客服/抖音私信官方 API 后，才能从 copy_only 升级为 api_ready。",
+        "接企业微信/微信客服/抖音私信/淘宝/拼多多/闲鱼官方 API 后，才能从 copy_only 升级为 api_ready。",
     ]
     if payload.auto_send:
         automation_mode = "blocked"

@@ -141,7 +141,8 @@ const channelNames: Record<string, string> = {
   wechat: '微信',
   douyin: '抖音',
   taobao: '淘宝',
-  pdd: '拼多多'
+  pdd: '拼多多',
+  xianyu: '闲鱼'
 };
 
 const statusNames: Record<string, string> = {
@@ -458,7 +459,7 @@ function App() {
           <div className="brandMark"><Brain size={30} /></div>
           <p>Merchant Brain</p>
           <h1>商家 AI 客服大脑</h1>
-          <span>网页气泡先自动回复；微信、抖音、淘宝、拼多多先做人工辅助和官方 API 接入配置。</span>
+          <span>网页气泡先自动回复；微信、抖音、淘宝、拼多多、闲鱼先做人工辅助和官方 API 接入配置。</span>
           <label>商户账号<input value={loginDraft.username} onChange={(event) => setLoginDraft({...loginDraft, username: event.target.value})} /></label>
           <label>密码<input type="password" value={loginDraft.password} onChange={(event) => setLoginDraft({...loginDraft, password: event.target.value})} /></label>
           <button className="primaryButton" onClick={login} disabled={loading}>{loading ? <RefreshCw className="spin" size={18} /> : <LogIn size={18} />}登录后台</button>
@@ -509,7 +510,7 @@ function App() {
               <div>
                 <small>AI 模式</small>
                 <h2>{overview?.ai_mode === 'ai' ? 'API2D 已接入，网页客服可自动回复' : '当前是模板兜底模式'}</h2>
-                <p>微信、抖音、淘宝、拼多多先生成“像人工”的回复草稿，等官方 API 权限到位后再切自动发送。</p>
+                <p>微信、抖音、淘宝、拼多多、闲鱼先生成“像人工”的回复草稿，等官方 API 权限到位后再切自动发送。</p>
               </div>
               <Bot size={42} />
             </div>
@@ -521,7 +522,7 @@ function App() {
               </div>
               <div className="panel">
                 <div className="panelHeader"><strong>客服脚本</strong><button onClick={() => setSection('scripts')}><FileText size={16} />生成</button></div>
-                <p>{scriptResult?.title || '先生成一套微信/抖音/淘宝/拼多多客服成交脚本。'}</p>
+                <p>{scriptResult?.title || '先生成一套微信/抖音/淘宝/拼多多/闲鱼客服成交脚本。'}</p>
                 <small>{scriptResult?.opening || '脚本会自动保存到知识库，后续 AI 回复也能用。'}</small>
               </div>
             </section>
@@ -615,7 +616,7 @@ function App() {
 
         {section === 'channels' && (
           <div className="pageStack">
-            <PageTitle eyebrow="Channels" title="多平台客服接入，不做违规模拟发送" desc="网页客服已支持自动回复；微信/抖音/淘宝/拼多多先走回复草稿，拿到官方 API 权限后再切自动化。" />
+            <PageTitle eyebrow="Channels" title="多平台客服接入，不做违规模拟发送" desc="网页客服已支持自动回复；微信/抖音/淘宝/拼多多/闲鱼先走回复草稿，拿到官方 API 权限后再切自动化。" />
             <div className="channelGrid">
               {channels.map((channel, index) => (
                 <div className="channelPanel" key={channel.channel}>
@@ -775,12 +776,12 @@ function App() {
 
         {section === 'desktop' && (
           <div className="pageStack">
-            <PageTitle eyebrow="Desktop Agent" title="打开微信、抖音、千牛、拼多多窗口就能辅助回复" desc="桌面助手会自动识别当前客服窗口，读取聊天内容，结合商家知识库生成回复；默认只粘贴候选回复，不自动按 Enter。" />
+            <PageTitle eyebrow="Desktop Agent" title="打开微信、抖音、千牛、拼多多、闲鱼窗口就能辅助回复" desc="桌面助手会自动识别当前客服窗口，读取聊天内容，结合商家知识库生成回复；默认只粘贴候选回复，不自动按 Enter。" />
             <div className="desktopHero">
               <div>
                 <small>可视化启动器</small>
                 <h2>双击 启动AI自动客服.bat</h2>
-                <p>先打开真实客服窗口，再在启动器里刷新窗口、选择窗口、点击开始监听。微信、抖音、淘宝/千牛、拼多多共用同一套 AI 回复引擎。</p>
+                <p>先打开真实客服窗口，再在启动器里刷新窗口、选择窗口、点击开始监听。微信、抖音、淘宝/千牛、拼多多、闲鱼共用同一套 AI 回复引擎。</p>
               </div>
               <Headphones size={42} />
             </div>
@@ -788,12 +789,12 @@ function App() {
               <article className="panel">
                 <div className="panelHeader"><strong>先自动准备平台</strong><button onClick={() => navigator.clipboard?.writeText(desktopPrepareBat)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopPrepareBat}</pre>
-                <small>自动查找微信、抖音、千牛、拼多多客户端或快捷方式；能启动就启动，并生成中文巡检报告。</small>
+                <small>自动查找微信、抖音、千牛、拼多多、闲鱼客户端或快捷方式；能启动就启动，并生成中文巡检报告。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>推荐入口</strong><button onClick={() => navigator.clipboard?.writeText(desktopLauncherBat)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopLauncherBat}</pre>
-                <small>不用复制命令。双击后会列出当前窗口，选中微信/抖音/千牛/拼多多客服窗口即可自动监听。</small>
+                <small>不用复制命令。双击后会列出当前窗口，选中微信/抖音/千牛/拼多多/闲鱼客服窗口即可自动监听。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>先验收真实平台</strong><button onClick={() => navigator.clipboard?.writeText(desktopAcceptanceBat)}><Clipboard size={16} />复制</button></div>
@@ -828,7 +829,7 @@ function App() {
               <article className="panel">
                 <div className="panelHeader"><strong>锁定窗口</strong><button onClick={() => navigator.clipboard?.writeText(desktopTargetCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopTargetCommand}</pre>
-                <small>不想依赖前台窗口时，用窗口标题正则绑定微信、千牛或拼多多客服窗口。</small>
+                <small>不想依赖前台窗口时，用窗口标题正则绑定微信、千牛、拼多多或闲鱼客服窗口。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>带本地知识库</strong><button onClick={() => navigator.clipboard?.writeText(desktopKnowledgeCommand)}><Clipboard size={16} />复制</button></div>
@@ -848,17 +849,17 @@ function App() {
               <article className="panel">
                 <div className="panelHeader"><strong>一键验收</strong><button onClick={() => navigator.clipboard?.writeText(acceptanceCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{acceptanceCommand}</pre>
-                <small>检查后台、构建、四个平台回复接口、桌面诊断脚本和文档配置。</small>
+                <small>检查后台、构建、五个平台回复接口、桌面诊断脚本和文档配置。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>真实平台验收</strong><button onClick={() => navigator.clipboard?.writeText(realPlatformAcceptanceCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{realPlatformAcceptanceCommand}</pre>
-                <small>先打开微信、抖音、千牛、拼多多客服聊天窗口，再运行。缺哪个窗口就会明确报 missing_window。</small>
+                <small>先打开微信、抖音、千牛、拼多多、闲鱼客服聊天窗口，再运行。缺哪个窗口就会明确报 missing_window。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>回复链路演练</strong><button onClick={() => navigator.clipboard?.writeText(replyE2EAcceptanceCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{replyE2EAcceptanceCommand}</pre>
-                <small>不用真实窗口，验证示例聊天、知识库、四个平台 API 回复和禁用承诺检查。</small>
+                <small>不用真实窗口，验证示例聊天、知识库、五个平台 API 回复和禁用承诺检查。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>验收矩阵</strong><button onClick={() => navigator.clipboard?.writeText(acceptanceMatrixDoc)}><Clipboard size={16} />复制</button></div>
@@ -871,7 +872,8 @@ function App() {
                 ['微信/企业微信', '窗口标题包含 微信、WeChat、企业微信 时自动识别。'],
                 ['抖音私信', '窗口标题包含 抖音、巨量、Douyin 时自动识别。'],
                 ['淘宝/千牛', '窗口标题包含 千牛、淘宝、旺旺、Qianniu 时自动识别。'],
-                ['拼多多', '窗口标题包含 拼多多、PDD、商家后台 时自动识别。']
+                ['拼多多', '窗口标题包含 拼多多、PDD、商家后台 时自动识别。'],
+                ['闲鱼', '窗口标题包含 闲鱼、咸鱼、Xianyu、Goofish 时自动识别。']
               ].map(([name, desc]) => (
                 <section className="knowledgeItem" key={name}>
                   <strong>{name}</strong>

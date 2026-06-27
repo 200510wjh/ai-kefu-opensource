@@ -1,4 +1,4 @@
-# AI 客服 SaaS 验收矩阵
+﻿# AI 客服 SaaS 验收矩阵
 
 这份矩阵把原始目标拆成可验收项。不要用“看起来能用”代替验收命令。
 
@@ -8,19 +8,19 @@
 npm run acceptance:check
 ```
 
-证明系统基础能力：SaaS、知识库、网页客服、四个平台回复接口、历史上下文、回复链路演练、构建和脚本编译。
+证明系统基础能力：SaaS、知识库、网页客服、五个平台回复接口、历史上下文、回复链路演练、构建和脚本编译。
 
 ```powershell
 npm run acceptance:reply-e2e
 ```
 
-证明核心客服引擎：示例聊天 + 本地知识库 + 微信/抖音/淘宝/拼多多渠道 + AI 回复 + 禁用承诺检查。
+证明核心客服引擎：示例聊天 + 本地知识库 + 微信/抖音/淘宝/拼多多/闲鱼渠道 + AI 回复 + 禁用承诺检查。
 
 ```powershell
 npm run acceptance:real-platforms
 ```
 
-证明真实桌面读取：必须先打开微信、抖音、千牛、拼多多真实客服聊天窗口。没有真实窗口时不能算完成。
+证明真实桌面读取：必须先打开微信、抖音、千牛、拼多多、闲鱼真实客服聊天窗口。没有真实窗口时不能算完成。
 
 ## 目标对照
 
@@ -31,7 +31,7 @@ npm run acceptance:real-platforms
 | 自动回复 | API 回复引擎返回 `should_reply` 和推荐回复，启动器可自动粘贴 | `platform_reply_api`、`reply_e2e`、真实窗口通过后启动器粘贴 |
 | 导入知识库 | SaaS 后台可导入 FAQ/商品/政策；桌面端可读取本地知识库文件 | `saas_core_flow`、`reply_e2e` |
 | 页面不是单页演示 | 后台包含商家大脑、客服脚本、渠道接入、知识库、收件箱、桌面客服、网页气泡 | 前端构建 + 页面源码 + 线上后台 |
-| 微信/抖音/淘宝/拼多多渠道 | 回复接口和桌面窗口识别都覆盖四个平台 | `platform_reply_api`、`launcher_platform_guess`、`acceptance:real-platforms` |
+| 微信/抖音/淘宝/拼多多/闲鱼渠道 | 回复接口和桌面窗口识别都覆盖五个平台 | `platform_reply_api`、`launcher_platform_guess`、`acceptance:real-platforms` |
 | 不乱发送 | 默认只粘贴，不按 Enter；自动发送必须确认短语 | 监听器参数校验和使用说明 |
 | 不把窗口壳当聊天 | 过滤 `CefView`、窗口按钮、内部路径等壳文字 | `chat_text_filter`、`not_chat_like`、真实平台验收状态 |
 | 客服回复不傻不乱承诺 | 回复链路检查禁用“保证准时/无条件退款/私下收款”等承诺 | `acceptance:reply-e2e` |
@@ -51,5 +51,6 @@ npm run acceptance:real-platforms
 
 1. `npm run acceptance:check` 通过。
 2. `npm run acceptance:reply-e2e` 通过。
-3. 打开微信、抖音、千牛、拼多多真实聊天页后，`npm run acceptance:real-platforms` 严格通过。
+3. 打开微信、抖音、千牛、拼多多、闲鱼真实聊天页后，`npm run acceptance:real-platforms` 严格通过。
+
 

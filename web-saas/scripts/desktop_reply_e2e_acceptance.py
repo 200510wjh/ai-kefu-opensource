@@ -15,6 +15,7 @@ CHANNELS = {
     "douyin_dm": "抖音",
     "taobao": "淘宝/千牛",
     "pdd": "拼多多",
+    "xianyu": "闲鱼",
 }
 
 CHAT_FIXTURE = """客户：99元花束今天还有吗？

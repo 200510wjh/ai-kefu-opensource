@@ -483,6 +483,7 @@ DEFAULT_CHANNELS: dict[str, tuple[str, str]] = {
     "douyin": ("抖音客服", "建议接抖音开放平台/企业号权限；未授权前只做人工辅助"),
     "taobao": ("淘宝客服", "建议接千牛/淘宝开放平台；未授权前只做话术建议"),
     "pdd": ("拼多多客服", "建议接拼多多开放平台；未授权前只做话术建议"),
+    "xianyu": ("闲鱼客服", "建议接闲鱼/淘宝生态官方能力；未授权前只做桌面辅助和回复草稿"),
 }
 
 
@@ -902,7 +903,7 @@ JSON 结构：
 
 要求：
 1. 不要夸大承诺，不承诺退款和收益。
-2. 微信、抖音、淘宝、拼多多如果涉及自动发送，必须提示需要官方 API 权限。
+2. 微信、抖音、淘宝、拼多多、闲鱼如果涉及自动发送，必须提示需要官方 API 权限。
 3. 每条话术像真人客服，短、自然、能推进下一步。
 """
     try:
@@ -1068,7 +1069,7 @@ async def list_channels(merchant: MerchantProfile = Depends(current_merchant)) -
                    auto_reply_enabled, handoff_required, notes
             FROM channel_configs
             WHERE merchant_id={marker}
-            ORDER BY FIELD(channel, 'web_widget', 'wechat', 'douyin', 'taobao', 'pdd'), channel
+            ORDER BY FIELD(channel, 'web_widget', 'wechat', 'douyin', 'taobao', 'pdd', 'xianyu'), channel
             """ if db_driver() == "mysql" else f"""
             SELECT channel, display_name, mode, status, official_api_url, webhook_url,
                    auto_reply_enabled, handoff_required, notes
@@ -1080,6 +1081,7 @@ async def list_channels(merchant: MerchantProfile = Depends(current_merchant)) -
                 WHEN 'douyin' THEN 3
                 WHEN 'taobao' THEN 4
                 WHEN 'pdd' THEN 5
+                WHEN 'xianyu' THEN 6
                 ELSE 9
             END, channel
             """,

@@ -32,6 +32,8 @@ ZH = {
     "qianniu": "\u5343\u725b",
     "wangwang": "\u65fa\u65fa",
     "pdd": "\u62fc\u591a\u591a",
+    "xianyu": "\u95f2\u9c7c",
+    "salted_fish": "\u54b8\u9c7c",
     "merchant_backend": "\u5546\u5bb6\u540e\u53f0",
 }
 
@@ -60,6 +62,11 @@ PLATFORMS: dict[str, dict[str, Any]] = {
         "backend": "pdd",
         "label": ZH["pdd"],
         "allowlist": [ZH["pdd"], "PDD", ZH["merchant_backend"]],
+    },
+    "xianyu": {
+        "backend": "xianyu",
+        "label": ZH["xianyu"],
+        "allowlist": [ZH["xianyu"], ZH["salted_fish"], "Xianyu", "Idle Fish", "Goofish"],
     },
 }
 

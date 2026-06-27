@@ -118,7 +118,7 @@ class DesktopListenerLauncher(tk.Tk):
 
         form = ttk.Frame(left, style="Card.TFrame")
         form.pack(fill="x", pady=(14, 0))
-        self.add_combo(form, "平台", self.platform, [("wechat", "微信/企业微信"), ("douyin", "抖音/巨量"), ("taobao", "淘宝/千牛"), ("pdd", "拼多多")], 0)
+        self.add_combo(form, "平台", self.platform, [("wechat", "微信/企业微信"), ("douyin", "抖音/巨量"), ("taobao", "淘宝/千牛"), ("pdd", "拼多多"), ("xianyu", "闲鱼")], 0)
         self.add_combo(form, "读取方式", self.source, [("auto", "自动(UIA+OCR)"), ("uia", "窗口文本"), ("ocr", "截图识别"), ("clipboard", "剪贴板")], 1)
 
         ttk.Label(form, text="知识库文件", style="Card.TLabel").grid(row=2, column=0, sticky="w", pady=(10, 0))

@@ -1,4 +1,4 @@
-# 桌面客服辅助脚本使用说明
+﻿# 桌面客服辅助脚本使用说明
 
 这个版本先不做网页客服，主线改成桌面辅助脚本，支持微信、抖音、淘宝/千牛、拼多多。
 
@@ -25,7 +25,7 @@
 自动准备客服平台.bat
 ```
 
-它会自动查找微信、企业微信、抖音、千牛、拼多多客户端或快捷方式；找不到窗口时会尝试启动已安装的平台，并生成报告：
+它会自动查找微信、企业微信、抖音、千牛、拼多多、闲鱼客户端或快捷方式；找不到窗口时会尝试启动已安装的平台，并生成报告：
 
 ```text
 data/desktop-listener/platform-prepare-report.md
@@ -48,7 +48,7 @@ data/desktop-listener/platform-prepare-report.md
 启动器会做这些事：
 
 - 列出当前打开的窗口。
-- 对微信、抖音、千牛、拼多多窗口打标。
+- 对微信、抖音、千牛、拼多多、闲鱼窗口打标。
 - 让你选择平台、读取方式和知识库文件。
 - 点“开始自动监听”后持续读取消息、生成回复、粘贴候选回复。
 - 默认不按 Enter 发送。
@@ -61,7 +61,7 @@ scripts/start_desktop_auto_listener.bat
 
 使用顺序：
 
-1. 打开微信、抖音、千牛或拼多多客服窗口，停留在聊天页。
+1. 打开微信、抖音、千牛、拼多多或闲鱼客服窗口，停留在聊天页。
 2. 双击启动器。
 3. 点“刷新窗口”。
 4. 选中真实客服窗口。
@@ -160,7 +160,7 @@ npm run desktop:diagnose
 诊断结果会告诉你：
 
 - 当前前台窗口标题
-- 是否识别成微信/抖音/淘宝/拼多多
+- 是否识别成微信/抖音/淘宝/拼多多/闲鱼
 - UIA 读到了什么
 - OCR 读到了什么
 - 剪贴板兜底读到了什么
@@ -180,7 +180,7 @@ npm run acceptance:check
 npm run acceptance:reply-e2e
 ```
 
-它不需要打开真实窗口，只验证示例聊天、知识库和四个平台回复接口都能跑通。
+它不需要打开真实窗口，只验证示例聊天、知识库和五个平台回复接口都能跑通。
 
 真实平台验收：
 
@@ -217,7 +217,7 @@ npm run desktop:listen -- --platform auto --source clipboard --paste --knowledge
 
 ## 单次回复：兜底测试方式
 
-先打开微信、抖音私信、千牛或拼多多客服窗口，复制一段聊天记录。
+先打开微信、抖音私信、千牛、拼多多或闲鱼客服窗口，复制一段聊天记录。
 
 微信：
 
@@ -243,6 +243,12 @@ npm run desktop:reply -- --platform taobao
 npm run desktop:reply -- --platform pdd
 ```
 
+闲鱼：
+
+```powershell
+npm run desktop:reply -- --platform xianyu
+```
+
 脚本会打印推荐回复，并复制到剪贴板。你确认没问题后，自己按 Ctrl+V 粘贴发送。
 
 ## 自动粘贴到输入框
@@ -263,7 +269,7 @@ npm run desktop:reply -- --platform wechat --paste
 npm run desktop:reply -- --platform wechat --paste --send --confirm-send "我确认发送"
 ```
 
-淘宝/千牛和拼多多同理，把 `wechat` 换成 `taobao` 或 `pdd`。
+淘宝/千牛、拼多多和闲鱼同理，把 `wechat` 换成 `taobao`、`pdd` 或 `xianyu`。
 
 ## 监听模式
 
@@ -297,12 +303,13 @@ npm run desktop:reply -- --platform wechat --merchant-profile "鲜花店，主�
 
 后续要做成长期使用，就把商家知识库整理成文件或数据库，再让脚本启动时读取。
 
-## 四个平台的定位
+## 五个平台的定位
 
 - `wechat`：微信、企业微信私域客服。
 - `douyin`：抖音私信、线索咨询。
 - `taobao`：淘宝、千牛、旺旺客服。
 - `pdd`：拼多多商家客服。
+- `xianyu`：闲鱼卖家消息、二手交易咨询。
 
 ## 推荐工作流
 
@@ -310,3 +317,4 @@ npm run desktop:reply -- --platform wechat --merchant-profile "鲜花店，主�
 2. 再用 `--paste`，确认粘贴位置稳定。
 3. 最后才考虑 `--send`，并保留人工盯屏。
 4. 真要卖给客户，优先卖“辅助回复 + 知识库 + 人工确认”，不要一开始承诺全自动无人值守。
+
