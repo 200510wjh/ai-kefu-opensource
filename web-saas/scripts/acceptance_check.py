@@ -304,6 +304,9 @@ def main() -> int:
                     "抖音\n抖音精选电脑版 - 抖音旗下优质视频平台\n全部\n公开课\n游戏\n影视\n"
                     "音乐\n二次元\n知识\n体育\n美食\n汽车\n小剧场\n生活vlog\n旅行\n三农\n动物\n亲子\n美妆穿搭"
                 )
+                and not desktop_listener.looks_like_chat_text(
+                    "女装Ai带货，别再盯着同行抄了\n全网最详细带工厂老板拍获客短视频开头 视频很长"
+                )
                 and desktop_listener.looks_like_chat_text("客户：99元花束还有吗？现在下单多久能送到？")
             ),
             "shell_candidate": desktop_listener.normalize_chat_candidate("微信多开\nCefView\nzip://example\n系统\n还原\n最大化\n关闭"),
