@@ -38,13 +38,22 @@ def run(cmd: list[str], cwd: Path, timeout: int = 60) -> dict[str, Any]:
     }
 
 
-def request_json(url: str, method: str = "GET", payload: dict[str, Any] | None = None, headers: dict[str, str] | None = None, timeout: int = 45) -> dict[str, Any]:
+def request_json(url: str, method: str = "GET", payload: dict[str, Any] | None = None, headers: dict[str, str] | None = None, timeout: int = 45, retries: int = 2) -> dict[str, Any]:
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8") if payload is not None else None
     request_headers = {"Content-Type": "application/json; charset=utf-8"}
     request_headers.update(headers or {})
-    request = urllib.request.Request(url, data=body, headers=request_headers, method=method)
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return json.loads(response.read().decode("utf-8"))
+    last_error: Exception | None = None
+    for attempt in range(retries + 1):
+        request = urllib.request.Request(url, data=body, headers=request_headers, method=method)
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except Exception as exc:
+            last_error = exc
+            if attempt >= retries:
+                break
+            time.sleep(1 + attempt)
+    raise RuntimeError(str(last_error))
 
 
 def get_json(url: str, headers: dict[str, str] | None = None, timeout: int = 20) -> dict[str, Any]:
@@ -225,8 +234,17 @@ def main() -> int:
             "history_file": str(history_path),
             "rows": len(rows),
         }
+        checks["chat_text_filter"] = {
+            "ok": (
+                not desktop_listener.looks_like_chat_text("微信多开\nCefView\nzip://example\n系统\n还原\n最大化\n关闭")
+                and desktop_listener.looks_like_chat_text("客户：99元花束还有吗？现在下单多久能送到？")
+            ),
+            "shell_candidate": desktop_listener.normalize_chat_candidate("微信多开\nCefView\nzip://example\n系统\n还原\n最大化\n关闭"),
+            "chat_candidate": desktop_listener.normalize_chat_candidate("客户：99元花束还有吗？现在下单多久能送到？"),
+        }
     except Exception as exc:
         checks["desktop_history"] = {"ok": False, "error": str(exc)}
+        checks["chat_text_filter"] = {"ok": False, "error": str(exc)}
 
     try:
         import desktop_listener_launcher as launcher  # type: ignore

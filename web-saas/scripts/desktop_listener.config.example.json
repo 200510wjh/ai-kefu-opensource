@@ -11,6 +11,8 @@
   "min_send_gap_seconds": 20,
   "max_chars": 6000,
   "min_text_chars": 30,
+  "min_chat_chars": 12,
+  "allow_non_chat_text": false,
   "ocr_lang": "chi_sim+eng",
   "debug_screenshot": "data/desktop-listener/latest-window.png",
   "history_file": "data/desktop-listener/history.jsonl",

@@ -19,6 +19,8 @@ from desktop_auto_reply_listener import (
     read_clipboard,
     read_ocr_text,
     read_uia_text,
+    looks_like_chat_text,
+    normalize_chat_candidate,
     window_title,
 )
 
@@ -69,6 +71,8 @@ def build_config(args: argparse.Namespace) -> ListenerConfig:
         dry_run=True,
         max_chars=args.max_chars,
         min_text_chars=args.min_text_chars,
+        min_chat_chars=args.min_chat_chars,
+        allow_non_chat_text=False,
         ocr_lang=args.ocr_lang,
         debug_screenshot=args.debug_screenshot,
         history_file="data/desktop-listener/history.jsonl",
@@ -92,6 +96,7 @@ def main() -> int:
     parser.add_argument("--knowledge-file", default="docs/examples/merchant_knowledge.example.txt")
     parser.add_argument("--max-chars", type=int, default=2000)
     parser.add_argument("--min-text-chars", type=int, default=30)
+    parser.add_argument("--min-chat-chars", type=int, default=12)
     parser.add_argument("--ocr-lang", default="chi_sim+eng")
     parser.add_argument("--debug-screenshot", default="data/desktop-listener/diagnostics-window.png")
     args = parser.parse_args()
@@ -117,7 +122,13 @@ def main() -> int:
 
     try:
         uia = read_uia_text(args.max_chars, hwnd=active_window_handle(config))
-        checks["uia"] = {"ok": bool(uia.strip()), "length": len(uia), "sample": uia[:500]}
+        checks["uia"] = {
+            "ok": bool(uia.strip()),
+            "chat_like": looks_like_chat_text(uia, args.min_chat_chars),
+            "candidate": normalize_chat_candidate(uia)[:500],
+            "length": len(uia),
+            "sample": uia[:500],
+        }
     except Exception as exc:
         checks["uia"] = {"ok": False, "error": str(exc)}
 
@@ -129,19 +140,37 @@ def main() -> int:
 
     try:
         ocr = read_ocr_text(config)
-        checks["ocr"] = {"ok": bool(ocr.strip()), "length": len(ocr), "sample": ocr[:500]}
+        checks["ocr"] = {
+            "ok": bool(ocr.strip()),
+            "chat_like": looks_like_chat_text(ocr, args.min_chat_chars),
+            "candidate": normalize_chat_candidate(ocr)[:500],
+            "length": len(ocr),
+            "sample": ocr[:500],
+        }
     except Exception as exc:
         checks["ocr"] = {"ok": False, "error": str(exc)}
 
     try:
         clip = read_clipboard()
-        checks["clipboard"] = {"ok": bool(clip.strip()), "length": len(clip), "sample": clip[:500]}
+        checks["clipboard"] = {
+            "ok": bool(clip.strip()),
+            "chat_like": looks_like_chat_text(clip, args.min_chat_chars),
+            "candidate": normalize_chat_candidate(clip)[:500],
+            "length": len(clip),
+            "sample": clip[:500],
+        }
     except Exception as exc:
         checks["clipboard"] = {"ok": False, "error": str(exc)}
 
     try:
         auto = read_chat_text(config, target)
-        checks["auto"] = {"ok": bool(auto.strip()), "length": len(auto), "sample": auto[:500]}
+        checks["auto"] = {
+            "ok": bool(auto.strip()),
+            "chat_like": looks_like_chat_text(auto, args.min_chat_chars),
+            "candidate": normalize_chat_candidate(auto)[:500],
+            "length": len(auto),
+            "sample": auto[:500],
+        }
     except Exception as exc:
         checks["auto"] = {"ok": False, "error": str(exc)}
 

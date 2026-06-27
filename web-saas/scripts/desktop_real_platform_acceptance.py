@@ -9,24 +9,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from desktop_auto_reply_listener import PLATFORMS, enum_visible_windows
+from desktop_auto_reply_listener import PLATFORMS, enum_visible_windows, looks_like_chat_text, normalize_chat_candidate
 
 
 PYTHON = Path(r"C:\Users\Administrator\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe")
 DEFAULT_PLATFORMS = ["wechat", "douyin", "taobao", "pdd"]
-SHELL_TEXT_PATTERNS = [
-    r"^CefView$",
-    r"^Chrome Legacy Window$",
-    r"^系统$",
-    r"^还原$",
-    r"^最大化$",
-    r"^最小化$",
-    r"^关闭$",
-    r"^zip://",
-    r"^app://",
-    r"^http://",
-    r"^https://",
-]
 
 
 def platform_patterns(platform: str) -> list[str]:
@@ -40,25 +27,6 @@ def find_platform_window(platform: str, windows: list[tuple[int, str]]) -> tuple
         if any(re.search(pattern, title, re.IGNORECASE) for pattern in patterns):
             return hwnd, title
     return None
-
-
-def normalize_chat_candidate(text: str) -> str:
-    useful_lines: list[str] = []
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line:
-            continue
-        if any(re.search(pattern, line, re.IGNORECASE) for pattern in SHELL_TEXT_PATTERNS):
-            continue
-        useful_lines.append(line)
-    return "\n".join(useful_lines).strip()
-
-
-def looks_like_chat_text(text: str, min_read_chars: int) -> bool:
-    candidate = normalize_chat_candidate(text)
-    if len(candidate) < min_read_chars:
-        return False
-    return bool(re.search(r"[？?。！!，,：:]", candidate) or re.search(r"(客户|买|卖|价格|多少钱|下单|发货|退款|地址|客服|你好|您好)", candidate))
 
 
 def run_diagnostics(root: Path, python: Path, platform: str, title: str, timeout: int, min_read_chars: int) -> dict[str, Any]:

@@ -63,6 +63,22 @@ PLATFORMS: dict[str, dict[str, Any]] = {
     },
 }
 
+SHELL_TEXT_PATTERNS = [
+    r"^CefView$",
+    r"^Chrome Legacy Window$",
+    r"^系统$",
+    r"^还原$",
+    r"^最大化$",
+    r"^最小化$",
+    r"^关闭$",
+    r"^zip://",
+    r"^app://",
+    r"^http://",
+    r"^https://",
+]
+
+CHAT_SIGNAL_PATTERN = r"[？?。！!，,：:]|(客户|买|卖|价格|多少钱|下单|发货|退款|地址|客服|你好|您好|在吗|还有|优惠|订单|物流|能不能|可以吗)"
+
 
 @dataclass
 class ActiveTarget:
@@ -91,6 +107,8 @@ class ListenerConfig:
     dry_run: bool
     max_chars: int
     min_text_chars: int
+    min_chat_chars: int
+    allow_non_chat_text: bool
     ocr_lang: str
     debug_screenshot: str
     history_file: str
@@ -162,6 +180,25 @@ def window_rect(hwnd: int) -> tuple[int, int, int, int]:
 
 def match_any(text: str, patterns: list[str]) -> bool:
     return any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
+
+
+def normalize_chat_candidate(text: str) -> str:
+    useful_lines: list[str] = []
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if any(re.search(pattern, line, re.IGNORECASE) for pattern in SHELL_TEXT_PATTERNS):
+            continue
+        useful_lines.append(line)
+    return "\n".join(useful_lines).strip()
+
+
+def looks_like_chat_text(text: str, min_chat_chars: int = 12) -> bool:
+    candidate = normalize_chat_candidate(text)
+    if len(candidate) < min_chat_chars:
+        return False
+    return bool(re.search(CHAT_SIGNAL_PATTERN, candidate, re.IGNORECASE))
 
 
 def detect_target(config: ListenerConfig) -> ActiveTarget | None:
@@ -558,6 +595,8 @@ def load_config(args: argparse.Namespace) -> ListenerConfig:
         dry_run=args.dry_run,
         max_chars=args.max_chars,
         min_text_chars=args.min_text_chars,
+        min_chat_chars=args.min_chat_chars,
+        allow_non_chat_text=args.allow_non_chat_text,
         ocr_lang=args.ocr_lang,
         debug_screenshot=args.debug_screenshot,
         history_file=args.history_file,
@@ -581,6 +620,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-send-gap-seconds", type=float, default=20)
     parser.add_argument("--max-chars", type=int, default=6000)
     parser.add_argument("--min-text-chars", type=int, default=30)
+    parser.add_argument("--min-chat-chars", type=int, default=12, help="Minimum filtered chat-like characters required before calling AI.")
+    parser.add_argument("--allow-non-chat-text", action="store_true", help="Allow replying even when the visible text looks like window chrome instead of chat.")
     parser.add_argument("--ocr-lang", default=os.getenv("DESKTOP_OCR_LANG", "chi_sim+eng"))
     parser.add_argument("--debug-screenshot", default="", help="Optional path to save the latest foreground-window screenshot for OCR debugging.")
     parser.add_argument("--history-file", default="data/desktop-listener/history.jsonl")
@@ -641,6 +682,25 @@ def main() -> int:
             time.sleep(config.poll_seconds)
             continue
         last_fingerprint = fingerprint
+
+        if not config.allow_non_chat_text and not looks_like_chat_text(chat_text, config.min_chat_chars):
+            print(
+                json.dumps(
+                    {
+                        "window": target.title,
+                        "platform": target.label,
+                        "should_reply": False,
+                        "reason": "not_chat_like",
+                        "candidate": normalize_chat_candidate(chat_text)[:500],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
+            if config.once:
+                return 5
+            time.sleep(config.poll_seconds)
+            continue
 
         data = call_agent(config, target, chat_text)
         reply = str(data.get("recommended_reply") or "")

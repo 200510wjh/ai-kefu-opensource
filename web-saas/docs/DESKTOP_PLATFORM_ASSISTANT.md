@@ -164,6 +164,7 @@ npm run acceptance:real-platforms
 - `missing_window`：当前机器没打开对应平台窗口。
 - `clipboard_fallback_only`：找到了窗口，但 UIA/OCR 没读到足够聊天内容，只用了剪贴板兜底；这不算真正自动读取。
 - `read_failed`：找到了窗口，但 UIA/OCR/剪贴板都没读到可用内容，需要先跑 `npm run desktop:diagnose` 看原因。
+- `not_chat_like`：监听器读到的是窗口标题、按钮、内部路径等壳文字，会自动跳过，不会调用 AI 或粘贴回复。
 
 只验收微信：
 
