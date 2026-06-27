@@ -27,6 +27,18 @@ scripts/start_desktop_auto_listener.bat
 
 然后打开微信、抖音、千牛或拼多多客服窗口，停留在聊天页。脚本会自动识别当前窗口平台，并尝试读取窗口里的聊天内容。
 
+商家知识库先改这个文件：
+
+```text
+docs/examples/merchant_knowledge.example.txt
+```
+
+启动配置在这里：
+
+```text
+scripts/desktop_listener.config.example.json
+```
+
 命令版：
 
 ```powershell
@@ -36,6 +48,7 @@ npm run desktop:auto
 默认行为：
 
 - 自动读当前客服窗口，不需要你复制聊天记录。
+- 自动把本地知识库一起交给 AI。
 - 自动生成回复。
 - 自动粘贴候选回复到当前输入框。
 - 不会自动按 Enter 发送。
@@ -46,7 +59,13 @@ npm run desktop:auto
 npm run desktop:listen -- --platform auto --source uia --paste --send --confirm-send "我确认发送"
 ```
 
-如果某个平台窗口读不到文字，说明客户端控件不开放给 Windows UI Automation。这个时候只能换官方 API、OCR 截图识别，或者临时退回剪贴板模式。
+如果某个平台窗口读不到文字，说明客户端控件不开放给 Windows UI Automation。这个时候脚本会提示读取失败或文本太短；第一兜底是 clipboard 模式，第二步再接截图 OCR 或官方 API。
+
+兜底命令：
+
+```powershell
+npm run desktop:listen -- --platform auto --source clipboard --paste --knowledge-file docs/examples/merchant_knowledge.example.txt
+```
 
 ## 单次回复：兜底测试方式
 

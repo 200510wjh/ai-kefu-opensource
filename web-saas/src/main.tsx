@@ -24,7 +24,7 @@ import './styles.css';
 const API_PREFIX = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 const apiUrl = (path: string) => `${API_PREFIX}${path.startsWith('/') ? path : `/${path}`}`;
 
-type Section = 'cockpit' | 'scripts' | 'channels' | 'knowledge' | 'inbox' | 'widget';
+type Section = 'cockpit' | 'scripts' | 'channels' | 'knowledge' | 'inbox' | 'desktop' | 'widget';
 
 type FAQItem = {
   question: string;
@@ -433,6 +433,9 @@ function App() {
   const widgetOrigin = typeof window === 'undefined' ? '' : window.location.origin;
   const widgetCode = `<script src="${widgetOrigin}${apiUrl(`/api/widget.js?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}"></script>`;
   const testUrl = `${widgetOrigin}${apiUrl(`/api/widget-test?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}`;
+  const desktopAutoCommand = 'npm run desktop:auto';
+  const desktopSafeCommand = 'npm run desktop:listen -- --platform auto --source uia --paste';
+  const desktopKnowledgeCommand = 'npm run desktop:listen -- --platform auto --source uia --paste --knowledge-file docs/examples/merchant_knowledge.example.txt';
 
   if (!token) {
     return (
@@ -468,6 +471,7 @@ function App() {
           <button className={section === 'channels' ? 'active' : ''} onClick={() => setSection('channels')}><Cable size={18} />渠道接入</button>
           <button className={section === 'knowledge' ? 'active' : ''} onClick={() => setSection('knowledge')}><Database size={18} />知识库导入</button>
           <button className={section === 'inbox' ? 'active' : ''} onClick={() => setSection('inbox')}><Inbox size={18} />会话收件箱</button>
+          <button className={section === 'desktop' ? 'active' : ''} onClick={() => setSection('desktop')}><Headphones size={18} />桌面自动客服</button>
           <button className={section === 'widget' ? 'active' : ''} onClick={() => setSection('widget')}><Code2 size={18} />网页气泡</button>
         </nav>
         <button className="ghostButton" onClick={() => refreshAll()} disabled={loading}>{loading ? <RefreshCw className="spin" size={16} /> : <RefreshCw size={16} />}刷新真实数据</button>
@@ -751,6 +755,58 @@ function App() {
                   </div>
                 </>
               ) : <div className="emptyState">请选择一个会话</div>}
+            </div>
+          </div>
+        )}
+
+        {section === 'desktop' && (
+          <div className="pageStack">
+            <PageTitle eyebrow="Desktop Agent" title="打开微信、抖音、千牛、拼多多窗口就能辅助回复" desc="桌面助手会自动识别当前客服窗口，读取聊天内容，结合商家知识库生成回复；默认只粘贴候选回复，不自动按 Enter。" />
+            <div className="desktopHero">
+              <div>
+                <small>一键启动</small>
+                <h2>双击 scripts/start_desktop_auto_listener.bat</h2>
+                <p>保持客服窗口在前台，脚本会自动监听当前窗口。微信、抖音、淘宝/千牛、拼多多共用同一套 AI 回复引擎。</p>
+              </div>
+              <Headphones size={42} />
+            </div>
+            <div className="desktopGrid">
+              <article className="panel">
+                <div className="panelHeader"><strong>安全启动</strong><button onClick={() => navigator.clipboard?.writeText(desktopAutoCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopAutoCommand}</pre>
+                <small>自动读取当前客服窗口并粘贴回复，不会自动发送。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>命令启动</strong><button onClick={() => navigator.clipboard?.writeText(desktopSafeCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopSafeCommand}</pre>
+                <small>适合测试窗口识别和读取效果。读不到时会提示，可临时退回剪贴板模式。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>带本地知识库</strong><button onClick={() => navigator.clipboard?.writeText(desktopKnowledgeCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopKnowledgeCommand}</pre>
+                <small>把商家 FAQ、价格、售后政策放进 txt/md/csv/json 文件，桌面助手会一起交给 AI。</small>
+              </article>
+            </div>
+            <div className="channelGrid">
+              {[
+                ['微信/企业微信', '窗口标题包含 微信、WeChat、企业微信 时自动识别。'],
+                ['抖音私信', '窗口标题包含 抖音、巨量、Douyin 时自动识别。'],
+                ['淘宝/千牛', '窗口标题包含 千牛、淘宝、旺旺、Qianniu 时自动识别。'],
+                ['拼多多', '窗口标题包含 拼多多、PDD、商家后台 时自动识别。']
+              ].map(([name, desc]) => (
+                <section className="knowledgeItem" key={name}>
+                  <strong>{name}</strong>
+                  <p>{desc}</p>
+                  <small>当前阶段是桌面辅助。真正后台无人值守需要平台官方 API 或授权。</small>
+                </section>
+              ))}
+            </div>
+            <div className="cosmosPanel compactPanel">
+              <div>
+                <small>验收方式</small>
+                <p>先打开对应平台客服窗口，再运行桌面助手。看到终端打印 should_reply=true 且输入框出现候选回复，就说明读取、生成、粘贴链路跑通。</p>
+              </div>
+              <ShieldAlert size={24} />
             </div>
           </div>
         )}

@@ -17,16 +17,48 @@ from typing import Any, Literal
 
 
 DEFAULT_API_BASE = os.getenv("MERCHANT_DESKTOP_API_BASE", "https://wjhai.cn/merchant-admin/api")
-CONFIRM_AUTO_SEND = "我确认发送"
+CONFIRM_AUTO_SEND = "\u6211\u786e\u8ba4\u53d1\u9001"
 
 SourceName = Literal["uia", "clipboard"]
 
+ZH = {
+    "wechat": "\u5fae\u4fe1",
+    "wechat_work": "\u4f01\u4e1a\u5fae\u4fe1",
+    "douyin": "\u6296\u97f3",
+    "jul": "\u5de8\u91cf",
+    "taobao": "\u6dd8\u5b9d",
+    "qianniu": "\u5343\u725b",
+    "wangwang": "\u65fa\u65fa",
+    "pdd": "\u62fc\u591a\u591a",
+    "merchant_backend": "\u5546\u5bb6\u540e\u53f0",
+}
+
 PLATFORMS: dict[str, dict[str, Any]] = {
-    "wechat": {"backend": "wechat", "label": "微信", "allowlist": [r"微信", r"WeChat", r"企业微信"]},
-    "douyin": {"backend": "douyin_dm", "label": "抖音私信", "allowlist": [r"抖音", r"巨量", r"Douyin"]},
-    "douyin_dm": {"backend": "douyin_dm", "label": "抖音私信", "allowlist": [r"抖音", r"巨量", r"Douyin"]},
-    "taobao": {"backend": "taobao", "label": "淘宝/千牛", "allowlist": [r"千牛", r"淘宝", r"旺旺", r"Qianniu"]},
-    "pdd": {"backend": "pdd", "label": "拼多多", "allowlist": [r"拼多多", r"PDD", r"商家后台"]},
+    "wechat": {
+        "backend": "wechat",
+        "label": ZH["wechat"],
+        "allowlist": [ZH["wechat"], "WeChat", ZH["wechat_work"]],
+    },
+    "douyin": {
+        "backend": "douyin_dm",
+        "label": f"{ZH['douyin']}\u79c1\u4fe1",
+        "allowlist": [ZH["douyin"], ZH["jul"], "Douyin"],
+    },
+    "douyin_dm": {
+        "backend": "douyin_dm",
+        "label": f"{ZH['douyin']}\u79c1\u4fe1",
+        "allowlist": [ZH["douyin"], ZH["jul"], "Douyin"],
+    },
+    "taobao": {
+        "backend": "taobao",
+        "label": f"{ZH['taobao']}/{ZH['qianniu']}",
+        "allowlist": [ZH["qianniu"], ZH["taobao"], ZH["wangwang"], "Qianniu"],
+    },
+    "pdd": {
+        "backend": "pdd",
+        "label": ZH["pdd"],
+        "allowlist": [ZH["pdd"], "PDD", ZH["merchant_backend"]],
+    },
 }
 
 
@@ -44,6 +76,7 @@ class ListenerConfig:
     platform: str
     source: SourceName
     merchant_profile: str
+    knowledge_file: str
     reply_goal: str
     window_allowlist: list[str]
     poll_seconds: float
@@ -53,6 +86,7 @@ class ListenerConfig:
     auto_send: bool
     dry_run: bool
     max_chars: int
+    min_text_chars: int
 
 
 def endpoint_url(api_base: str) -> str:
@@ -119,7 +153,7 @@ def read_windows_clipboard() -> str:
 
     cf_unicode_text = 13
     if not user32.OpenClipboard(None):
-        raise RuntimeError("剪贴板正被其他程序占用")
+        raise RuntimeError("Clipboard is busy")
     try:
         handle = user32.GetClipboardData(cf_unicode_text)
         if not handle:
@@ -151,25 +185,22 @@ def write_windows_clipboard(text: str) -> None:
     kernel32.GlobalUnlock.argtypes = [wintypes.HGLOBAL]
     kernel32.GlobalUnlock.restype = wintypes.BOOL
 
-    cf_unicode_text = 13
-    gmem_moveable = 0x0002
     data = ctypes.create_unicode_buffer(text)
-    size = ctypes.sizeof(data)
-    handle = kernel32.GlobalAlloc(gmem_moveable, size)
+    handle = kernel32.GlobalAlloc(0x0002, ctypes.sizeof(data))
     if not handle:
-        raise RuntimeError("无法分配剪贴板内存")
+        raise RuntimeError("Cannot allocate clipboard memory")
     pointer = kernel32.GlobalLock(handle)
     if not pointer:
-        raise RuntimeError("无法锁定剪贴板内存")
-    ctypes.memmove(pointer, data, size)
+        raise RuntimeError("Cannot lock clipboard memory")
+    ctypes.memmove(pointer, data, ctypes.sizeof(data))
     kernel32.GlobalUnlock(handle)
 
     if not user32.OpenClipboard(None):
-        raise RuntimeError("剪贴板正被其他程序占用")
+        raise RuntimeError("Clipboard is busy")
     try:
         user32.EmptyClipboard()
-        if not user32.SetClipboardData(cf_unicode_text, handle):
-            raise RuntimeError("写入剪贴板失败")
+        if not user32.SetClipboardData(13, handle):
+            raise RuntimeError("Cannot write clipboard")
     finally:
         user32.CloseClipboard()
 
@@ -188,7 +219,7 @@ def read_clipboard() -> str:
         errors="replace",
     )
     if completed.returncode != 0:
-        raise RuntimeError(completed.stderr.strip() or "无法读取剪贴板")
+        raise RuntimeError(completed.stderr.strip() or "Cannot read clipboard")
     return completed.stdout.strip()
 
 
@@ -208,14 +239,14 @@ def write_clipboard(text: str) -> None:
         errors="replace",
     )
     if completed.returncode != 0:
-        raise RuntimeError(completed.stderr.strip() or "无法写入剪贴板")
+        raise RuntimeError(completed.stderr.strip() or "Cannot write clipboard")
 
 
 def read_uia_text(max_chars: int) -> str:
     try:
         import uiautomation as auto  # type: ignore
     except ImportError as exc:
-        raise RuntimeError("未安装 uiautomation，请运行：python -m pip install uiautomation") from exc
+        raise RuntimeError("uiautomation is not installed. Run: python -m pip install uiautomation") from exc
 
     hwnd = foreground_window_handle()
     if not hwnd:
@@ -234,7 +265,7 @@ def read_uia_text(max_chars: int) -> str:
         texts.append(text)
 
     def walk(node: Any, depth: int = 0) -> None:
-        if depth > 7 or len("\n".join(texts)) > max_chars:
+        if depth > 8 or len("\n".join(texts)) > max_chars:
             return
         try:
             push(str(getattr(node, "Name", "") or ""))
@@ -251,11 +282,47 @@ def read_uia_text(max_chars: int) -> str:
     return "\n".join(texts)[-max_chars:]
 
 
+def read_knowledge_file(path: str, max_chars: int = 6000) -> str:
+    if not path:
+        return ""
+    file_path = Path(path)
+    if not file_path.exists():
+        raise RuntimeError(f"Knowledge file not found: {file_path}")
+    raw = file_path.read_bytes()
+    for encoding in ("utf-8", "gb18030"):
+        try:
+            return raw.decode(encoding)[-max_chars:]
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", errors="ignore")[-max_chars:]
+
+
+def build_merchant_profile(config: ListenerConfig, target: ActiveTarget) -> str:
+    pieces = [f"{target.label} desktop customer-service assistant.", config.merchant_profile]
+    knowledge = read_knowledge_file(config.knowledge_file)
+    if knowledge:
+        pieces.append("Imported local knowledge base:\n" + knowledge)
+    return "\n\n".join(piece for piece in pieces if piece)
+
+
+def read_chat_text(config: ListenerConfig) -> str:
+    if config.source == "clipboard":
+        return read_clipboard()
+    text = read_uia_text(config.max_chars)
+    if len(text.strip()) >= config.min_text_chars:
+        return text
+    fallback = read_clipboard()
+    if fallback:
+        print("UIA text was too short; used clipboard fallback.")
+        return fallback
+    return text
+
+
 def call_agent(config: ListenerConfig, target: ActiveTarget, chat_text: str) -> dict[str, Any]:
     payload = {
         "channel": target.backend_channel,
         "ocr_text": chat_text,
-        "merchant_profile": f"{target.label}桌面客服助手。{config.merchant_profile}",
+        "merchant_profile": build_merchant_profile(config, target),
         "reply_goal": config.reply_goal,
         "auto_send": False,
     }
@@ -270,9 +337,9 @@ def call_agent(config: ListenerConfig, target: ActiveTarget, chat_text: str) -> 
             return json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"接口返回 {exc.code}: {detail}") from exc
+        raise RuntimeError(f"API returned {exc.code}: {detail}") from exc
     except urllib.error.URLError as exc:
-        raise RuntimeError(f"连接接口失败：{exc}") from exc
+        raise RuntimeError(f"Cannot connect API: {exc}") from exc
 
 
 def press_vk(vk: int, up: bool = False) -> None:
@@ -281,17 +348,14 @@ def press_vk(vk: int, up: bool = False) -> None:
 
 def paste_and_optionally_send(reply: str, send: bool) -> None:
     write_clipboard(reply)
-    vk_control = 0x11
-    vk_v = 0x56
-    vk_enter = 0x0D
-    press_vk(vk_control)
-    press_vk(vk_v)
-    press_vk(vk_v, up=True)
-    press_vk(vk_control, up=True)
+    press_vk(0x11)
+    press_vk(0x56)
+    press_vk(0x56, up=True)
+    press_vk(0x11, up=True)
     if send:
         time.sleep(0.25)
-        press_vk(vk_enter)
-        press_vk(vk_enter, up=True)
+        press_vk(0x0D)
+        press_vk(0x0D, up=True)
 
 
 def load_config(args: argparse.Namespace) -> ListenerConfig:
@@ -308,6 +372,7 @@ def load_config(args: argparse.Namespace) -> ListenerConfig:
         platform=args.platform,
         source=args.source,
         merchant_profile=args.merchant_profile,
+        knowledge_file=args.knowledge_file,
         reply_goal=args.reply_goal,
         window_allowlist=args.window_allowlist or [],
         poll_seconds=args.poll_seconds,
@@ -317,39 +382,42 @@ def load_config(args: argparse.Namespace) -> ListenerConfig:
         auto_send=args.send,
         dry_run=args.dry_run,
         max_chars=args.max_chars,
+        min_text_chars=args.min_text_chars,
     )
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="桌面客服自动监听：自动读取当前微信/抖音/千牛/拼多多窗口并生成回复。")
-    parser.add_argument("--config", help="JSON 配置文件。")
+    parser = argparse.ArgumentParser(description="Desktop auto listener for WeChat, Douyin, Taobao/Qianniu, and PDD customer service windows.")
+    parser.add_argument("--config", help="JSON config file.")
     parser.add_argument("--api-base", default=DEFAULT_API_BASE)
-    parser.add_argument("--platform", choices=["auto", *sorted(PLATFORMS)], default="auto", help="默认 auto，按窗口标题自动识别平台。")
-    parser.add_argument("--channel", choices=["auto", *sorted(PLATFORMS)], help="兼容旧参数；建议改用 --platform。")
-    parser.add_argument("--source", choices=["uia", "clipboard"], default="uia", help="默认 uia 自动读取当前窗口；clipboard 只做兜底。")
-    parser.add_argument("--merchant-profile", default="通用商家客服助手")
-    parser.add_argument("--reply-goal", default="自然回复客户，并推进到留资、下单、预约或人工跟进。")
-    parser.add_argument("--window-allowlist", action="append", default=[], help="额外窗口标题正则白名单。")
+    parser.add_argument("--platform", choices=["auto", *sorted(PLATFORMS)], default="auto")
+    parser.add_argument("--channel", choices=["auto", *sorted(PLATFORMS)], help="Backward-compatible alias for --platform.")
+    parser.add_argument("--source", choices=["uia", "clipboard"], default="uia")
+    parser.add_argument("--merchant-profile", default="General merchant customer-service assistant.")
+    parser.add_argument("--knowledge-file", default="", help="Local txt/md/json/csv knowledge file appended to the reply prompt.")
+    parser.add_argument("--reply-goal", default="Reply naturally, answer the customer, and move toward lead capture, order, appointment, or human follow-up.")
+    parser.add_argument("--window-allowlist", action="append", default=[], help="Extra window-title regex allowlist.")
     parser.add_argument("--poll-seconds", type=float, default=2)
     parser.add_argument("--min-send-gap-seconds", type=float, default=20)
     parser.add_argument("--max-chars", type=int, default=6000)
-    parser.add_argument("--once", action="store_true", help="只跑一轮。")
-    parser.add_argument("--paste", action="store_true", help="生成后粘贴到当前输入框；默认只复制回复。")
-    parser.add_argument("--send", action="store_true", help="粘贴后按 Enter 发送；必须同时传确认短语。")
-    parser.add_argument("--confirm-send", default="", help=f"自动发送确认短语：{CONFIRM_AUTO_SEND}")
-    parser.add_argument("--dry-run", action="store_true", help="只打印，不复制、不粘贴、不发送。")
+    parser.add_argument("--min-text-chars", type=int, default=30)
+    parser.add_argument("--once", action="store_true")
+    parser.add_argument("--paste", action="store_true")
+    parser.add_argument("--send", action="store_true")
+    parser.add_argument("--confirm-send", default="", help=f"Required phrase for auto-send: {CONFIRM_AUTO_SEND}")
+    parser.add_argument("--dry-run", action="store_true")
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
     if args.send and (not args.paste or args.confirm_send != CONFIRM_AUTO_SEND):
-        print(f"已阻止自动发送。必须传 --paste --send --confirm-send {CONFIRM_AUTO_SEND!r}", file=sys.stderr)
+        print(f"Auto-send blocked. Pass --paste --send --confirm-send {CONFIRM_AUTO_SEND!r}.", file=sys.stderr)
         return 2
 
     config = load_config(args)
-    print(f"桌面客服自动监听已启动：平台={config.platform}，读取={config.source}，粘贴={'开' if config.paste else '关'}，发送={'开' if config.auto_send else '关'}")
-    print("使用方式：打开微信/抖音/千牛/拼多多客服窗口，停留在聊天页；脚本会自动读取当前窗口。按 Ctrl+C 停止。")
+    print(f"Desktop listener started: platform={config.platform}, source={config.source}, paste={config.paste}, send={config.auto_send}")
+    print("Open a supported customer-service chat window and keep it focused. Press Ctrl+C to stop.")
 
     last_fingerprint = ""
     last_send_at = 0.0
@@ -358,15 +426,15 @@ def main() -> int:
         target = detect_target(config)
         if not target:
             if config.once:
-                print("当前窗口不是已支持的客服窗口。")
+                print("Current window is not a supported customer-service window.")
                 return 3
             time.sleep(config.poll_seconds)
             continue
 
         try:
-            chat_text = read_uia_text(config.max_chars) if config.source == "uia" else read_clipboard()
+            chat_text = read_chat_text(config)
         except Exception as exc:
-            print(f"读取聊天失败：{exc}", file=sys.stderr)
+            print(f"Read chat failed: {exc}", file=sys.stderr)
             if config.once:
                 return 4
             time.sleep(config.poll_seconds)
@@ -384,34 +452,22 @@ def main() -> int:
         reply = str(data.get("recommended_reply") or "")
         pending = data.get("pending_customer_messages") or []
         should_reply = bool(data.get("should_reply"))
-        print(
-            json.dumps(
-                {
-                    "window": target.title,
-                    "platform": target.label,
-                    "should_reply": should_reply,
-                    "pending": pending,
-                    "reply": reply,
-                },
-                ensure_ascii=False,
-                indent=2,
-            )
-        )
+        print(json.dumps({"window": target.title, "platform": target.label, "should_reply": should_reply, "pending": pending, "reply": reply}, ensure_ascii=False, indent=2))
 
         if should_reply and reply:
             now = time.time()
             if config.dry_run:
-                print("dry-run：不复制、不粘贴、不发送。")
+                print("dry-run: not copied, pasted, or sent.")
             elif now - last_send_at < config.min_send_gap_seconds:
                 write_clipboard(reply)
-                print("频率限制：本轮只复制回复。")
+                print("Rate limited: reply copied only.")
             elif config.paste:
                 paste_and_optionally_send(reply, send=config.auto_send)
                 last_send_at = now
-                print("已粘贴。" + (" 已按 Enter 发送。" if config.auto_send else " 未发送，请人工确认。"))
+                print("Pasted." + (" Sent." if config.auto_send else " Not sent; confirm manually."))
             else:
                 write_clipboard(reply)
-                print("已复制到剪贴板。")
+                print("Copied to clipboard.")
 
         if config.once:
             return 0
