@@ -447,6 +447,7 @@ function App() {
   const acceptanceCommand = 'npm run acceptance:check';
   const realPlatformAcceptanceCommand = 'npm run acceptance:real-platforms';
   const replyE2EAcceptanceCommand = 'npm run acceptance:reply-e2e';
+  const acceptanceMatrixDoc = 'docs/ACCEPTANCE_MATRIX.md';
 
   if (!token) {
     return (
@@ -847,6 +848,11 @@ function App() {
                 <pre className="miniCode">{replyE2EAcceptanceCommand}</pre>
                 <small>不用真实窗口，验证示例聊天、知识库、四个平台 API 回复和禁用承诺检查。</small>
               </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>验收矩阵</strong><button onClick={() => navigator.clipboard?.writeText(acceptanceMatrixDoc)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{acceptanceMatrixDoc}</pre>
+                <small>逐条对照原目标、当前实现、验收命令和最终完成条件。</small>
+              </article>
             </div>
             <div className="channelGrid">
               {[
@@ -865,7 +871,7 @@ function App() {
             <div className="cosmosPanel compactPanel">
               <div>
                 <small>验收方式</small>
-                <p>普通验收用 npm run acceptance:check。真实平台验收要先打开对应客服窗口，再运行 npm run acceptance:real-platforms。看到 should_reply=true 且输入框出现候选回复，才算读取、生成、粘贴链路跑通。</p>
+                <p>普通验收用 npm run acceptance:check，回复链路用 npm run acceptance:reply-e2e。真实平台验收要先打开对应客服窗口，再运行 npm run acceptance:real-platforms。最终完成条件见 docs/ACCEPTANCE_MATRIX.md。</p>
               </div>
               <ShieldAlert size={24} />
             </div>
