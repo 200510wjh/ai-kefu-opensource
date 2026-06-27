@@ -301,10 +301,41 @@ def main() -> int:
             "shell_candidate": desktop_listener.normalize_chat_candidate("微信多开\nCefView\nzip://example\n系统\n还原\n最大化\n关闭"),
             "chat_candidate": desktop_listener.normalize_chat_candidate("客户：99元花束还有吗？现在下单多久能送到？"),
         }
+        original_write_clipboard = desktop_listener.write_clipboard
+        original_focus_window = desktop_listener.focus_window
+        original_press_vk = desktop_listener.press_vk
+        original_window_title = desktop_listener.window_title
+        original_foreground_window_title = desktop_listener.foreground_window_title
+        captured: dict[str, Any] = {"clipboard": "", "keys": []}
+        try:
+            desktop_listener.write_clipboard = lambda text: captured.update({"clipboard": text})  # type: ignore[assignment]
+            desktop_listener.focus_window = lambda hwnd: False  # type: ignore[assignment]
+            desktop_listener.press_vk = lambda vk, up=False: captured["keys"].append((vk, up))  # type: ignore[assignment]
+            desktop_listener.window_title = lambda hwnd: "验收目标窗口"  # type: ignore[assignment]
+            desktop_listener.foreground_window_title = lambda: "错误前台窗口"  # type: ignore[assignment]
+            paste_result = desktop_listener.paste_and_optionally_send("验收回复", send=True, hwnd=12345)
+            checks["paste_focus_guard"] = {
+                "ok": (
+                    captured["clipboard"] == "验收回复"
+                    and captured["keys"] == []
+                    and paste_result.get("pasted") is False
+                    and paste_result.get("sent") is False
+                    and paste_result.get("reason") == "target_window_not_focused"
+                ),
+                "result": paste_result,
+                "captured": captured,
+            }
+        finally:
+            desktop_listener.write_clipboard = original_write_clipboard
+            desktop_listener.focus_window = original_focus_window
+            desktop_listener.press_vk = original_press_vk
+            desktop_listener.window_title = original_window_title
+            desktop_listener.foreground_window_title = original_foreground_window_title
     except Exception as exc:
         checks["desktop_history"] = {"ok": False, "error": str(exc)}
         checks["desktop_history_context"] = {"ok": False, "error": str(exc)}
         checks["chat_text_filter"] = {"ok": False, "error": str(exc)}
+        checks["paste_focus_guard"] = {"ok": False, "error": str(exc)}
 
     try:
         import desktop_listener_launcher as launcher  # type: ignore

@@ -114,6 +114,7 @@ npm run desktop:listen -- --platform taobao --target-title "千牛|淘宝|旺旺
 - 粘贴后会冷却一段时间，避免把自己粘贴的候选回复当成新客户消息继续生成。
 - 默认不会用剪贴板兜底；只有启动器里勾选“允许剪贴板兜底”或命令加 `--allow-clipboard-fallback` 才会启用。
 - 会把最近几轮本地历史写入 `data/desktop-listener/history.jsonl`，下一轮回复会自动带上同平台历史上下文。
+- 如果 Windows 没让目标客服窗口切到前台，系统会只复制回复到剪贴板，不会粘贴或发送到错误窗口。
 
 真要自动发送，需要显式确认：
 

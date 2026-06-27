@@ -573,18 +573,27 @@ def press_vk(vk: int, up: bool = False) -> None:
     ctypes.windll.user32.keybd_event(vk, 0, 0x0002 if up else 0, 0)
 
 
-def focus_window(hwnd: int) -> None:
+def focus_window(hwnd: int) -> bool:
     if not hwnd:
-        return
+        return True
     user32 = ctypes.windll.user32
     user32.ShowWindow(hwnd, 5)
     user32.SetForegroundWindow(hwnd)
     time.sleep(0.15)
+    return foreground_window_handle() == int(hwnd)
 
 
-def paste_and_optionally_send(reply: str, send: bool, hwnd: int = 0) -> None:
-    focus_window(hwnd)
+def paste_and_optionally_send(reply: str, send: bool, hwnd: int = 0) -> dict[str, Any]:
     write_clipboard(reply)
+    if hwnd and not focus_window(hwnd):
+        return {
+            "pasted": False,
+            "sent": False,
+            "copied": True,
+            "reason": "target_window_not_focused",
+            "target_title": window_title(hwnd),
+            "foreground_title": foreground_window_title(),
+        }
     press_vk(0x11)
     press_vk(0x56)
     press_vk(0x56, up=True)
@@ -593,6 +602,14 @@ def paste_and_optionally_send(reply: str, send: bool, hwnd: int = 0) -> None:
         time.sleep(0.25)
         press_vk(0x0D)
         press_vk(0x0D, up=True)
+    return {
+        "pasted": True,
+        "sent": bool(send),
+        "copied": True,
+        "reason": "",
+        "target_title": window_title(hwnd) if hwnd else "",
+        "foreground_title": foreground_window_title(),
+    }
 
 
 def load_config(args: argparse.Namespace) -> ListenerConfig:
@@ -676,7 +693,7 @@ def main() -> int:
 
     config = load_config(args)
     print(f"Desktop listener started: platform={config.platform}, source={config.source}, paste={config.paste}, send={config.auto_send}")
-    print("Open a supported customer-service chat window and keep it focused. Press Ctrl+C to stop.")
+    print("Open or lock a supported customer-service chat window. If the target cannot be focused, the reply is copied only. Press Ctrl+C to stop.")
 
     last_fingerprint = ""
     last_send_at = 0.0
@@ -757,9 +774,12 @@ def main() -> int:
                 write_clipboard(reply)
                 print("Rate limited: reply copied only.")
             elif config.paste:
-                paste_and_optionally_send(reply, send=config.auto_send, hwnd=target.hwnd)
+                paste_result = paste_and_optionally_send(reply, send=config.auto_send, hwnd=target.hwnd)
                 last_send_at = now
-                print("Pasted." + (" Sent." if config.auto_send else " Not sent; confirm manually."))
+                if paste_result.get("pasted"):
+                    print("Pasted." + (" Sent." if config.auto_send else " Not sent; confirm manually."))
+                else:
+                    print(json.dumps({"paste_blocked": paste_result}, ensure_ascii=False, indent=2))
             else:
                 write_clipboard(reply)
                 print("Copied to clipboard.")
