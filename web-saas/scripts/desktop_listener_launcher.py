@@ -30,7 +30,7 @@ def guess_platform(title: str) -> str:
         for pattern in info["allowlist"]:
             if re.search(str(pattern), title, re.IGNORECASE):
                 return platform
-    return "wechat"
+    return ""
 
 
 class DesktopListenerLauncher(tk.Tk):
@@ -169,7 +169,7 @@ class DesktopListenerLauncher(tk.Tk):
         self.windows = [(hwnd, title) for hwnd, title in enum_visible_windows() if title.strip()]
         self.window_list.delete(0, tk.END)
         for _, title in self.windows:
-            marker = "  ★" if guess_platform(title) in {"wechat", "douyin", "taobao", "pdd"} else ""
+            marker = "  ★" if guess_platform(title) else ""
             self.window_list.insert(tk.END, title + marker)
         self.status_text.set(f"已找到 {len(self.windows)} 个可见窗口")
 
@@ -179,7 +179,9 @@ class DesktopListenerLauncher(tk.Tk):
             return
         _, title = self.windows[selection[0]]
         self.selected_title.set(title)
-        self.platform.set(guess_platform(title))
+        detected_platform = guess_platform(title)
+        if detected_platform:
+            self.platform.set(detected_platform)
         self.write_log(f"已选择窗口：{title}\n")
 
     def pick_knowledge(self) -> None:

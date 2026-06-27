@@ -226,6 +226,25 @@ def main() -> int:
     except Exception as exc:
         checks["desktop_history"] = {"ok": False, "error": str(exc)}
 
+    try:
+        import desktop_listener_launcher as launcher  # type: ignore
+
+        expected_platforms = {
+            "微信": "wechat",
+            "WeChat": "wechat",
+            "千牛工作台": "taobao",
+            "拼多多商家后台": "pdd",
+            "普通浏览器窗口": "",
+        }
+        actual_platforms = {title: launcher.guess_platform(title) for title in expected_platforms}
+        checks["launcher_platform_guess"] = {
+            "ok": actual_platforms == expected_platforms,
+            "expected": expected_platforms,
+            "actual": actual_platforms,
+        }
+    except Exception as exc:
+        checks["launcher_platform_guess"] = {"ok": False, "error": str(exc)}
+
     diagnose = run(
         [
             str(python),

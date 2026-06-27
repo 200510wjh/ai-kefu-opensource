@@ -613,6 +613,10 @@ def main() -> int:
     last_send_at = 0.0
 
     while True:
+        if not config.once and last_send_at and time.time() - last_send_at < config.min_send_gap_seconds:
+            time.sleep(config.poll_seconds)
+            continue
+
         target = detect_target(config)
         if not target:
             if config.once:

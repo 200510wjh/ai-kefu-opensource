@@ -433,7 +433,9 @@ function App() {
   const widgetOrigin = typeof window === 'undefined' ? '' : window.location.origin;
   const widgetCode = `<script src="${widgetOrigin}${apiUrl(`/api/widget.js?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}"></script>`;
   const testUrl = `${widgetOrigin}${apiUrl(`/api/widget-test?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}`;
+  const desktopLauncherBat = '启动AI自动客服.bat';
   const desktopAutoCommand = 'npm run desktop:auto';
+  const desktopLauncherCommand = 'npm run desktop:launcher';
   const desktopSafeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste';
   const desktopTargetCommand = 'npm run desktop:listen -- --platform wechat --target-title "微信|WeChat|企业微信" --source auto --paste';
   const desktopKnowledgeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste --knowledge-file docs/examples/merchant_knowledge.example.txt';
@@ -769,15 +771,25 @@ function App() {
             <PageTitle eyebrow="Desktop Agent" title="打开微信、抖音、千牛、拼多多窗口就能辅助回复" desc="桌面助手会自动识别当前客服窗口，读取聊天内容，结合商家知识库生成回复；默认只粘贴候选回复，不自动按 Enter。" />
             <div className="desktopHero">
               <div>
-                <small>一键启动</small>
-                <h2>双击 scripts/start_desktop_auto_listener.bat</h2>
-                <p>保持客服窗口在前台，脚本会自动监听当前窗口。微信、抖音、淘宝/千牛、拼多多共用同一套 AI 回复引擎。</p>
+                <small>可视化启动器</small>
+                <h2>双击 启动AI自动客服.bat</h2>
+                <p>先打开真实客服窗口，再在启动器里刷新窗口、选择窗口、点击开始监听。微信、抖音、淘宝/千牛、拼多多共用同一套 AI 回复引擎。</p>
               </div>
               <Headphones size={42} />
             </div>
             <div className="desktopGrid">
               <article className="panel">
-                <div className="panelHeader"><strong>安全启动</strong><button onClick={() => navigator.clipboard?.writeText(desktopAutoCommand)}><Clipboard size={16} />复制</button></div>
+                <div className="panelHeader"><strong>推荐入口</strong><button onClick={() => navigator.clipboard?.writeText(desktopLauncherBat)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopLauncherBat}</pre>
+                <small>不用复制命令。双击后会列出当前窗口，选中微信/抖音/千牛/拼多多客服窗口即可自动监听。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>启动器命令</strong><button onClick={() => navigator.clipboard?.writeText(desktopLauncherCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopLauncherCommand}</pre>
+                <small>适合开发或排查时从终端打开同一个图形化启动器。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>旧版配置启动</strong><button onClick={() => navigator.clipboard?.writeText(desktopAutoCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopAutoCommand}</pre>
                 <small>自动读取当前客服窗口并粘贴回复，不会自动发送。</small>
               </article>

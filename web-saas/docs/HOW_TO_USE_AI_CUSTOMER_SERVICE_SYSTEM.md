@@ -56,19 +56,43 @@ https://wjhai.cn/merchant-admin/api/widget-test?merchant_code=WJDEMO001
 
 ## 4. 微信/抖音/淘宝/拼多多桌面自动客服
 
-先安装 OCR：
+推荐入口不是复制命令，而是双击项目根目录里的：
+
+```text
+启动AI自动客服.bat
+```
+
+打开后按这个顺序操作：
+
+1. 先打开微信、抖音、千牛或拼多多客服窗口。
+2. 回到“AI 自动客服监听器”，点“刷新窗口”。
+3. 在列表里选中真实客服聊天窗口。
+4. 平台会自动识别；没识别时手动选微信/抖音/淘宝/拼多多。
+5. 选择知识库文件，默认是 `docs/examples/merchant_knowledge.example.txt`。
+6. 默认勾选“生成后自动粘贴到输入框”，不会自动发送。
+7. 点“开始自动监听”。
+
+前期不要急着勾“自动按 Enter 发送”。先确认粘贴出来的话术像真人、没有乱承诺，再开启自动发送。
+
+如果窗口文字读不到，先安装 OCR：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/setup_desktop_ocr.ps1
 ```
 
-启动自动客服：
+另一个启动入口：
 
 ```text
 双击 scripts/start_desktop_auto_listener.bat
 ```
 
-或者命令：
+开发/排查时也可以命令打开同一个启动器：
+
+```powershell
+npm run desktop:launcher
+```
+
+旧版配置命令：
 
 ```powershell
 npm run desktop:auto
@@ -88,12 +112,12 @@ npm run desktop:listen -- --platform taobao --target-title "千牛|淘宝|旺旺
 
 使用方式：
 
-1. 打开微信、抖音、千牛或拼多多客服窗口。
-2. 停留在聊天页，让窗口保持前台。
-3. 桌面助手会自动识别平台。
-4. 读取顺序：UIA 控件文字 -> OCR 截图 -> 剪贴板兜底。
-5. 生成回复后默认粘贴到输入框。
-6. 默认不按 Enter，需要人工确认。
+1. 打开平台客服窗口。
+2. 用启动器锁定这个窗口。
+3. 读取顺序：UIA 控件文字 -> OCR 截图 -> 剪贴板兜底。
+4. 生成回复后默认粘贴到输入框。
+5. 默认不按 Enter，需要人工确认。
+6. 粘贴后会进入最小间隔冷却，避免把自己刚粘贴的候选回复再次读进去循环生成。
 
 真正自动发送：
 
@@ -142,6 +166,7 @@ data/desktop-listener/diagnostics-window.png
 - 知识库能导入，刷新后仍能看到。
 - 网页客服能创建会话、自动回复、落库。
 - 桌面助手打开后，能识别微信/抖音/千牛/拼多多窗口。
+- 启动器不会把普通浏览器窗口误标成客服窗口。
 - `npm run desktop:diagnose` 能显示 UIA/OCR/剪贴板读取结果。
 - `npm run desktop:auto` 能生成回复并粘贴。
 - 默认不自动发送，防止误发；确认后才允许按 Enter。
