@@ -6,6 +6,7 @@
   "merchant_profile": "同城鲜花店客服。回复要自然、短、像真人，不乱承诺退款和准时。",
   "knowledge_file": "docs/examples/merchant_knowledge.example.txt",
   "reply_goal": "先回答客户问题，再推进客户留下地址、用途、预算或确认下单。",
+  "target_title": "",
   "poll_seconds": 2,
   "min_send_gap_seconds": 20,
   "max_chars": 6000,

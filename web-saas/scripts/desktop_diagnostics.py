@@ -10,7 +10,8 @@ import win32gui
 
 from desktop_auto_reply_listener import (
     ListenerConfig,
-    capture_foreground_window,
+    active_window_handle,
+    capture_window,
     detect_target,
     find_tesseract_cmd,
     foreground_window_title,
@@ -18,6 +19,7 @@ from desktop_auto_reply_listener import (
     read_clipboard,
     read_ocr_text,
     read_uia_text,
+    window_title,
 )
 
 
@@ -57,6 +59,7 @@ def build_config(args: argparse.Namespace) -> ListenerConfig:
         merchant_profile="diagnostics",
         knowledge_file=args.knowledge_file,
         reply_goal="diagnostics",
+        target_title=args.target_title,
         window_allowlist=args.window_allowlist or [],
         poll_seconds=1,
         min_send_gap_seconds=20,
@@ -84,6 +87,7 @@ def main() -> int:
     parser.add_argument("--api-base", default="https://wjhai.cn/merchant-admin/api")
     parser.add_argument("--platform", choices=["auto", "wechat", "douyin", "douyin_dm", "taobao", "pdd"], default="auto")
     parser.add_argument("--source", choices=["auto", "uia", "ocr", "clipboard"], default="auto")
+    parser.add_argument("--target-title", default="")
     parser.add_argument("--window-allowlist", action="append", default=[])
     parser.add_argument("--knowledge-file", default="docs/examples/merchant_knowledge.example.txt")
     parser.add_argument("--max-chars", type=int, default=2000)
@@ -96,6 +100,7 @@ def main() -> int:
     target = detect_target(config)
     result: dict[str, object] = {
         "foreground_title": foreground_window_title(),
+        "active_title": window_title(active_window_handle(config)),
         "target": target.__dict__ if target else None,
         "tesseract_cmd": find_tesseract_cmd(),
         "tesseract_languages": tesseract_languages(),
@@ -111,13 +116,13 @@ def main() -> int:
     result["checks"] = checks
 
     try:
-        uia = read_uia_text(args.max_chars)
+        uia = read_uia_text(args.max_chars, hwnd=active_window_handle(config))
         checks["uia"] = {"ok": bool(uia.strip()), "length": len(uia), "sample": uia[:500]}
     except Exception as exc:
         checks["uia"] = {"ok": False, "error": str(exc)}
 
     try:
-        capture_foreground_window(args.debug_screenshot)
+        capture_window(active_window_handle(config), args.debug_screenshot)
         checks["screenshot"] = {"ok": Path(args.debug_screenshot).exists(), "path": args.debug_screenshot}
     except Exception as exc:
         checks["screenshot"] = {"ok": False, "error": str(exc)}
@@ -135,7 +140,7 @@ def main() -> int:
         checks["clipboard"] = {"ok": False, "error": str(exc)}
 
     try:
-        auto = read_chat_text(config)
+        auto = read_chat_text(config, target)
         checks["auto"] = {"ok": bool(auto.strip()), "length": len(auto), "sample": auto[:500]}
     except Exception as exc:
         checks["auto"] = {"ok": False, "error": str(exc)}

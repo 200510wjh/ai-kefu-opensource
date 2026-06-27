@@ -110,6 +110,7 @@ def main() -> int:
             "py_compile",
             "scripts/desktop_auto_reply_listener.py",
             "scripts/desktop_diagnostics.py",
+            "scripts/desktop_listener_launcher.py",
             "scripts/desktop_reply_assistant.py",
             "backend/main.py",
             "backend/customer_service_saas.py",

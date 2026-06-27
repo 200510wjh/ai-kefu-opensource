@@ -74,6 +74,18 @@ powershell -ExecutionPolicy Bypass -File scripts/setup_desktop_ocr.ps1
 npm run desktop:auto
 ```
 
+如果你不想让脚本跟着前台窗口变化，可以锁定窗口标题：
+
+```powershell
+npm run desktop:listen -- --platform wechat --target-title "微信|WeChat|企业微信" --source auto --paste
+```
+
+千牛示例：
+
+```powershell
+npm run desktop:listen -- --platform taobao --target-title "千牛|淘宝|旺旺|Qianniu" --source auto --paste
+```
+
 使用方式：
 
 1. 打开微信、抖音、千牛或拼多多客服窗口。
@@ -101,6 +113,12 @@ scripts/start_desktop_diagnostics.bat
 
 ```powershell
 npm run desktop:diagnose
+```
+
+诊断指定窗口：
+
+```powershell
+npm run desktop:diagnose -- --platform wechat --target-title "微信|WeChat|企业微信"
 ```
 
 诊断会输出：

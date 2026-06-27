@@ -435,6 +435,7 @@ function App() {
   const testUrl = `${widgetOrigin}${apiUrl(`/api/widget-test?merchant_code=${encodeURIComponent(profile.merchant_code || 'WJDEMO001')}`)}`;
   const desktopAutoCommand = 'npm run desktop:auto';
   const desktopSafeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste';
+  const desktopTargetCommand = 'npm run desktop:listen -- --platform wechat --target-title "微信|WeChat|企业微信" --source auto --paste';
   const desktopKnowledgeCommand = 'npm run desktop:listen -- --platform auto --source auto --paste --knowledge-file docs/examples/merchant_knowledge.example.txt';
   const desktopDiagnoseCommand = 'npm run desktop:diagnose';
   const desktopDiagnoseBat = 'scripts/start_desktop_diagnostics.bat';
@@ -784,6 +785,11 @@ function App() {
                 <div className="panelHeader"><strong>命令启动</strong><button onClick={() => navigator.clipboard?.writeText(desktopSafeCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{desktopSafeCommand}</pre>
                 <small>适合测试窗口识别和读取效果。默认先读 UIA，读不到会尝试 OCR，再退回剪贴板。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>锁定窗口</strong><button onClick={() => navigator.clipboard?.writeText(desktopTargetCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{desktopTargetCommand}</pre>
+                <small>不想依赖前台窗口时，用窗口标题正则绑定微信、千牛或拼多多客服窗口。</small>
               </article>
               <article className="panel">
                 <div className="panelHeader"><strong>带本地知识库</strong><button onClick={() => navigator.clipboard?.writeText(desktopKnowledgeCommand)}><Clipboard size={16} />复制</button></div>

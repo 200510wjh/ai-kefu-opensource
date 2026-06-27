@@ -66,6 +66,7 @@ PLATFORMS: dict[str, dict[str, Any]] = {
 
 @dataclass
 class ActiveTarget:
+    hwnd: int
     title: str
     platform: str
     backend_channel: str
@@ -80,6 +81,7 @@ class ListenerConfig:
     merchant_profile: str
     knowledge_file: str
     reply_goal: str
+    target_title: str
     window_allowlist: list[str]
     poll_seconds: float
     min_send_gap_seconds: float
@@ -106,8 +108,7 @@ def foreground_window_handle() -> int:
     return int(ctypes.windll.user32.GetForegroundWindow())
 
 
-def foreground_window_title() -> str:
-    hwnd = foreground_window_handle()
+def window_title(hwnd: int) -> str:
     if not hwnd:
         return ""
     user32 = ctypes.windll.user32
@@ -117,8 +118,40 @@ def foreground_window_title() -> str:
     return buffer.value
 
 
-def foreground_window_rect() -> tuple[int, int, int, int]:
-    hwnd = foreground_window_handle()
+def foreground_window_title() -> str:
+    return window_title(foreground_window_handle())
+
+
+def enum_visible_windows() -> list[tuple[int, str]]:
+    user32 = ctypes.windll.user32
+    EnumWindowsProc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    windows: list[tuple[int, str]] = []
+
+    def callback(hwnd: int, _: int) -> bool:
+        if user32.IsWindowVisible(hwnd):
+            title = window_title(hwnd)
+            if title:
+                windows.append((int(hwnd), title))
+        return True
+
+    user32.EnumWindows(EnumWindowsProc(callback), 0)
+    return windows
+
+
+def find_window_handle(title_pattern: str) -> int:
+    if not title_pattern:
+        return foreground_window_handle()
+    for hwnd, title in enum_visible_windows():
+        if re.search(title_pattern, title, re.IGNORECASE):
+            return hwnd
+    return 0
+
+
+def active_window_handle(config: ListenerConfig) -> int:
+    return find_window_handle(config.target_title) if config.target_title else foreground_window_handle()
+
+
+def window_rect(hwnd: int) -> tuple[int, int, int, int]:
     if not hwnd:
         raise RuntimeError("No foreground window")
     rect = wintypes.RECT()
@@ -132,7 +165,8 @@ def match_any(text: str, patterns: list[str]) -> bool:
 
 
 def detect_target(config: ListenerConfig) -> ActiveTarget | None:
-    title = foreground_window_title()
+    hwnd = active_window_handle(config)
+    title = window_title(hwnd)
     if not title:
         return None
     if config.window_allowlist and not match_any(title, config.window_allowlist):
@@ -144,13 +178,13 @@ def detect_target(config: ListenerConfig) -> ActiveTarget | None:
         platform_match = match_any(title, list(info["allowlist"]))
         if not (custom_match or platform_match):
             return None
-        return ActiveTarget(title, config.platform, str(info["backend"]), str(info["label"]))
+        return ActiveTarget(hwnd, title, config.platform, str(info["backend"]), str(info["label"]))
 
     for platform, info in PLATFORMS.items():
         if platform == "douyin_dm":
             continue
         if match_any(title, list(info["allowlist"])):
-            return ActiveTarget(title, platform, str(info["backend"]), str(info["label"]))
+            return ActiveTarget(hwnd, title, platform, str(info["backend"]), str(info["label"]))
     return None
 
 
@@ -258,13 +292,13 @@ def write_clipboard(text: str) -> None:
         raise RuntimeError(completed.stderr.strip() or "Cannot write clipboard")
 
 
-def read_uia_text(max_chars: int) -> str:
+def read_uia_text(max_chars: int, hwnd: int | None = None) -> str:
     try:
         import uiautomation as auto  # type: ignore
     except ImportError as exc:
         raise RuntimeError("uiautomation is not installed. Run: python -m pip install uiautomation") from exc
 
-    hwnd = foreground_window_handle()
+    hwnd = hwnd or foreground_window_handle()
     if not hwnd:
         return ""
     try:
@@ -298,13 +332,13 @@ def read_uia_text(max_chars: int) -> str:
     return "\n".join(texts)[-max_chars:]
 
 
-def capture_foreground_window(debug_path: str = "") -> Any:
+def capture_window(hwnd: int, debug_path: str = "") -> Any:
     try:
         from PIL import ImageGrab
     except ImportError as exc:
         raise RuntimeError("Pillow is not installed; cannot capture foreground window") from exc
 
-    left, top, right, bottom = foreground_window_rect()
+    left, top, right, bottom = window_rect(hwnd)
     image = ImageGrab.grab(bbox=(left, top, right, bottom))
     if debug_path:
         path = Path(debug_path)
@@ -320,7 +354,7 @@ def read_ocr_text(config: ListenerConfig) -> str:
     except ImportError as exc:
         raise RuntimeError("pytesseract/Pillow is not installed; run pip install pytesseract pillow") from exc
 
-    image = capture_foreground_window(config.debug_screenshot)
+    image = capture_window(active_window_handle(config), config.debug_screenshot)
     tesseract_cmd = find_tesseract_cmd()
     if not tesseract_cmd:
         raise RuntimeError("Tesseract OCR executable not found. Install Tesseract, or set TESSERACT_CMD.")
@@ -417,11 +451,12 @@ def build_chat_payload(config: ListenerConfig, target: ActiveTarget, chat_text: 
     return f"{context}\n\nCurrent visible chat:\n{chat_text}"
 
 
-def read_chat_text(config: ListenerConfig) -> str:
+def read_chat_text(config: ListenerConfig, target: ActiveTarget | None = None) -> str:
     if config.source == "clipboard":
         return read_clipboard()
+    hwnd = target.hwnd if target else active_window_handle(config)
     if config.source in {"auto", "uia"}:
-        text = read_uia_text(config.max_chars)
+        text = read_uia_text(config.max_chars, hwnd=hwnd)
         if len(text.strip()) >= config.min_text_chars:
             return text
         if config.source == "uia":
@@ -475,7 +510,17 @@ def press_vk(vk: int, up: bool = False) -> None:
     ctypes.windll.user32.keybd_event(vk, 0, 0x0002 if up else 0, 0)
 
 
-def paste_and_optionally_send(reply: str, send: bool) -> None:
+def focus_window(hwnd: int) -> None:
+    if not hwnd:
+        return
+    user32 = ctypes.windll.user32
+    user32.ShowWindow(hwnd, 5)
+    user32.SetForegroundWindow(hwnd)
+    time.sleep(0.15)
+
+
+def paste_and_optionally_send(reply: str, send: bool, hwnd: int = 0) -> None:
+    focus_window(hwnd)
     write_clipboard(reply)
     press_vk(0x11)
     press_vk(0x56)
@@ -503,6 +548,7 @@ def load_config(args: argparse.Namespace) -> ListenerConfig:
         merchant_profile=args.merchant_profile,
         knowledge_file=args.knowledge_file,
         reply_goal=args.reply_goal,
+        target_title=args.target_title,
         window_allowlist=args.window_allowlist or [],
         poll_seconds=args.poll_seconds,
         min_send_gap_seconds=args.min_send_gap_seconds,
@@ -529,6 +575,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--merchant-profile", default="General merchant customer-service assistant.")
     parser.add_argument("--knowledge-file", default="", help="Local txt/md/json/csv knowledge file appended to the reply prompt.")
     parser.add_argument("--reply-goal", default="Reply naturally, answer the customer, and move toward lead capture, order, appointment, or human follow-up.")
+    parser.add_argument("--target-title", default="", help="Regex title of a specific customer-service window to read, instead of the foreground window.")
     parser.add_argument("--window-allowlist", action="append", default=[], help="Extra window-title regex allowlist.")
     parser.add_argument("--poll-seconds", type=float, default=2)
     parser.add_argument("--min-send-gap-seconds", type=float, default=20)
@@ -575,7 +622,7 @@ def main() -> int:
             continue
 
         try:
-            chat_text = read_chat_text(config)
+            chat_text = read_chat_text(config, target)
         except Exception as exc:
             print(f"Read chat failed: {exc}", file=sys.stderr)
             if config.once:
@@ -618,7 +665,7 @@ def main() -> int:
                 write_clipboard(reply)
                 print("Rate limited: reply copied only.")
             elif config.paste:
-                paste_and_optionally_send(reply, send=config.auto_send)
+                paste_and_optionally_send(reply, send=config.auto_send, hwnd=target.hwnd)
                 last_send_at = now
                 print("Pasted." + (" Sent." if config.auto_send else " Not sent; confirm manually."))
             else:

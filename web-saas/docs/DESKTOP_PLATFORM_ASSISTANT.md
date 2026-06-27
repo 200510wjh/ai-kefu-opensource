@@ -45,6 +45,18 @@ scripts/desktop_listener.config.example.json
 npm run desktop:auto
 ```
 
+绑定指定窗口，不跟着前台变化：
+
+```powershell
+npm run desktop:listen -- --platform wechat --target-title "微信|WeChat|企业微信" --source auto --paste
+```
+
+淘宝/千牛：
+
+```powershell
+npm run desktop:listen -- --platform taobao --target-title "千牛|淘宝|旺旺|Qianniu" --source auto --paste
+```
+
 默认行为：
 
 - 自动读当前客服窗口，不需要你复制聊天记录。
