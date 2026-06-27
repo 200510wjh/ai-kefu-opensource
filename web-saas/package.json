@@ -17,6 +17,7 @@
     "desktop:diagnose": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_diagnostics.py",
     "acceptance:check": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/acceptance_check.py",
     "acceptance:real-platforms": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_real_platform_acceptance.py",
+    "acceptance:reply-e2e": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_reply_e2e_acceptance.py",
     "secret-scan": "python scripts/secret_scan.py"
   },
   "dependencies": {

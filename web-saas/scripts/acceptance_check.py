@@ -123,6 +123,7 @@ def main() -> int:
             "scripts/desktop_acceptance_launcher.py",
             "scripts/desktop_listener_launcher.py",
             "scripts/desktop_real_platform_acceptance.py",
+            "scripts/desktop_reply_e2e_acceptance.py",
             "scripts/desktop_reply_assistant.py",
             "backend/main.py",
             "backend/customer_service_saas.py",
@@ -160,6 +161,15 @@ def main() -> int:
         except Exception as exc:
             channels[channel] = {"ok": False, "error": str(exc)}
     checks["platform_reply_api"] = {"ok": all(item.get("ok") for item in channels.values()), "channels": channels}
+
+    checks["reply_e2e"] = run(
+        [
+            str(python),
+            "scripts/desktop_reply_e2e_acceptance.py",
+        ],
+        root,
+        timeout=120,
+    )
 
     try:
         auth = login(args.base_url)

@@ -152,6 +152,14 @@ npm run desktop:diagnose
 npm run acceptance:check
 ```
 
+核心回复链路演练：
+
+```powershell
+npm run acceptance:reply-e2e
+```
+
+它不需要打开真实窗口，只验证示例聊天、知识库和四个平台回复接口都能跑通。
+
 真实平台验收：
 
 ```powershell

@@ -446,6 +446,7 @@ function App() {
   const desktopOcrSetupCommand = 'powershell -ExecutionPolicy Bypass -File scripts/setup_desktop_ocr.ps1';
   const acceptanceCommand = 'npm run acceptance:check';
   const realPlatformAcceptanceCommand = 'npm run acceptance:real-platforms';
+  const replyE2EAcceptanceCommand = 'npm run acceptance:reply-e2e';
 
   if (!token) {
     return (
@@ -840,6 +841,11 @@ function App() {
                 <div className="panelHeader"><strong>真实平台验收</strong><button onClick={() => navigator.clipboard?.writeText(realPlatformAcceptanceCommand)}><Clipboard size={16} />复制</button></div>
                 <pre className="miniCode">{realPlatformAcceptanceCommand}</pre>
                 <small>先打开微信、抖音、千牛、拼多多客服聊天窗口，再运行。缺哪个窗口就会明确报 missing_window。</small>
+              </article>
+              <article className="panel">
+                <div className="panelHeader"><strong>回复链路演练</strong><button onClick={() => navigator.clipboard?.writeText(replyE2EAcceptanceCommand)}><Clipboard size={16} />复制</button></div>
+                <pre className="miniCode">{replyE2EAcceptanceCommand}</pre>
+                <small>不用真实窗口，验证示例聊天、知识库、四个平台 API 回复和禁用承诺检查。</small>
               </article>
             </div>
             <div className="channelGrid">
