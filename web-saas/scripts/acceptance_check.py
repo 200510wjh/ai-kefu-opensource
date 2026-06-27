@@ -105,6 +105,7 @@ def main() -> int:
         "ok": all(
             (root / path).exists()
             for path in [
+                "先看这个-怎么使用AI客服.md",
                 "docs/ACCEPTANCE_MATRIX.md",
                 "docs/DESKTOP_PLATFORM_ASSISTANT.md",
                 "docs/HOW_TO_USE_AI_CUSTOMER_SERVICE_SYSTEM.md",
