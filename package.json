@@ -1,0 +1,86 @@
+{
+  "name": "merchant-auto-cut",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "desktop/electron/main.cjs",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "desktop:preview": "electron .",
+    "desktop:pack": "electron-builder --dir",
+    "desktop:mac": "electron-builder --mac dmg zip",
+    "desktop:mac:check": "python scripts/validate_mac_desktop_package.py",
+    "api": "python -m uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000",
+    "auto:daily-report": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/commerce_daily_report.py",
+    "desktop:reply": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_reply_assistant.py",
+    "desktop:listen": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_auto_reply_listener.py",
+    "desktop:agent": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_agent_runner.py --config scripts/desktop_listener.config.example.json",
+    "desktop:downloads": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/build_desktop_agent_downloads.py",
+    "desktop:launcher": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_listener_launcher.py",
+    "desktop:prepare": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_platform_prepare.py",
+    "desktop:acceptance-launcher": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_acceptance_launcher.py",
+    "desktop:auto": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_auto_reply_listener.py --config scripts/desktop_listener.config.example.json",
+    "desktop:diagnose": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_diagnostics.py",
+    "acceptance:check": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/acceptance_check.py",
+    "acceptance:real-platforms": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_real_platform_acceptance.py",
+    "acceptance:reply-e2e": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_reply_e2e_acceptance.py",
+    "acceptance:desktop-agent": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/desktop_agent_acceptance.py",
+    "acceptance:product-media": "python scripts/e2e_product_media_acceptance.py",
+    "acceptance:product-media:local": "python scripts/e2e_product_media_acceptance.py --local-only",
+    "acceptance:miniapp-product-media": "node scripts/test_miniapp_product_media.cjs",
+    "acceptance:open-source-demo": "python scripts/open_source_connector_demo.py",
+    "acceptance:real-connector": "python scripts/real_connector_probe.py",
+    "demand:scan": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/local_demand_radar.py",
+    "ops:package": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/build_ops_delivery_pack.py",
+    "ops:today-check": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/today_ops_check.py",
+    "xianyu:pack": "node work/xianyu_ai_service/generate_xianyu_pack.mjs --input work/xianyu_ai_service/xianyu_pack_input.example.json",
+    "secret-scan": "python scripts/secret_scan.py"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "electron": "^38.4.0",
+    "electron-builder": "^26.0.12",
+    "vite": "^8.0.16"
+  },
+  "build": {
+    "appId": "cn.wjhai.merchant-ai",
+    "productName": "商家AI增长工作台",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "desktop/electron/**/*",
+      "desktop_agent/**/*",
+      "scripts/desktop_agent_runner.py",
+      "scripts/desktop_listener.config.example.json",
+      "scripts/desktop_auto_reply_listener.py",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "desktop/electron/main.cjs"
+    },
+    "mac": {
+      "category": "public.app-category.business",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "title": "商家AI增长工作台",
+      "artifactName": "${productName}-${version}-mac.${ext}"
+    }
+  }
+}
