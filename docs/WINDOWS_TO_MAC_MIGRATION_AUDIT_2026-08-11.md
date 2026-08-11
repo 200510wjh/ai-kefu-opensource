@@ -22,6 +22,41 @@
 
 这些内容可以在新电脑上重新安装或重新生成；真实密钥和本地私有数据不要放进仓库。
 
+## 左边栏目录备份状态
+
+已进入 GitHub 的主要目录：
+
+- `backend/`
+- `codex-plugins-marketplace/`
+- `desktop/`
+- `desktop_agent/`
+- `docs/`
+- `douyin-miniapp/`
+- `enterprise-material-factory/`
+- `product-kit/`
+- `scripts/`
+- `src/`
+- `tests/`
+- `videocut-workbench/`
+- `work/`
+- `峰会内容/`
+- `运营计划/`
+
+只保留源码/文档，未提交大文件或本地生成物的目录：
+
+- `ai-solo-founder-douyin/`：保留项目源码和配置，排除帧图、音频、视频输出。
+- `dist/`、`public/`：保留必要入口和下载清单，排除旧构建包、Windows 安装包。
+- `work/`：保留脚本和示例输入，排除本地 WeChat 扫描证据、命中结果和 QA 截图输出。
+
+未进入 GitHub，换 Mac 后建议重新生成或另备份的目录：
+
+- `node_modules/`：用 `npm install` 重装。
+- `.venv/`、`.pytest_cache/`、`__pycache__/`：Python 环境和缓存，用 `python3 -m venv .venv` 和 `pip install -r requirements.txt` 重建。
+- `.codex-video-output/`、`.codex-video-tools/`、`output/`、`outputs/`、`release/`、`tmp/`：视频、构建、测试和临时产物。
+- `data/`、`external/`、`videos/`、`system-optimization-backup/`：本地数据、外部依赖和历史备份，普通 GitHub 仓库不适合直接存。
+
+如果需要把视频、安装包、数据库、历史缓存也完整带走，建议单独做一个大文件备份：移动硬盘、网盘、GitHub Release 分卷压缩包，或 Git LFS。普通 GitHub 仓库不适合直接提交这类内容。
+
 ## 当前电脑配置
 
 - 主板/整机：Colorful H610M-E M.2
