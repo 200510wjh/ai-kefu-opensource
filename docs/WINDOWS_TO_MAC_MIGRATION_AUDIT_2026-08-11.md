@@ -45,9 +45,9 @@
 
 工作用途包含 Codex、多 Agent、前后端开发、文档/脚本、图片视频生成或剪辑时，建议内存从 24GB 起步，存储 512GB 起步。
 
-- 性价比桌面：Mac mini M4，24GB 内存，512GB SSD。适合固定工位，预算压力最小。
-- 便携够用：MacBook Air M4，24GB 内存，512GB SSD。适合移动办公和开发，持续剪辑/渲染不如 Pro。
-- 更稳的主力机：14 英寸 MacBook Pro，M4 Pro 或更新 Pro 芯片，24GB/36GB 内存，512GB/1TB SSD。适合同时跑 Codex、浏览器、后端服务、剪辑和多任务。
+- 性价比桌面：Mac mini M4 或 M4 Pro，24GB 内存，512GB SSD 起步。适合固定工位，预算压力最小。
+- 便携够用：MacBook Air M5，24GB/32GB 内存，512GB SSD 起步。适合移动办公和开发，持续剪辑/渲染不如 Pro。
+- 更稳的主力机：14 英寸 MacBook Pro，M5 Pro 或更新 Pro 芯片，32GB/36GB 内存，1TB SSD 更舒服。适合同时跑 Codex、浏览器、后端服务、剪辑和多任务。
 
 不建议再买 8GB/16GB 内存的 Mac 做主力开发机；后期不能升级内存，会很快卡住。
 
