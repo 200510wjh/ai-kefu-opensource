@@ -6,6 +6,7 @@
 
 - 本地路径：`C:\Users\Administrator\Documents\运营`
 - GitHub 远程：`https://github.com/200510wjh/ai-kefu-opensource.git`
+- Mac 恢复入口：仓库根目录 `MAC_RESTORE_CONTEXT.md`
 - 本地总文件体量约 4GB，包含依赖、缓存、视频、安装包、临时数据库和构建产物。
 - 适合提交到 GitHub 的源码、脚本、配置模板和文档约 13MB，无单文件超过 GitHub 100MB 限制。
 
