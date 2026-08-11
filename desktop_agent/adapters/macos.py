@@ -9,6 +9,7 @@ from pathlib import Path
 
 from desktop_agent.adapters.base import ActiveTarget
 from desktop_agent.config import AgentConfig
+from desktop_agent.connectors import connector_for_platform
 
 
 class MacOSAdapter:
@@ -39,6 +40,11 @@ class MacOSAdapter:
             return None
         if config.window_allowlist and not any(re.search(pattern, title, re.IGNORECASE) for pattern in config.window_allowlist):
             return None
+        if config.platform in {"douyin", "douyin_dm", "douyin_private_message"}:
+            connector = connector_for_platform(config.platform)
+            if not connector.matches_title(title, config):
+                return None
+            return connector.target_from_window(title, title, config)
         return ActiveTarget(window_id=title, title=title, platform=config.platform, channel=config.platform, label=config.platform)
 
     def read_clipboard(self) -> str:

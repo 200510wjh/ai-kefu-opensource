@@ -1,0 +1,21 @@
+.lead-hero,
+.lead-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+}
+
+.lead-title {
+  color: #ffffff;
+  font-size: 46rpx;
+  font-weight: 950;
+  line-height: 1.12;
+}
+
+.lead-subtitle {
+  color: #cbd5e1;
+  font-size: 26rpx;
+  line-height: 1.58;
+}

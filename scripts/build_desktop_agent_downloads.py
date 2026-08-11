@@ -1,12 +1,20 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import os
+import shutil
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "public" / "downloads"
+RELEASE_DIR = ROOT / "release" / "desktop"
+WINDOWS_INSTALLER_NAME = "AI-Customer-Agent-Windows.exe"
+WINDOWS_DEV_ZIP_NAME = "desktop-agent-windows-dev.zip"
+MANIFEST_NAME = "desktop-agent-downloads.json"
 
 
 WINDOWS_README = """# Windows AI Customer Service Agent
@@ -32,6 +40,13 @@ Set-ExecutionPolicy -Scope Process Bypass
 ```
 
 Default mode is auto_paste. Guarded auto-send requires mode=auto_send, send=true, and confirm_send=CONFIRM_DESKTOP_AUTO_SEND.
+
+Douyin DM safety:
+
+- Set platform=douyin_dm.
+- Set authorized_account to the merchant-owned or explicitly authorized Douyin account label.
+- Set contact_allowlist to the first-round test contacts only.
+- Unsupported media, unknown message direction, non-whitelisted contacts, and unmatched knowledge will be handed off instead of auto-sent.
 """
 
 
@@ -79,12 +94,99 @@ def build_zip(filename: str, package_root: str, readme: str, runner_name: str, r
     return target
 
 
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def package_version() -> str:
+    try:
+        data = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+        return str(data.get("version") or "")
+    except Exception:
+        return ""
+
+
+def remove_stale_customer_downloads() -> None:
+    stale_names = [
+        "desktop-agent-windows.zip",
+        "desktop-agent-macos.zip",
+        "desktop-agent-macos.dmg",
+        "AI-Customer-Agent-Mac.dmg",
+    ]
+    for name in stale_names:
+        target = OUT_DIR / name
+        if target.exists():
+            target.unlink()
+
+
+def copy_windows_installer() -> dict[str, object]:
+    source = RELEASE_DIR / WINDOWS_INSTALLER_NAME
+    target = OUT_DIR / WINDOWS_INSTALLER_NAME
+    if not source.exists():
+        if target.exists():
+            target.unlink()
+        return {
+            "available": False,
+            "url": "",
+            "package_type": "missing",
+            "reason": "Run npm run desktop:win on Windows and rerun npm run desktop:downloads.",
+        }
+    shutil.copy2(source, target)
+    return {
+        "available": True,
+        "url": f"/downloads/{WINDOWS_INSTALLER_NAME}",
+        "filename": WINDOWS_INSTALLER_NAME,
+        "package_type": "nsis_installer_exe",
+        "size": target.stat().st_size,
+        "sha256": sha256_file(target),
+    }
+
+
+def file_entry(path: Path, package_type: str) -> dict[str, object]:
+    return {
+        "available": path.exists(),
+        "url": f"/downloads/{path.name}" if path.exists() else "",
+        "filename": path.name,
+        "package_type": package_type if path.exists() else "missing",
+        "size": path.stat().st_size if path.exists() else 0,
+        "sha256": sha256_file(path) if path.exists() else "",
+    }
+
+
+def write_manifest(windows_installer: dict[str, object], dev_zip: Path) -> Path:
+    manifest = {
+        "version": package_version(),
+        "build_time": datetime.now(timezone.utc).isoformat(),
+        "windows": windows_installer,
+        "windows_dev_zip": file_entry(dev_zip, "developer_source_zip"),
+        "macos": {
+            "available": False,
+            "url": "",
+            "package_type": "disabled",
+            "reason": "macOS client download is hidden until a real macOS DMG build and end-to-end validation pass.",
+        },
+    }
+    target = OUT_DIR / MANIFEST_NAME
+    target.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    return target
+
+
 def main() -> int:
-    windows = build_zip("desktop-agent-windows.zip", "desktop-agent-windows", WINDOWS_README, "run-windows.ps1", WINDOWS_RUNNER)
-    macos = OUT_DIR / "desktop-agent-macos.zip"
-    if macos.exists():
-        macos.unlink()
-    print(f"built {windows.relative_to(ROOT)}")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    remove_stale_customer_downloads()
+    dev_zip = build_zip(WINDOWS_DEV_ZIP_NAME, "desktop-agent-windows-dev", WINDOWS_README, "run-windows.ps1", WINDOWS_RUNNER)
+    windows_installer = copy_windows_installer()
+    manifest = write_manifest(windows_installer, dev_zip)
+    print(f"built developer validation package {dev_zip.relative_to(ROOT)}")
+    if windows_installer["available"]:
+        print(f"published Windows installer public/downloads/{WINDOWS_INSTALLER_NAME}")
+    else:
+        print(f"Windows installer not published: {windows_installer['reason']}")
+    print(f"wrote {manifest.relative_to(ROOT)}")
     print("macOS package disabled: real macOS end-to-end validation has not passed.")
     return 0
 

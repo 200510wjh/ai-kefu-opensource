@@ -4,6 +4,7 @@ from typing import Any
 
 from desktop_agent.adapters.base import ActiveTarget
 from desktop_agent.config import AgentConfig
+from desktop_agent.connectors import connector_for_platform
 
 
 class WindowsAdapter:
@@ -41,6 +42,20 @@ class WindowsAdapter:
         )
 
     def active_target(self, config: AgentConfig) -> ActiveTarget | None:
+        if config.platform in {"douyin", "douyin_dm", "douyin_private_message"}:
+            from scripts.desktop_auto_reply_listener import (
+                find_window_handle,
+                foreground_window_handle,
+                window_title,
+            )
+
+            connector = connector_for_platform(config.platform)
+            hwnd = find_window_handle(config.target_title) if config.target_title else foreground_window_handle()
+            title = window_title(hwnd)
+            if not connector.matches_title(title, config):
+                return None
+            return connector.target_from_window(str(hwnd), title, config)
+
         from scripts.desktop_auto_reply_listener import detect_target
 
         legacy_target = detect_target(self._legacy_config(config))

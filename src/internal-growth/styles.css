@@ -1,0 +1,1284 @@
+.igShell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  color: var(--ig-color-text);
+  background: var(--ig-color-bg);
+  font-family: var(--ig-font-sans);
+}
+
+.igSidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: var(--ig-space-5) var(--ig-space-4);
+  background: var(--ig-color-sidebar);
+  color: #fff;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.igBrand {
+  display: flex;
+  align-items: center;
+  gap: var(--ig-space-2);
+  height: 38px;
+  margin-bottom: var(--ig-space-6);
+  font-weight: 860;
+  letter-spacing: 0;
+}
+
+.igBrand svg {
+  color: #8dd7bd;
+}
+
+.igSidebar nav {
+  display: grid;
+  gap: var(--ig-space-1);
+}
+
+.igSidebar a,
+.igSidebar button {
+  display: flex;
+  align-items: center;
+  gap: var(--ig-space-2);
+  width: 100%;
+  min-height: 38px;
+  padding: 0 var(--ig-space-3);
+  color: var(--ig-color-sidebar-muted);
+  text-decoration: none;
+  text-align: left;
+  border: 0;
+  border-radius: var(--ig-radius-md);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.igSidebar a:hover,
+.igSidebar button:hover,
+.igSidebar button.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.igSidebar a:focus-visible,
+.igSidebar button:focus-visible,
+.igButton:focus-visible,
+.igIconButton:focus-visible,
+.igSegmentedTabs button:focus-visible,
+.igStackList button:focus-visible,
+.igFormField input:focus-visible,
+.igFormField textarea:focus-visible,
+.igFormField select:focus-visible,
+.igTableRow select:focus-visible,
+.igDataInputs input:focus-visible {
+  outline: 2px solid var(--ig-color-primary);
+  outline-offset: 2px;
+}
+
+.igMain {
+  min-width: 0;
+  display: grid;
+  gap: var(--ig-space-4);
+  padding: var(--ig-space-5);
+}
+
+.igTopbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--ig-space-5);
+  padding: var(--ig-space-4);
+  background: rgba(246, 247, 244, 0.88);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  backdrop-filter: blur(16px);
+}
+
+.igTopbar p,
+.igPanelHead p {
+  margin: 0 0 3px;
+  color: var(--ig-color-accent);
+  font-size: 12px;
+  font-weight: 820;
+  letter-spacing: 0;
+}
+
+.igTopbar h1 {
+  margin: 0;
+  font-size: 25px;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.igTopbar span {
+  display: block;
+  margin-top: 4px;
+  color: var(--ig-color-text-muted);
+  font-size: 13px;
+}
+
+.igError {
+  padding: var(--ig-space-3) var(--ig-space-4);
+  color: var(--ig-color-danger);
+  background: var(--ig-color-danger-soft);
+  border: 1px solid rgba(184, 74, 61, 0.32);
+  border-radius: var(--ig-radius-md);
+}
+
+.igMetrics,
+.igCommandGrid,
+.igTwoColumn {
+  display: grid;
+  gap: var(--ig-space-4);
+}
+
+.igMetrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.igMetrics.five {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.igCommandGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.igTwoColumn {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.igFullPanel {
+  min-width: 0;
+}
+
+.igPanel,
+.igMetricCard {
+  background: var(--ig-color-surface);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  box-shadow: var(--ig-shadow-soft);
+}
+
+.igPanel {
+  min-width: 0;
+  padding: var(--ig-space-4);
+}
+
+.igPanelHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ig-space-3);
+  margin-bottom: var(--ig-space-4);
+}
+
+.igPanelHead h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.igMetricCard {
+  min-height: 106px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon value"
+    "label label"
+    "helper helper";
+  align-content: center;
+  gap: 4px var(--ig-space-3);
+  padding: var(--ig-space-4);
+}
+
+.igMetricCard > span {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--ig-color-primary);
+  background: var(--ig-color-primary-soft);
+  border-radius: var(--ig-radius-md);
+}
+
+.igMetricCard strong {
+  grid-area: value;
+  align-self: center;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.igMetricCard b {
+  grid-area: label;
+  font-size: 13px;
+}
+
+.igMetricCard small {
+  grid-area: helper;
+  color: var(--ig-color-text-muted);
+}
+
+.igButton,
+.igIconButton {
+  border: 0;
+  border-radius: var(--ig-radius-md);
+  font: inherit;
+  cursor: pointer;
+}
+
+.igButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ig-space-2);
+  min-height: 38px;
+  padding: 0 var(--ig-space-4);
+  font-weight: 760;
+}
+
+.igButton.sm {
+  min-height: 32px;
+  padding: 0 var(--ig-space-3);
+  font-size: 13px;
+}
+
+.igButton.primary {
+  color: #fff;
+  background: var(--ig-color-primary);
+}
+
+.igButton.primary:hover {
+  background: var(--ig-color-primary-hover);
+}
+
+.igButton.secondary {
+  color: var(--ig-color-primary);
+  background: var(--ig-color-primary-soft);
+  border: 1px solid rgba(23, 107, 91, 0.22);
+}
+
+.igButton.ghost {
+  color: var(--ig-color-text);
+  background: transparent;
+}
+
+.igButton:disabled,
+.igIconButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.igIconButton {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--ig-color-text-muted);
+  background: var(--ig-color-surface-muted);
+}
+
+.igToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ig-space-2);
+}
+
+.igStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.igStatusBadge.neutral {
+  color: var(--ig-color-text-muted);
+  background: var(--ig-color-surface-muted);
+}
+
+.igStatusBadge.primary {
+  color: var(--ig-color-primary);
+  background: var(--ig-color-primary-soft);
+}
+
+.igStatusBadge.success {
+  color: var(--ig-color-success);
+  background: var(--ig-color-success-soft);
+}
+
+.igStatusBadge.warning {
+  color: var(--ig-color-warning);
+  background: var(--ig-color-warning-soft);
+}
+
+.igStatusBadge.danger {
+  color: var(--ig-color-danger);
+  background: var(--ig-color-danger-soft);
+}
+
+.igSegmentedTabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ig-space-1);
+  padding: 4px;
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igSegmentedTabs button {
+  min-height: 34px;
+  border: 0;
+  border-radius: var(--ig-radius-sm);
+  color: var(--ig-color-text-muted);
+  background: transparent;
+  font: inherit;
+  font-weight: 720;
+}
+
+.igSegmentedTabs button.active {
+  color: var(--ig-color-text);
+  background: var(--ig-color-surface);
+  box-shadow: 0 1px 4px rgba(23, 33, 29, 0.08);
+}
+
+.igEmptyState {
+  display: grid;
+  gap: 4px;
+  padding: var(--ig-space-4);
+  color: var(--ig-color-text-muted);
+  background: var(--ig-color-surface-muted);
+  border: 1px dashed var(--ig-color-border-strong);
+  border-radius: var(--ig-radius-md);
+}
+
+.igEmptyState strong {
+  color: var(--ig-color-text);
+}
+
+.igForm,
+.igAnalysis,
+.igContentFactory,
+.igWorkflow,
+.igScore,
+.igEmptyAction {
+  display: grid;
+  gap: var(--ig-space-3);
+}
+
+.igInline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--ig-space-3);
+}
+
+.igFormField {
+  display: grid;
+  gap: 6px;
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.igFormField input,
+.igFormField textarea,
+.igFormField select,
+.igTableRow select,
+.igDataInputs input {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  padding: 8px 10px;
+  color: var(--ig-color-text);
+  background: var(--ig-color-surface);
+  font: inherit;
+}
+
+.igFormField input:focus,
+.igFormField textarea:focus,
+.igFormField select:focus,
+.igTableRow select:focus,
+.igDataInputs input:focus {
+  border-color: var(--ig-color-primary);
+  box-shadow: 0 0 0 3px rgba(23, 107, 91, 0.12);
+}
+
+.igFormField textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.igStackList {
+  display: grid;
+  gap: var(--ig-space-2);
+}
+
+.igStackList button,
+.igStackItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ig-space-3);
+  width: 100%;
+  min-height: 58px;
+  padding: var(--ig-space-3);
+  color: var(--ig-color-text);
+  text-align: left;
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  font: inherit;
+}
+
+.igStackList button {
+  cursor: pointer;
+}
+
+.igStackList button.active {
+  border-color: rgba(23, 107, 91, 0.45);
+  background: var(--ig-color-primary-soft);
+}
+
+.igStackList strong,
+.igStackItem strong,
+.igTableRow strong,
+.igKanban strong {
+  display: block;
+  font-size: 13px;
+}
+
+.igStackList span,
+.igStackList small,
+.igStackItem span,
+.igStackItem small,
+.igTableRow small,
+.igKanban span {
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+}
+
+.igListActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ig-space-2);
+}
+
+.igIntegrationGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ig-space-2);
+}
+
+.igIntegrationCard {
+  display: grid;
+  gap: 6px;
+  min-height: 108px;
+  padding: var(--ig-space-3);
+  color: var(--ig-color-text);
+  text-decoration: none;
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igIntegrationCard:hover {
+  border-color: rgba(23, 107, 91, 0.45);
+  background: var(--ig-color-primary-soft);
+}
+
+.igIntegrationCard span,
+.igIntegrationCard small {
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+}
+
+.igExternalResults {
+  display: grid;
+  gap: var(--ig-space-3);
+}
+
+.igInline.tight {
+  grid-template-columns: repeat(3, max-content);
+  justify-content: start;
+}
+
+.igScoreHero {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ig-space-3);
+  padding: var(--ig-space-4);
+  background: var(--ig-color-primary-soft);
+  border-radius: var(--ig-radius-md);
+}
+
+.igScoreHero.compact {
+  padding: var(--ig-space-3);
+}
+
+.igScoreHero strong {
+  color: var(--ig-color-primary);
+  font-size: 38px;
+  line-height: 1;
+}
+
+.igScoreHero span {
+  color: var(--ig-color-text-muted);
+}
+
+.igScoreRow {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: var(--ig-space-2);
+}
+
+.igScoreRow span {
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+}
+
+.igScoreRow div {
+  height: 8px;
+  overflow: hidden;
+  background: var(--ig-color-surface-strong);
+  border-radius: 999px;
+}
+
+.igScoreRow i {
+  display: block;
+  height: 100%;
+  background: var(--ig-color-primary);
+}
+
+.igScore p {
+  margin: 0;
+  color: var(--ig-color-text-muted);
+  line-height: 1.55;
+}
+
+.igTaskCard {
+  display: grid;
+  gap: var(--ig-space-3);
+}
+
+.igTaskCard header {
+  display: grid;
+  gap: var(--ig-space-2);
+}
+
+.igTaskCard header div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ig-space-2);
+}
+
+.igTaskCard details {
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igTaskCard summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ig-space-2);
+  cursor: pointer;
+  font-weight: 760;
+}
+
+.igTaskCard pre {
+  max-height: 260px;
+  overflow: auto;
+  margin: var(--ig-space-3) 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ig-color-text);
+  font-family: var(--ig-font-sans);
+  line-height: 1.55;
+}
+
+.igAgentControl {
+  display: grid;
+  gap: var(--ig-space-3);
+}
+
+.igGuardrailBox {
+  display: grid;
+  gap: var(--ig-space-3);
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igGuardrailBox header,
+.igGuardrailBox summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ig-space-2);
+}
+
+.igGuardrailBox details {
+  padding: var(--ig-space-2);
+  background: var(--ig-color-surface);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-sm);
+}
+
+.igGuardrailBox pre {
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: var(--ig-space-2) 0 0;
+  font-size: 12px;
+}
+
+.igDataTable {
+  display: grid;
+  gap: var(--ig-space-2);
+}
+
+.igTableRow {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) 140px minmax(260px, 1.2fr) 110px;
+  align-items: center;
+  gap: var(--ig-space-3);
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igTableRow.head {
+  min-height: 32px;
+  padding: 0 var(--ig-space-3);
+  color: var(--ig-color-text-muted);
+  background: transparent;
+  border: 0;
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.igDataInputs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ig-space-2);
+}
+
+.igKanban {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(150px, 1fr));
+  gap: var(--ig-space-2);
+  overflow-x: auto;
+  padding-bottom: var(--ig-space-1);
+}
+
+.igKanban section {
+  display: grid;
+  align-content: start;
+  gap: var(--ig-space-2);
+  min-height: 220px;
+  padding: var(--ig-space-2);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igKanban h3 {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+}
+
+.igKanban button {
+  display: grid;
+  gap: var(--ig-space-2);
+  padding: var(--ig-space-3);
+  color: var(--ig-color-text);
+  text-align: left;
+  background: var(--ig-color-surface);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  font: inherit;
+}
+
+.igKanban button.active {
+  border-color: rgba(23, 107, 91, 0.5);
+  box-shadow: 0 0 0 2px rgba(23, 107, 91, 0.1);
+}
+
+.igBlock {
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igBlock small {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ig-color-accent);
+  font-weight: 820;
+}
+
+.igBlock p {
+  margin: 0;
+  color: var(--ig-color-text);
+  white-space: pre-wrap;
+  line-height: 1.55;
+}
+
+.igWorkflowSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ig-space-2);
+}
+
+.igWorkflowSteps span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 var(--ig-space-2);
+  color: var(--ig-color-primary);
+  background: var(--ig-color-primary-soft);
+  border-radius: var(--ig-radius-md);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.igTopbarStatus {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.igServiceLayout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--ig-space-4);
+  align-items: start;
+}
+
+.igBrainLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: var(--ig-space-4);
+  align-items: start;
+}
+
+.igBrainSide {
+  display: grid;
+  gap: var(--ig-space-4);
+}
+
+.igBrainToolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ig-space-3);
+  margin-bottom: var(--ig-space-3);
+}
+
+.igBrainToolbar label {
+  display: grid;
+  gap: 6px;
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.igBrainToolbar select,
+.igBrainComposer textarea {
+  width: 100%;
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  color: var(--ig-color-text);
+  background: var(--ig-color-surface);
+  font: inherit;
+}
+
+.igBrainToolbar select {
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+.igChatSurface {
+  display: grid;
+  align-content: start;
+  gap: var(--ig-space-3);
+  min-height: 420px;
+  max-height: 58vh;
+  overflow: auto;
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igChatMessage {
+  display: grid;
+  gap: 5px;
+  max-width: min(76%, 720px);
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igChatMessage.user {
+  justify-self: end;
+  background: var(--ig-color-primary-soft);
+  border-color: rgba(23, 107, 91, 0.28);
+}
+
+.igChatMessage small {
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.igChatMessage p {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.65;
+}
+
+.igBrainComposer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--ig-space-3);
+  margin-top: var(--ig-space-3);
+}
+
+.igBrainComposer textarea {
+  min-height: 76px;
+  resize: vertical;
+  padding: var(--ig-space-3);
+}
+
+.igProviderCard,
+.igBrainTrace {
+  display: grid;
+  gap: var(--ig-space-3);
+}
+
+.igProviderCard {
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igProviderCard > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ig-space-2);
+}
+
+.igProviderCard p,
+.igProviderCard small,
+.igBrainTrace p {
+  margin: 0;
+  color: var(--ig-color-text-muted);
+  line-height: 1.55;
+}
+
+.igProviderCard code {
+  width: fit-content;
+  padding: 4px 7px;
+  color: var(--ig-color-primary);
+  background: var(--ig-color-primary-soft);
+  border-radius: var(--ig-radius-sm);
+  font-size: 12px;
+}
+
+.igProviderList {
+  display: grid;
+  gap: var(--ig-space-2);
+  margin-top: var(--ig-space-3);
+}
+
+.igProviderList button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ig-space-2);
+  min-height: 42px;
+  padding: 0 var(--ig-space-3);
+  color: var(--ig-color-text);
+  text-align: left;
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  font: inherit;
+  cursor: pointer;
+}
+
+.igProviderList button.active {
+  background: var(--ig-color-primary-soft);
+  border-color: rgba(23, 107, 91, 0.45);
+}
+
+.igBrainTrace {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.igBrainTrace > div {
+  display: grid;
+  gap: 4px;
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igBrainTrace span {
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.igBrainTrace strong {
+  font-size: 18px;
+}
+
+.igBrainWide {
+  grid-column: 1 / -1;
+}
+
+.igServiceMain {
+  display: grid;
+  gap: var(--ig-space-4);
+  min-width: 0;
+}
+
+.igSopLayout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 320px;
+  gap: var(--ig-space-4);
+  align-items: start;
+}
+
+.igSettingsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ig-space-4);
+}
+
+.igRunList,
+.igTemplateList,
+.igAdviceList,
+.igTimeline,
+.igRulePanel,
+.igInsightBlock,
+.igChipList,
+.igRiskList {
+  display: grid;
+  gap: var(--ig-space-2);
+}
+
+.igRunList button,
+.igTemplateList button,
+.igListItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ig-space-3);
+  width: 100%;
+  min-height: 60px;
+  padding: var(--ig-space-3);
+  color: var(--ig-color-text);
+  text-align: left;
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  font: inherit;
+}
+
+.igRunList button,
+.igTemplateList button {
+  cursor: pointer;
+}
+
+.igRunList button.active,
+.igTemplateList button.active {
+  border-color: rgba(23, 107, 91, 0.55);
+  background: var(--ig-color-primary-soft);
+  box-shadow: 0 0 0 2px rgba(23, 107, 91, 0.08);
+}
+
+.igRunList strong,
+.igTemplateList strong,
+.igListItem strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.igRunList small,
+.igTemplateList small,
+.igListItem p,
+.igListItem small,
+.igListMeta small {
+  margin: 4px 0 0;
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.igListMeta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.igAdviceList article,
+.igQuietState {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ig-space-2);
+  padding: var(--ig-space-3);
+  color: var(--ig-color-text);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  line-height: 1.55;
+}
+
+.igAdviceList svg,
+.igQuietState svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--ig-color-primary);
+}
+
+.igMiniMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ig-space-2);
+  margin-bottom: var(--ig-space-3);
+}
+
+.igMiniMetrics div,
+.igEvidenceGrid > div,
+.igRulePanel > div {
+  display: grid;
+  gap: 4px;
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igMiniMetrics span,
+.igEvidenceGrid span,
+.igRulePanel span {
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.igMiniMetrics strong,
+.igEvidenceGrid strong,
+.igRulePanel strong {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.igProgressTrack {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: 999px;
+}
+
+.igProgressTrack span {
+  display: block;
+  height: 100%;
+  background: var(--ig-color-primary);
+  border-radius: inherit;
+}
+
+.igTimelineStep {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: var(--ig-space-3);
+  padding: var(--ig-space-3);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+}
+
+.igTimelineIndex {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--ig-color-primary);
+  background: var(--ig-color-primary-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 860;
+}
+
+.igTimelineTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ig-space-2);
+}
+
+.igTimelineStep p,
+.igEvidenceGrid p,
+.igRulePanel p,
+.igInsightBlock p {
+  margin: var(--ig-space-1) 0 0;
+  color: var(--ig-color-text-muted);
+  line-height: 1.55;
+}
+
+.igTimelineStep small {
+  display: block;
+  margin-top: 6px;
+  color: var(--ig-color-text-muted);
+  font-size: 12px;
+}
+
+.igEvidenceGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ig-space-3);
+}
+
+.igReplyBox {
+  padding: var(--ig-space-4);
+  color: var(--ig-color-text);
+  background: var(--ig-color-surface-muted);
+  border: 1px solid var(--ig-color-border);
+  border-radius: var(--ig-radius-md);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.igChipList {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.igChipList span,
+.igRiskList span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  min-height: 30px;
+  padding: 0 10px;
+  color: var(--ig-color-primary);
+  background: var(--ig-color-primary-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.igRiskList span {
+  color: var(--ig-color-danger);
+  background: var(--ig-color-danger-soft);
+}
+
+.igRulePanel h3 {
+  margin: var(--ig-space-2) 0 0;
+  font-size: 13px;
+}
+
+.igRulePanel ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ig-color-text-muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 1180px) {
+  .igMetrics,
+  .igCommandGrid,
+  .igTwoColumn,
+  .igMetrics.five,
+  .igBrainLayout,
+  .igBrainToolbar,
+  .igBrainComposer,
+  .igBrainTrace,
+  .igServiceLayout,
+  .igSopLayout,
+  .igSettingsGrid,
+  .igEvidenceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .igTableRow {
+    grid-template-columns: 1fr;
+  }
+
+  .igTableRow.head {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .igShell {
+    grid-template-columns: 1fr;
+  }
+
+  .igSidebar {
+    position: static;
+    height: auto;
+  }
+
+  .igSidebar nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .igMain {
+    padding: var(--ig-space-3);
+  }
+
+  .igTopbar {
+    position: static;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .igInline,
+  .igWorkflowSteps,
+  .igDataInputs,
+  .igIntegrationGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .igInline.tight {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
+}

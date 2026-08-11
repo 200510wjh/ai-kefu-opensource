@@ -1,0 +1,4 @@
+interface:
+  display_name: "Merchant Growth SaaS"
+  short_description: "Run customer-intake, AI customer-service, content generation, and media delivery workflows for merchant SaaS."
+  default_prompt: "Use merchant-growth-saas-skill to intake a merchant need, generate AI customer-service analysis, scripts, and a delivery workflow."

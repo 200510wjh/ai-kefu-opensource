@@ -1,0 +1,25 @@
+{
+  "name": "merchant-growth-saas",
+  "version": "0.1.0+codex.20260625135357",
+  "description": "Codex local plugin for building and operating a merchant AI growth SaaS with customer intake, AI customer service, real image/video generation, Douyin miniapp subscription, and delivery workflows.",
+  "author": {
+    "name": "wjhai merchant growth"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "\u5546\u5bb6 AI \u589e\u957f\u4e2d\u53f0",
+    "shortDescription": "\u63a5\u5165\u5546\u5bb6\u9700\u6c42\u3001AI\u5ba2\u670d\u3001\u771f\u5b9e\u51fa\u56fe\u51fa\u89c6\u9891\u3001\u6296\u97f3\u5c0f\u7a0b\u5e8f\u8ba2\u9605\u548c\u4ea4\u4ed8\u6d41\u7a0b\u3002",
+    "longDescription": "\u8fd9\u662f\u7ed9\u5f00\u53d1\u8005\u548c\u8fd0\u8425\u4f7f\u7528\u7684 Codex \u672c\u5730\u63d2\u4ef6\u3002\u5ba2\u6237\u4e0d\u9700\u8981\u5b89\u88c5\u5b83\uff1b\u5ba2\u6237\u901a\u8fc7 SaaS \u7f51\u9875\u6216\u6296\u97f3\u5c0f\u7a0b\u5e8f\u8ba2\u9605\u4f7f\u7528\u3002\u63d2\u4ef6\u7528\u4e8e\u5e2e\u52a9\u4f60\u7ef4\u62a4\u9879\u76ee\u3001\u63a5\u5165 API\u3001\u68c0\u67e5\u529f\u80fd\u3001\u751f\u6210\u4ea4\u4ed8\u65b9\u6848\u548c\u6392\u67e5\u90e8\u7f72\u95ee\u9898\u3002",
+    "developerName": "wjhai merchant growth",
+    "category": "Productivity",
+    "capabilities": [
+      "Customer intake API",
+      "AI customer service",
+      "Real image generation",
+      "Short-video workflow",
+      "Douyin miniapp SaaS",
+      "Private deployment planning"
+    ],
+    "defaultPrompt": "\u7528\u5546\u5bb6 AI \u589e\u957f\u4e2d\u53f0\u63d2\u4ef6\uff0c\u5e2e\u6211\u63a5\u5165\u5546\u5bb6\u9700\u6c42\uff0c\u751f\u6210 AI\u5ba2\u670d\u5206\u6790\u3001\u771f\u5b9e\u51fa\u56fe\u51fa\u89c6\u9891\u6d41\u7a0b\u548c\u5ba2\u6237\u4ea4\u4ed8\u65b9\u6848\u3002"
+  }
+}

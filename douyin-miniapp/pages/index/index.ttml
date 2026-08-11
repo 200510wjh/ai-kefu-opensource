@@ -1,0 +1,128 @@
+<view class="page ecom-page">
+  <view class="hero-card">
+    <view class="top-pill">AI电商 · 商品上架 · 客服承接</view>
+    <text class="mega-title">AI店铺运营管家</text>
+    <text class="sub-band">商品资料进来，上架包和托管方案出去</text>
+    <view class="feature-row">
+      <text>标题卖点</text>
+      <text>主图详情</text>
+      <text>客服FAQ</text>
+      <text>托管报价</text>
+    </view>
+  </view>
+
+  <view class="quick-cases">
+    <block tt:for="{{presets}}" tt:key="id">
+      <view class="case-chip {{item.activeClass}}" bindtap="choosePreset" data-id="{{item.id}}">
+        <text>{{item.name}}</text>
+        <text>{{item.tag}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="generator-card">
+    <view class="mock-screen">
+      <view class="mock-sidebar">
+        <text class="active-dot">上架资料</text>
+        <text>主图详情</text>
+        <text>短视频脚本</text>
+        <text>客服承接</text>
+        <text>托管方案</text>
+      </view>
+      <view class="mock-main">
+        <view class="preview-box">
+          <text>{{brief.product_name}}</text>
+          <text>￥{{brief.price}}</text>
+        </view>
+        <view class="thumb-row">
+          <text>主图</text>
+          <text>场景</text>
+          <text>详情</text>
+        </view>
+      </view>
+    </view>
+    <view class="floating-card left-card">
+      <text>{{brief.product_name}}</text>
+      <text>￥{{brief.price}}</text>
+    </view>
+    <view class="floating-card right-card">
+      <text>{{platformLabel}}</text>
+      <text>发布前确认</text>
+    </view>
+  </view>
+
+  <view class="form-card">
+    <view class="section-head">
+      <text>生成一套商品托管方案</text>
+      <text>先出草稿和报价，人工确认后发布</text>
+    </view>
+    <view class="field">
+      <text>商品名</text>
+      <input value="{{brief.product_name}}" placeholder="例如：补水保湿精华液" bindinput="onInput" data-key="product_name" />
+    </view>
+    <view class="field">
+      <text>类目</text>
+      <input value="{{brief.category}}" placeholder="例如：美妆护肤" bindinput="onInput" data-key="category" />
+    </view>
+    <view class="field-row">
+      <view class="field half">
+        <text>平台</text>
+        <picker range="{{platformOptions}}" range-key="label" value="{{platformIndex}}" bindchange="onPlatformChange">
+          <view class="picker-box">{{platformLabel}}</view>
+        </picker>
+      </view>
+      <view class="field half">
+        <text>价格</text>
+        <input value="{{brief.price}}" placeholder="129.00" bindinput="onInput" data-key="price" />
+      </view>
+    </view>
+    <view class="field">
+      <text>SKU/规格</text>
+      <input value="{{brief.sku_options}}" placeholder="30ml,50ml,两瓶装" bindinput="onInput" data-key="sku_options" />
+    </view>
+    <view class="field">
+      <text>核心卖点</text>
+      <textarea value="{{brief.selling_points}}" placeholder="用逗号分隔 3-5 个卖点" bindinput="onInput" data-key="selling_points" />
+    </view>
+    <view class="field">
+      <text>目标客户</text>
+      <input value="{{brief.audience}}" placeholder="例如：18-35岁护肤用户" bindinput="onInput" data-key="audience" />
+    </view>
+    <view class="field-row">
+      <view class="field half">
+        <text>库存</text>
+        <input value="{{brief.stock}}" placeholder="300" bindinput="onInput" data-key="stock" />
+      </view>
+      <view class="field half">
+        <text>视觉风格</text>
+        <picker range="{{styleOptions}}" value="{{styleIndex}}" bindchange="onStyleChange">
+          <view class="picker-box">{{brief.visual_style}}</view>
+        </picker>
+      </view>
+    </view>
+    <view class="field">
+      <text>发货承诺</text>
+      <input value="{{brief.shipping}}" placeholder="48小时内发货" bindinput="onInput" data-key="shipping" />
+    </view>
+    <view class="field">
+      <text>售后说明</text>
+      <input value="{{brief.after_sales}}" placeholder="按平台售后规则执行" bindinput="onInput" data-key="after_sales" />
+    </view>
+
+    <button class="primary-button neon-button" loading="{{loading}}" disabled="{{loading}}" bindtap="generate">
+      立即生成上架包和托管方案
+    </button>
+    <button class="ghost-button" bindtap="goCases">查看旧案例</button>
+  </view>
+
+  <view class="three-steps">
+    <text class="steps-title">3步完成，轻松上架</text>
+    <view class="step-row">
+      <block tt:for="{{flow}}" tt:key="*this">
+        <view class="step-card">
+          <text>{{item}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

@@ -27,6 +27,8 @@ from pydantic import BaseModel, Field
 
 from backend.api_v1 import router as api_v1_router
 from backend.customer_service_saas import router as customer_service_saas_router
+from backend.internal_growth.api import router as internal_growth_router
+from backend.internal_growth.scheduler import maybe_start_scheduler
 from backend.platform.api import http_exception_handler, request_context_middleware, unhandled_exception_handler
 from backend.platform.ai_engine import default_ai_engine
 from backend.platform.connectors import ConnectorResult, list_connectors
@@ -574,6 +576,12 @@ app.add_middleware(
 app.mount("/artifacts", StaticFiles(directory=str(ARTIFACT_DIR)), name="artifacts")
 app.include_router(customer_service_saas_router)
 app.include_router(api_v1_router)
+app.include_router(internal_growth_router)
+
+
+@app.on_event("startup")
+async def start_internal_growth_scheduler() -> None:
+    maybe_start_scheduler()
 
 LOCAL_SCRIPT_RUNS: dict[str, LocalScriptRun] = {}
 LOCAL_SCRIPT_WORKFLOW_RUNS: dict[str, str] = {}

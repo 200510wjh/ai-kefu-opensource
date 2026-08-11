@@ -32,8 +32,13 @@ class AgentConfig:
     reply_goal: str = "Reply naturally, answer the customer, and move toward lead capture, order, appointment, or human follow-up."
     target_title: str = ""
     window_allowlist: list[str] = field(default_factory=list)
+    authorized_account: str = ""
+    contact_allowlist: list[str] = field(default_factory=list)
     poll_seconds: float = 2.0
     min_send_gap_seconds: float = 20.0
+    daily_send_limit: int = 50
+    send_state_file: str = "data/desktop-agent/send-state.json"
+    message_stability_seconds: float = 1.5
     once: bool = False
     dry_run: bool = False
     max_chars: int = 6000
@@ -64,8 +69,13 @@ def normalize_config_data(data: dict[str, object]) -> dict[str, object]:
         "reply-goal": "reply_goal",
         "target-title": "target_title",
         "window-allowlist": "window_allowlist",
+        "authorized-account": "authorized_account",
+        "contact-allowlist": "contact_allowlist",
         "poll-seconds": "poll_seconds",
         "min-send-gap-seconds": "min_send_gap_seconds",
+        "daily-send-limit": "daily_send_limit",
+        "send-state-file": "send_state_file",
+        "message-stability-seconds": "message_stability_seconds",
         "max-chars": "max_chars",
         "min-text-chars": "min_text_chars",
         "min-chat-chars": "min_chat_chars",
@@ -100,6 +110,8 @@ def load_config_from_args(args: argparse.Namespace) -> AgentConfig:
     data = {key: value for key, value in raw.items() if key in allowed}
     if isinstance(data.get("window_allowlist"), str):
         data["window_allowlist"] = [str(data["window_allowlist"])]
+    if isinstance(data.get("contact_allowlist"), str):
+        data["contact_allowlist"] = [str(data["contact_allowlist"])]
     return AgentConfig(**data)
 
 
@@ -118,8 +130,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--reply-goal", default="")
     parser.add_argument("--target-title", default="")
     parser.add_argument("--window-allowlist", action="append", default=[])
+    parser.add_argument("--authorized-account", default="")
+    parser.add_argument("--contact-allowlist", action="append", default=[])
     parser.add_argument("--poll-seconds", type=float, default=0)
     parser.add_argument("--min-send-gap-seconds", type=float, default=0)
+    parser.add_argument("--daily-send-limit", type=int, default=0)
+    parser.add_argument("--send-state-file", default="")
+    parser.add_argument("--message-stability-seconds", type=float, default=0)
     parser.add_argument("--max-chars", type=int, default=0)
     parser.add_argument("--min-text-chars", type=int, default=0)
     parser.add_argument("--min-chat-chars", type=int, default=0)

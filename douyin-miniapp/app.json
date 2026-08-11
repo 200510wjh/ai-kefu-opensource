@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/cases/cases",
+    "pages/result/result",
+    "pages/lead/lead"
+  ],
+  "window": {
+    "navigationBarTitleText": "AI店铺运营管家",
+    "navigationBarBackgroundColor": "#090B16",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#090B16"
+  }
+}

@@ -1,0 +1,58 @@
+.case-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding: 34rpx;
+  margin-bottom: 24rpx;
+}
+
+.case-title {
+  color: #ffffff;
+  font-size: 46rpx;
+  font-weight: 950;
+  line-height: 1.12;
+}
+
+.case-subtitle {
+  color: #cbd5e1;
+  font-size: 26rpx;
+  line-height: 1.58;
+}
+
+.case-card {
+  display: flex;
+  flex-direction: column;
+  gap: 22rpx;
+  padding: 28rpx;
+  margin-bottom: 22rpx;
+}
+
+.case-name {
+  display: block;
+  color: #ffffff;
+  font-size: 36rpx;
+  font-weight: 950;
+}
+
+.case-desc {
+  display: block;
+  margin-top: 10rpx;
+  color: #cbd5e1;
+  font-size: 26rpx;
+  line-height: 1.55;
+}
+
+.case-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.case-tags text {
+  padding: 10rpx 14rpx;
+  color: #111827;
+  font-size: 22rpx;
+  font-weight: 900;
+  background: #a7f3d0;
+  border-radius: 999rpx;
+}

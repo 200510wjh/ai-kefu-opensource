@@ -124,6 +124,15 @@ class AIEngine:
         response_format: dict[str, Any] | None = None,
     ) -> ChatCompletionResult:
         config = self.chat_config(temperature=temperature, timeout=timeout)
+        return self.complete_chat_with_config(config, messages, response_format=response_format)
+
+    def complete_chat_with_config(
+        self,
+        config: AIEngineConfig,
+        messages: list[dict[str, str]] | list[AIMessage],
+        *,
+        response_format: dict[str, Any] | None = None,
+    ) -> ChatCompletionResult:
         if not config.api_key or not config.model:
             raise RuntimeError("AI provider is not configured")
 
@@ -210,6 +219,129 @@ class AIEngine:
             score += 12
             reasons.append("风险跟进")
         return IntentScoreResult(score=min(score, 95), reasons=reasons)
+
+    def assess_risk(self, text: str) -> RiskAssessmentResult:
+        groups = {
+            "refund_or_after_sale": [
+                "\u9000\u6b3e",
+                "\u9000\u94b1",
+                "\u9000\u8d27",
+                "\u552e\u540e",
+                "\u8d54\u4ed8",
+                "\u4e0d\u6ee1\u610f",
+                "refund",
+                "return",
+                "after-sale",
+            ],
+            "complaint": [
+                "\u6295\u8bc9",
+                "\u5dee\u8bc4",
+                "\u4e3e\u62a5",
+                "\u7ef4\u6743",
+                "\u9a97\u4eba",
+                "\u5047\u8d27",
+                "complaint",
+                "bad review",
+            ],
+            "payment": [
+                "\u4ed8\u6b3e",
+                "\u8f6c\u8d26",
+                "\u94f6\u884c\u5361",
+                "\u6536\u6b3e",
+                "\u652f\u4ed8",
+                "\u6263\u6b3e",
+                "\u8d26\u5355",
+                "payment",
+                "pay",
+                "bank card",
+            ],
+            "account_or_privacy": [
+                "\u8d26\u53f7",
+                "\u5bc6\u7801",
+                "\u9a8c\u8bc1\u7801",
+                "\u767b\u5f55",
+                "\u5c01\u53f7",
+                "\u6743\u9650",
+                "\u624b\u673a\u53f7",
+                "\u7535\u8bdd",
+                "\u5730\u5740",
+                "\u8eab\u4efd\u8bc1",
+                "\u9690\u79c1",
+                "password",
+                "verification code",
+                "private",
+            ],
+            "invoice_or_contract": [
+                "\u53d1\u7968",
+                "\u5408\u540c",
+                "\u534f\u8bae",
+                "\u516c\u7ae0",
+                "\u627f\u8bfa",
+                "invoice",
+                "contract",
+                "promise",
+            ],
+            "sensitive_content": ["\u8fdd\u89c4", "\u654f\u611f", "\u8fdd\u6cd5", "\u6cd5\u5f8b", "illegal", "legal"],
+        }
+        lowered = text.lower()
+        flags = [label for label, terms in groups.items() if any(term.lower() in lowered for term in terms)]
+        return RiskAssessmentResult(risk_flags=flags, need_followup=bool(flags))
+
+    def score_intent(self, text: str) -> IntentScoreResult:
+        score = 35
+        reasons: list[str] = []
+        lowered = text.lower()
+        signal_groups: list[tuple[str, list[str], int, int]] = [
+            (
+                "price_quote",
+                ["多少钱", "价格", "报价", "收费", "费用", "套餐", "price", "quote", "cost"],
+                32,
+                72,
+            ),
+            (
+                "purchase_or_trial",
+                ["购买", "下单", "合作", "试用", "开通", "签约", "buy", "purchase", "trial", "subscribe"],
+                28,
+                72,
+            ),
+            (
+                "contact_or_demo",
+                ["电话", "微信", "预约", "演示", "联系", "留资", "加你", "phone", "wechat", "contact", "demo"],
+                24,
+                70,
+            ),
+            (
+                "deployment_need",
+                ["接入", "官网", "网站", "网页", "代码", "api", "部署", "上线", "website", "deploy", "integration"],
+                14,
+                0,
+            ),
+            (
+                "customer_service_need",
+                ["客服", "自动回复", "知识库", "会话", "线索", "crm", "auto reply", "knowledge"],
+                12,
+                0,
+            ),
+            (
+                "urgency",
+                ["今天", "马上", "尽快", "本周", "现在", "urgent", "asap"],
+                10,
+                0,
+            ),
+        ]
+        for label, terms, weight, floor in signal_groups:
+            hits = [term for term in terms if term.lower() in lowered]
+            if not hits:
+                continue
+            score += weight + max(0, len(hits) - 1) * 4
+            if floor:
+                score = max(score, floor)
+            reasons.append(label)
+        risk = self.assess_risk(text)
+        if risk.risk_flags:
+            score += 12
+            reasons.append("risk_followup")
+        return IntentScoreResult(score=max(0, min(score, 95)), reasons=reasons)
 
     def generate_reply(
         self,

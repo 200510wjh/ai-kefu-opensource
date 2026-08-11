@@ -1,0 +1,26 @@
+{
+  "version": "0.1.0",
+  "build_time": "2026-07-27T04:42:35.100017+00:00",
+  "windows": {
+    "available": true,
+    "url": "/downloads/AI-Customer-Agent-Windows.exe",
+    "filename": "AI-Customer-Agent-Windows.exe",
+    "package_type": "nsis_installer_exe",
+    "size": 101194973,
+    "sha256": "885a2c80548128a456a8d6d36fefbd91d9801faaafb85f88964fbf083b268355"
+  },
+  "windows_dev_zip": {
+    "available": true,
+    "url": "/downloads/desktop-agent-windows-dev.zip",
+    "filename": "desktop-agent-windows-dev.zip",
+    "package_type": "developer_source_zip",
+    "size": 29629,
+    "sha256": "2c99b3b14e56abd9a3fad46cb72a098471596cf6419622a8fd4bbbcb81ab1d06"
+  },
+  "macos": {
+    "available": false,
+    "url": "",
+    "package_type": "disabled",
+    "reason": "macOS client download is hidden until a real macOS DMG build and end-to-end validation pass."
+  }
+}

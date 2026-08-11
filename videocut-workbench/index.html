@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VideoCut Workbench</title>
+    <style>
+      :root {
+        color: #17202a;
+        background: #f5f7f9;
+        font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      .shell {
+        min-height: 100vh;
+        background:
+          linear-gradient(120deg, rgba(30, 116, 108, 0.13), transparent 34%),
+          linear-gradient(45deg, transparent 58%, rgba(216, 168, 79, 0.15)),
+          #f5f7f9;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 22px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .mark {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        color: #fff;
+        background: #183b3a;
+        border-radius: 8px;
+        font-weight: 900;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      .brand h1 {
+        font-size: 20px;
+      }
+
+      .brand p,
+      .muted {
+        color: #65727f;
+        font-size: 13px;
+      }
+
+      .headerActions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(300px, 360px) minmax(520px, 1fr) minmax(320px, 420px);
+        gap: 18px;
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 0 22px 28px;
+      }
+
+      .panel {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid rgba(24, 59, 58, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 18px 44px rgba(18, 32, 42, 0.08);
+      }
+
+      .panel h2 {
+        font-size: 18px;
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        color: #52606d;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 11px;
+        color: #17202a;
+        background: #fff;
+        border: 1px solid rgba(24, 59, 58, 0.14);
+        border-radius: 7px;
+        outline: none;
+      }
+
+      textarea {
+        min-height: 96px;
+        resize: vertical;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: #1e746c;
+        box-shadow: 0 0 0 3px rgba(30, 116, 108, 0.12);
+      }
+
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 10px 13px;
+        color: #183b3a;
+        font-weight: 900;
+        text-decoration: none;
+        background: #fff;
+        border: 1px solid rgba(24, 59, 58, 0.13);
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .button.primary {
+        color: #fff;
+        background: #1e746c;
+        border-color: #1e746c;
+      }
+
+      .button.warn {
+        color: #3a2b12;
+        background: #f4c95d;
+        border-color: #f4c95d;
+      }
+
+      .workflow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .step {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 140px;
+        padding: 14px;
+        background: #f8fafb;
+        border: 1px solid rgba(24, 59, 58, 0.09);
+        border-radius: 8px;
+      }
+
+      .step b {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        place-items: center;
+        color: #fff;
+        background: #183b3a;
+        border-radius: 999px;
+        font-size: 13px;
+      }
+
+      .step strong {
+        font-size: 16px;
+      }
+
+      .step span {
+        color: #65727f;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .stage {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.68fr) minmax(340px, 1fr);
+        gap: 16px;
+      }
+
+      .phone {
+        position: relative;
+        aspect-ratio: 9 / 16;
+        min-height: 620px;
+        overflow: hidden;
+        color: #fff;
+        background:
+          linear-gradient(160deg, #183b3a, #1e746c 44%, #d8a84f),
+          #183b3a;
+        border: 10px solid #111b22;
+        border-radius: 26px;
+        box-shadow: 0 26px 68px rgba(15, 23, 42, 0.24);
+      }
+
+      .videoHead {
+        position: absolute;
+        top: 22px;
+        left: 20px;
+        right: 20px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .videoHead span,
+      .caption {
+        color: #183b3a;
+        background: rgba(255, 255, 255, 0.88);
+        border-radius: 999px;
+        padding: 7px 10px;
+      }
+
+      .speaker {
+        position: absolute;
+        top: 112px;
+        left: 50%;
+        display: grid;
+        width: 168px;
+        height: 168px;
+        place-items: center;
+        color: #183b3a;
+        background:
+          radial-gradient(circle at 36% 28%, #fff, #f4efe2 42%, #d8a84f);
+        border-radius: 50%;
+        transform: translateX(-50%);
+        font-size: 48px;
+        font-weight: 900;
+      }
+
+      .caption {
+        position: absolute;
+        right: 18px;
+        bottom: 22px;
+        left: 18px;
+        border-radius: 8px;
+        text-align: center;
+        line-height: 1.45;
+      }
+
+      .timelinePreview {
+        position: absolute;
+        right: 22px;
+        bottom: 108px;
+        left: 22px;
+        display: grid;
+        gap: 7px;
+      }
+
+      .track {
+        height: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+      }
+
+      .track i {
+        display: block;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.88);
+      }
+
+      .taskBox {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .taskBox pre {
+        overflow: auto;
+        min-height: 260px;
+        max-height: 520px;
+        margin: 0;
+        padding: 14px;
+        color: #e9f7f6;
+        background: #102324;
+        border-radius: 8px;
+        font-size: 12px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+      }
+
+      .checklist {
+        display: grid;
+        gap: 8px;
+      }
+
+      .check {
+        padding: 10px 11px;
+        color: #4d5c68;
+        background: #f8fafb;
+        border: 1px solid rgba(24, 59, 58, 0.08);
+        border-radius: 8px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .pillRow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .pill {
+        padding: 7px 9px;
+        color: #174441;
+        background: rgba(30, 116, 108, 0.11);
+        border: 1px solid rgba(30, 116, 108, 0.12);
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 1180px) {
+        main,
+        .stage {
+          grid-template-columns: 1fr;
+        }
+
+        .workflow {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .phone {
+          width: min(420px, 100%);
+          min-height: auto;
+          justify-self: center;
+        }
+      }
+
+      @media (max-width: 640px) {
+        header,
+        .headerActions,
+        .two {
+          align-items: stretch;
+          flex-direction: column;
+          grid-template-columns: 1fr;
+        }
+
+        .workflow {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="brand">
+          <div class="mark">VC</div>
+          <div>
+            <h1>VideoCut Workbench</h1>
+            <p>Ceeon/videocut-skills 前端任务台</p>
+          </div>
+        </div>
+        <div class="headerActions">
+          <button class="button" id="copyPrompt">复制执行提示词</button>
+          <button class="button primary" id="downloadTask">下载任务 JSON</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="panel">
+          <h2>项目输入</h2>
+          <label>
+            项目名称
+            <input id="projectName" value="商品口播剪辑样片" />
+          </label>
+          <div class="two">
+            <label>
+              任务类型
+              <select id="taskType">
+                <option value="剪口播">剪口播</option>
+                <option value="口播成片">口播成片</option>
+                <option value="剪口播+口播成片">剪口播 + 口播成片</option>
+              </select>
+            </label>
+            <label>
+              画幅
+              <select id="ratio">
+                <option value="1080x1440">1080x1440</option>
+                <option value="1080x1920">1080x1920</option>
+                <option value="1920x1080">1920x1080</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            原始口播视频路径
+            <input id="videoPath" value="D:\\素材\\原始口播.mp4" />
+          </label>
+          <label>
+            口播稿 / 商品卖点
+            <textarea id="scriptText">这款商品适合每天通勤和短途出行，核心卖点是轻便、耐用、好搭配。今天用一条口播视频讲清楚它为什么值得买。</textarea>
+          </label>
+          <label>
+            素材路径
+            <textarea id="assetPaths">D:\\素材\\商品主图.png
+D:\\素材\\买家秀.mp4
+D:\\素材\\详情页截图.png</textarea>
+          </label>
+          <div class="pillRow">
+            <span class="pill">去口误</span>
+            <span class="pill">删静音</span>
+            <span class="pill">字幕校对</span>
+            <span class="pill">分镜预览</span>
+            <span class="pill">竖屏成片</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>工作流预览</h2>
+          <div class="workflow">
+            <div class="step"><b>1</b><strong>剪口播</strong><span>转录视频，识别口误、重复、静音，生成审核页。</span></div>
+            <div class="step"><b>2</b><strong>人工审核</strong><span>确认哪些片段删除，避免错删关键句。</span></div>
+            <div class="step"><b>3</b><strong>字幕校对</strong><span>基于剪后视频重新转写，修正术语和断句。</span></div>
+            <div class="step"><b>4</b><strong>口播成片</strong><span>生成分镜、时间线预览和最终竖屏 MP4。</span></div>
+          </div>
+
+          <div class="stage">
+            <div class="phone">
+              <div class="videoHead"><span id="phoneTask">剪口播 + 成片</span><span id="phoneRatio">1080x1440</span></div>
+              <div class="speaker">口</div>
+              <div class="timelinePreview">
+                <div class="track"><i style="width: 78%"></i></div>
+                <div class="track"><i style="width: 54%"></i></div>
+                <div class="track"><i style="width: 92%"></i></div>
+              </div>
+              <div class="caption" id="phoneCaption">商品卖点口播视频，先剪干净，再做竖屏成片。</div>
+            </div>
+            <div class="taskBox">
+              <h3>任务 JSON</h3>
+              <pre id="taskJson"></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>给 Codex 的执行提示词</h2>
+          <div class="taskBox">
+            <pre id="promptText"></pre>
+          </div>
+          <h2>交付检查</h2>
+          <div class="checklist">
+            <div class="check">审核页必须让用户确认删除片段，不能默认跳过。</div>
+            <div class="check">最终字幕必须基于剪后视频重新转写，不能沿用原始字幕。</div>
+            <div class="check">成片必须检查画幅、时长、字幕可读性、主视觉大小。</div>
+            <div class="check">商品类视频要保留平台安全边距，避免字幕挡住商品和 CTA。</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const fields = ["projectName", "taskType", "ratio", "videoPath", "scriptText", "assetPaths"];
+      const byId = (id) => document.getElementById(id);
+
+      function buildTask() {
+        const taskType = byId("taskType").value;
+        const ratio = byId("ratio").value;
+        const projectName = byId("projectName").value.trim();
+        const scriptText = byId("scriptText").value.trim();
+        const assets = byId("assetPaths").value.split(/\n+/).map((item) => item.trim()).filter(Boolean);
+        return {
+          skill_package: "ceeon-videocut-skills",
+          source_repo: "https://github.com/Ceeon/videocut-skills",
+          project_name: projectName,
+          task_type: taskType,
+          canvas: ratio,
+          input_video: byId("videoPath").value.trim(),
+          script_or_selling_points: scriptText,
+          assets,
+          workflow: [
+            "use ceeon-videocut-skills:剪口播 to generate review page and source_cut.mp4",
+            "wait for human review before executing cut",
+            "regenerate subtitles from source_cut.mp4",
+            "use ceeon-videocut-skills:口播成片 to generate storyboard, preview, and final mp4"
+          ],
+          safety: {
+            review_required: true,
+            no_publish: true,
+            no_platform_action_without_confirmation: true
+          },
+          expected_outputs: [
+            "source_cut.mp4",
+            "subtitles.srt",
+            "storyboard.html",
+            "timeline-preview.html",
+            "final_vertical.mp4"
+          ]
+        };
+      }
+
+      function buildPrompt(task) {
+        return [
+          `使用 ceeon-videocut-skills 处理这个口播剪辑任务。`,
+          ``,
+          `任务类型：${task.task_type}`,
+          `项目名称：${task.project_name}`,
+          `原始视频：${task.input_video}`,
+          `画幅：${task.canvas}`,
+          ``,
+          `口播稿/商品卖点：`,
+          task.script_or_selling_points,
+          ``,
+          `素材：`,
+          ...task.assets.map((asset) => `- ${asset}`),
+          ``,
+          `要求：`,
+          `1. 如果任务包含“剪口播”，先生成审核页，等待我确认删除片段后再剪。`,
+          `2. 剪后必须基于 source_cut.mp4 重新转写并校对 subtitles.srt。`,
+          `3. 如果任务包含“口播成片”，生成分镜页、时间线预览和最终竖屏 MP4。`,
+          `4. 不要跳过审核，不要用原始字幕冒充最终字幕。`,
+          `5. 输出所有产物路径。`
+        ].join("\n");
+      }
+
+      function render() {
+        const task = buildTask();
+        byId("taskJson").textContent = JSON.stringify(task, null, 2);
+        byId("promptText").textContent = buildPrompt(task);
+        byId("phoneTask").textContent = task.task_type;
+        byId("phoneRatio").textContent = task.canvas;
+        byId("phoneCaption").textContent = task.script_or_selling_points.slice(0, 42) || "等待输入口播卖点";
+      }
+
+      function download(filename, text) {
+        const blob = new Blob([text], {type: "application/json;charset=utf-8"});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      fields.forEach((field) => byId(field).addEventListener("input", render));
+      byId("downloadTask").addEventListener("click", () => {
+        const task = buildTask();
+        download(`${task.project_name || "videocut-task"}.json`, JSON.stringify(task, null, 2));
+      });
+      byId("copyPrompt").addEventListener("click", async () => {
+        await navigator.clipboard.writeText(byId("promptText").textContent);
+        byId("copyPrompt").textContent = "已复制";
+        setTimeout(() => {
+          byId("copyPrompt").textContent = "复制执行提示词";
+        }, 1200);
+      });
+
+      render();
+    </script>
+  </body>
+</html>
+

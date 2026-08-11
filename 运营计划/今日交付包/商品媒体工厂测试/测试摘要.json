@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "sample_photo": "C:\\Users\\Administrator\\Documents\\运营\\运营计划\\今日交付包\\商品媒体工厂测试\\商品实拍样图.png",
+  "main_image": "data\\artifacts\\product_media\\b48e6787-7729-488d-9b10-9d243bb2e21c_main.svg",
+  "detail_image": "data\\artifacts\\product_media\\b48e6787-7729-488d-9b10-9d243bb2e21c_detail.svg",
+  "video_preview": "data\\artifacts\\product_media\\b48e6787-7729-488d-9b10-9d243bb2e21c_video_preview.html",
+  "video": "data\\artifacts\\product_media\\b48e6787-7729-488d-9b10-9d243bb2e21c_video.mp4",
+  "video_status": "rendered",
+  "first_frame": "C:\\Users\\Administrator\\Documents\\运营\\运营计划\\今日交付包\\商品媒体工厂测试\\商品短视频首帧.png",
+  "publish_boundary": "save_draft_only"
+}

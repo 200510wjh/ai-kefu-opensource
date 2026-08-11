@@ -1,0 +1,36 @@
+{
+  "name": "merchant-codex-plugins",
+  "interface": {
+    "displayName": "Merchant Codex Plugins"
+  },
+  "plugins": [
+    {
+      "name": "merchant-listing-automation",
+      "displayName": "Merchant Listing Automation",
+      "source": {
+        "source": "local",
+        "path": "./plugins/merchant-listing-automation"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business & Automation",
+      "description": "Draft-only ecommerce listing automation for Chinese merchants. Generates product listing fields, prepares platform drafts, and uses Chrome/Computer Use workflows with human confirmation before publishing."
+    },
+    {
+      "name": "merchant-growth-saas",
+      "displayName": "商家 AI 增长中台",
+      "source": {
+        "source": "local",
+        "path": "./plugins/merchant-growth-saas"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business & Automation",
+      "description": "Merchant AI growth SaaS plugin for customer need intake, AI customer service, real image/video generation planning, Douyin miniapp subscription, and delivery workflows."
+    }
+  ]
+}

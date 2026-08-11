@@ -1,0 +1,20 @@
+<view class="page cases-page">
+  <view class="case-hero glass">
+    <text class="eyebrow">DEMO CASES</text>
+    <text class="case-title">{{copy.title}}</text>
+    <text class="case-subtitle">{{copy.subtitle}}</text>
+  </view>
+
+  <block tt:for="{{cases}}" tt:key="id">
+    <view class="case-card glass" bindtap="useCase" data-id="{{item.id}}">
+      <view>
+        <text class="case-name">{{item.name}}</text>
+        <text class="case-desc">{{item.desc}}</text>
+      </view>
+      <view class="case-tags">
+        <text tt:for="{{item.tags}}" tt:key="*this">{{item}}</text>
+      </view>
+      <button class="primary-button">{{copy.useCase}}</button>
+    </view>
+  </block>
+</view>

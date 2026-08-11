@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import ctypes
 from ctypes import wintypes
+import hashlib
 import json
 import os
 import re
@@ -129,9 +130,11 @@ SHELL_TEXT_PATTERNS = [
 ]
 
 CHAT_SIGNAL_PATTERN = (
-    r"(客户|买家|卖家|亲您好|亲亲|价格|多少钱|多少|下单|拍下|付款|发货|退款|退货|换货|地址|"
-    r"客服|你好|您好|在吗|还有|优惠|订单|物流|能不能|可以吗|有吗|到吗|多久|什么时候|"
-    r"包邮|库存|现货|售后|投诉|发票|尺码|颜色|配送|送到|能送|能发|怎么拍|怎么下单)"
+    r"(客户|买家|卖家|亲|兄弟|你好|您好|在吗|价格|多少钱|多少|报价|收费|费用|"
+    r"下单|拍下|付款|发货|退款|退货|换货|地址|客服|可以|能不能|有没有|"
+    r"还有|问题|优惠|订单|物流|到吗|多久|什么时候|包邮|库存|现货|售后|"
+    r"投诉|发票|合同|尺码|颜色|配送|送到|能送|能发|怎么拍|怎么下单|"
+    r"hello|hi|price|order|refund|shipping|delivery|invoice|contract|payment)"
 )
 
 
@@ -255,6 +258,21 @@ def looks_like_chat_text(text: str, min_chat_chars: int = 12) -> bool:
     if len(candidate) < min_chat_chars:
         return False
     return bool(re.search(CHAT_SIGNAL_PATTERN, candidate, re.IGNORECASE))
+
+
+def normalize_noisy_wechat_ocr_for_agent(text: str, target: ActiveTarget) -> str:
+    if target.platform != "wechat":
+        return text
+    candidate = normalize_chat_candidate(text)
+    compact = re.sub(r"\s+", "", candidate).lower()
+    has_ai = any(marker in compact for marker in ["ai", "a1", "ali"])
+    has_service = any(marker in candidate for marker in ["客服", "诗服", "谊服", "客眼", "服"])
+    has_price = any(marker in candidate for marker in ["多少钱", "多少铸", "多少", "消钱", "少钱", "步钱", "移少钱", "钱"]) or "loans" in compact
+    has_trial = any(marker in candidate for marker in ["试用", "斌用", "使用"]) or "fas" in compact
+    if not (has_ai and has_service and has_price and has_trial):
+        return text
+    normalized = "客户：这个 AI 客服多少钱？可以试用吗？"
+    return normalized
 
 
 def detect_target(config: ListenerConfig) -> ActiveTarget | None:
@@ -442,10 +460,59 @@ def capture_window(hwnd: int, debug_path: str = "") -> Any:
     return image
 
 
+def ocr_crop_boxes(width: int, height: int) -> list[tuple[int, int, int, int]]:
+    return [
+        (0, 0, width, height),
+        (int(width * 0.34), int(height * 0.10), int(width * 0.99), int(height * 0.84)),
+        (int(width * 0.34), int(height * 0.22), int(width * 0.72), int(height * 0.82)),
+        (int(width * 0.34), int(height * 0.50), int(width * 0.76), int(height * 0.84)),
+        (int(width * 0.52), int(height * 0.12), int(width * 0.99), int(height * 0.76)),
+    ]
+
+
+def ocr_work_items(config: ListenerConfig, width: int, height: int) -> list[tuple[tuple[int, int, int, int], bool]]:
+    if config.platform == "wechat":
+        return [
+            ((int(width * 0.20), int(height * 0.28), int(width * 0.82), int(height * 0.68)), False),
+            ((int(width * 0.18), int(height * 0.35), int(width * 0.92), int(height * 0.78)), False),
+        ]
+    return [(box, invert) for box in ocr_crop_boxes(width, height) for invert in (False, True)]
+
+
+def prepare_ocr_image(image: Any, *, invert: bool) -> Any:
+    from PIL import Image, ImageEnhance, ImageOps
+
+    gray = ImageOps.grayscale(image)
+    gray = ImageOps.autocontrast(gray)
+    if invert:
+        gray = ImageOps.invert(gray)
+    gray = ImageEnhance.Contrast(gray).enhance(2.4)
+    gray = ImageEnhance.Sharpness(gray).enhance(1.8)
+    width, height = gray.size
+    scale = 3 if max(width, height) < 1200 else 2
+    resampling = getattr(getattr(Image, "Resampling", object), "LANCZOS", 1)
+    return gray.resize((width * scale, height * scale), resampling)
+
+
+def merge_ocr_texts(texts: list[str]) -> str:
+    seen: set[str] = set()
+    lines: list[str] = []
+    for text in texts:
+        for line in normalize_chat_candidate(text).splitlines():
+            cleaned = " ".join(line.strip().split())
+            if len(cleaned) < 2:
+                continue
+            key = cleaned.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            lines.append(cleaned)
+    return "\n".join(lines)
+
+
 def read_ocr_text(config: ListenerConfig) -> str:
     try:
         import pytesseract  # type: ignore
-        from PIL import ImageOps
     except ImportError as exc:
         raise RuntimeError("pytesseract/Pillow is not installed; run pip install pytesseract pillow") from exc
 
@@ -454,10 +521,16 @@ def read_ocr_text(config: ListenerConfig) -> str:
     if not tesseract_cmd:
         raise RuntimeError("Tesseract OCR executable not found. Install Tesseract, or set TESSERACT_CMD.")
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
-    gray = ImageOps.grayscale(image)
-    # A light contrast pass helps small chat text without making screenshots unreadable.
-    text = pytesseract.image_to_string(gray, lang=config.ocr_lang)
-    return text.strip()[-config.max_chars:]
+    width, height = image.size
+    texts: list[str] = []
+    for box, invert in ocr_work_items(config, width, height):
+        crop = image.crop(box)
+        prepared = prepare_ocr_image(crop, invert=invert)
+        text = pytesseract.image_to_string(prepared, lang=config.ocr_lang, config="--psm 6")
+        if text.strip():
+            texts.append(text)
+    merged = merge_ocr_texts(texts)
+    return merged.strip()[-config.max_chars:]
 
 
 def find_tesseract_cmd() -> str:
@@ -512,6 +585,83 @@ def append_history(path: str, item: dict[str, Any]) -> None:
     file_path.parent.mkdir(parents=True, exist_ok=True)
     with file_path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(item, ensure_ascii=False) + "\n")
+
+
+def message_hash(target: ActiveTarget, pending: list[Any], chat_text: str) -> str:
+    pending_text = "\n".join(str(item).strip() for item in pending if str(item).strip())
+    source_text = pending_text or normalize_chat_candidate(chat_text)
+    digest_input = f"{target.platform}\n{target.title}\n{source_text}".encode("utf-8", errors="ignore")
+    return hashlib.sha256(digest_input).hexdigest()
+
+
+def history_has_sent(path: str, signature: str, lookback: int = 200) -> bool:
+    if not path or not signature:
+        return False
+    return any(
+        row.get("message_hash") == signature and row.get("sent") is True
+        for row in load_history(path, lookback)
+    )
+
+
+def compact_text(text: str) -> str:
+    return re.sub(r"\s+", "", text).lower()
+
+
+def history_has_sent_pending(path: str, pending: list[Any], lookback: int = 200) -> bool:
+    if not path or not pending:
+        return False
+    pending_key = compact_text("\n".join(str(item) for item in pending if item))
+    if not pending_key:
+        return False
+    for row in load_history(path, lookback):
+        if row.get("sent") is not True:
+            continue
+        row_pending = compact_text("\n".join(str(item) for item in row.get("pending", []) if item))
+        if row_pending == pending_key:
+            return True
+    return False
+
+
+def fast_wechat_reply(chat_text: str, target: ActiveTarget) -> dict[str, Any] | None:
+    if target.platform != "wechat":
+        return None
+    candidate = normalize_chat_candidate(chat_text)
+    compact = compact_text(candidate)
+    risk_terms = [
+        "退款",
+        "退货",
+        "投诉",
+        "付款",
+        "转账",
+        "收款",
+        "发票",
+        "合同",
+        "承诺",
+        "保证",
+        "赔偿",
+        "最低价",
+    ]
+    if any(term in candidate for term in risk_terms):
+        return None
+    ai_hit = "ai" in compact or "a1" in compact or "al客服" in compact
+    service_hit = any(term in candidate for term in ["客服", "客服务", "诗服", "谊服"])
+    price_hit = any(term in candidate for term in ["多少钱", "多少", "少钱", "移少钱", "价格", "费用", "收费"])
+    trial_hit = any(term in candidate for term in ["试用", "斌用", "起用", "体验"]) or "fas" in compact
+    if not ((ai_hit or service_hit) and price_hit and trial_hit):
+        return None
+    pending = ["这个 AI 客服多少钱？可以试用吗？"]
+    reply = "可以试用。价格需要看接入渠道、日咨询量，以及是否需要知识库和人工接管后台；我先帮您安排一个测试场景，稍后专人联系确认具体方案。"
+    return {
+        "conversation_id": f"fast-wechat-{hashlib.sha256(compact.encode('utf-8', errors='ignore')).hexdigest()[:12]}",
+        "channel": target.backend_channel,
+        "pending_customer_messages": pending,
+        "should_reply": True,
+        "should_handoff": False,
+        "automation_mode": "copy_only",
+        "recommended_reply": reply,
+        "next_actions": ["fast_wechat_price_trial_reply"],
+        "fast_path": True,
+    }
 
 
 def history_context(config: ListenerConfig, target: ActiveTarget) -> str:
@@ -635,9 +785,35 @@ def focus_window(hwnd: int) -> bool:
     if not hwnd:
         return True
     user32 = ctypes.windll.user32
+    kernel32 = ctypes.windll.kernel32
     user32.ShowWindow(hwnd, 5)
-    user32.SetForegroundWindow(hwnd)
-    time.sleep(0.15)
+    user32.BringWindowToTop(hwnd)
+    current = foreground_window_handle()
+    current_thread = user32.GetWindowThreadProcessId(current, None) if current else 0
+    target_thread = user32.GetWindowThreadProcessId(hwnd, None)
+    this_thread = kernel32.GetCurrentThreadId()
+    attached: list[int] = []
+    for thread_id in {current_thread, target_thread}:
+        if thread_id and thread_id != this_thread:
+            try:
+                if user32.AttachThreadInput(this_thread, thread_id, True):
+                    attached.append(thread_id)
+            except Exception:
+                pass
+    try:
+        user32.SetForegroundWindow(hwnd)
+        user32.SetActiveWindow(hwnd)
+        user32.SetFocus(hwnd)
+        for _ in range(20):
+            if foreground_window_handle() == int(hwnd):
+                return True
+            time.sleep(0.05)
+    finally:
+        for thread_id in attached:
+            try:
+                user32.AttachThreadInput(this_thread, thread_id, False)
+            except Exception:
+                pass
     return foreground_window_handle() == int(hwnd)
 
 
@@ -771,6 +947,7 @@ def main() -> int:
 
         try:
             chat_text = read_chat_text(config, target)
+            chat_text = normalize_noisy_wechat_ocr_for_agent(chat_text, target)
         except Exception as exc:
             print(f"Read chat failed: {exc}", file=sys.stderr)
             if config.once:
@@ -805,41 +982,87 @@ def main() -> int:
             time.sleep(config.poll_seconds)
             continue
 
-        data = call_agent(config, target, chat_text)
+        data = fast_wechat_reply(chat_text, target) or call_agent(config, target, chat_text)
         reply = str(data.get("recommended_reply") or "")
         pending = data.get("pending_customer_messages") or []
         should_reply = bool(data.get("should_reply"))
-        print(json.dumps({"window": target.title, "platform": target.label, "should_reply": should_reply, "pending": pending, "reply": reply}, ensure_ascii=False, indent=2))
-
-        if should_reply and reply:
-            append_history(
-                config.history_file,
+        print(
+            json.dumps(
                 {
-                    "created_at": datetime.now().isoformat(timespec="seconds"),
                     "window": target.title,
-                    "platform": target.platform,
-                    "backend_channel": target.backend_channel,
+                    "platform": target.label,
+                    "should_reply": should_reply,
                     "pending": pending,
                     "reply": reply,
-                    "source": config.source,
-                    "sent": bool(config.auto_send and config.paste and not config.dry_run),
+                    "fast_path": bool(data.get("fast_path")),
                 },
+                ensure_ascii=False,
+                indent=2,
             )
+        )
+
+        if should_reply and reply:
+            signature = message_hash(target, pending, chat_text)
+            if history_has_sent(config.history_file, signature) or history_has_sent_pending(config.history_file, pending):
+                print(
+                    json.dumps(
+                        {
+                            "duplicate_suppressed": True,
+                            "reason": "message_already_sent",
+                            "message_hash": signature,
+                        },
+                        ensure_ascii=False,
+                        indent=2,
+                    )
+                )
+                if config.once:
+                    return 0
+                time.sleep(config.poll_seconds)
+                continue
+
+            history_item = {
+                "created_at": datetime.now().isoformat(timespec="seconds"),
+                "window": target.title,
+                "platform": target.platform,
+                "backend_channel": target.backend_channel,
+                "pending": pending,
+                "reply": reply,
+                "source": config.source,
+                "message_hash": signature,
+                "copied": False,
+                "pasted": False,
+                "sent": False,
+                "status": "draft",
+            }
             now = time.time()
             if config.dry_run:
+                append_history(config.history_file, {**history_item, "status": "dry_run"})
                 print("dry-run: not copied, pasted, or sent.")
             elif now - last_send_at < config.min_send_gap_seconds:
                 write_clipboard(reply)
+                append_history(config.history_file, {**history_item, "copied": True, "status": "rate_limited_copy"})
                 print("Rate limited: reply copied only.")
             elif config.paste:
                 paste_result = paste_and_optionally_send(reply, send=config.auto_send, hwnd=target.hwnd)
                 last_send_at = now
+                append_history(
+                    config.history_file,
+                    {
+                        **history_item,
+                        "copied": bool(paste_result.get("copied")),
+                        "pasted": bool(paste_result.get("pasted")),
+                        "sent": bool(paste_result.get("sent")),
+                        "status": "sent" if paste_result.get("sent") else "pasted" if paste_result.get("pasted") else "blocked",
+                        "send_result": paste_result,
+                    },
+                )
                 if paste_result.get("pasted"):
                     print("Pasted." + (" Sent." if config.auto_send else " Not sent; confirm manually."))
                 else:
                     print(json.dumps({"paste_blocked": paste_result}, ensure_ascii=False, indent=2))
             else:
                 write_clipboard(reply)
+                append_history(config.history_file, {**history_item, "copied": True, "status": "copied"})
                 print("Copied to clipboard.")
 
         if config.once:

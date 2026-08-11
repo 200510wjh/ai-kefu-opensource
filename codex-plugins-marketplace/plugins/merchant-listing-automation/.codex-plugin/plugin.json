@@ -1,0 +1,41 @@
+{
+  "name": "merchant-listing-automation",
+  "version": "0.1.0",
+  "description": "Draft-only ecommerce listing automation for merchant product uploads.",
+  "author": {
+    "name": "Merchant Growth Canvas",
+    "url": "https://local.codex"
+  },
+  "homepage": "https://local.codex/merchant-listing-automation",
+  "repository": "local",
+  "license": "Proprietary",
+  "keywords": [
+    "ecommerce",
+    "listing",
+    "douyin",
+    "taobao",
+    "automation",
+    "computer-use",
+    "chrome"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Merchant Listing Automation",
+    "shortDescription": "Generate and fill ecommerce listing drafts safely.",
+    "longDescription": "Turns product information into platform-ready listing drafts, then guides Chrome/Computer Use automation to fill merchant back offices. Publishing, price changes, refunds, and shipping always require human confirmation.",
+    "developerName": "Merchant Growth Canvas",
+    "category": "Business & Automation",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Browser",
+      "Computer Use"
+    ],
+    "defaultPrompt": [
+      "帮我把这个商品做成抖店上架草稿。",
+      "根据商品资料生成淘宝/拼多多商品标题、卖点、SKU 和详情页。",
+      "用 Chrome 和电脑插件帮我填商品草稿，但不要发布。"
+    ],
+    "brandColor": "#1e746c"
+  }
+}

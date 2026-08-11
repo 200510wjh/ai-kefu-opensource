@@ -14,6 +14,12 @@ from desktop_auto_reply_listener import PLATFORMS, enum_visible_windows, looks_l
 
 PYTHON = Path(r"C:\Users\Administrator\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe")
 DEFAULT_PLATFORMS = ["wechat", "wechat_work", "douyin", "taobao", "pdd", "xianyu"]
+NON_CUSTOMER_WINDOW_PATTERNS = [
+    "文件资源管理器",
+    "File Explorer",
+    "资源管理器",
+    "Explorer",
+]
 
 
 def platform_patterns(platform: str) -> list[str]:
@@ -24,6 +30,8 @@ def platform_patterns(platform: str) -> list[str]:
 def find_platform_window(platform: str, windows: list[tuple[int, str]]) -> tuple[int, str] | None:
     patterns = platform_patterns(platform)
     for hwnd, title in windows:
+        if any(pattern.lower() in title.lower() for pattern in NON_CUSTOMER_WINDOW_PATTERNS):
+            continue
         if any(re.search(pattern, title, re.IGNORECASE) for pattern in patterns):
             return hwnd, title
     return None

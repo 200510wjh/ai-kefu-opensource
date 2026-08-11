@@ -1,0 +1,12 @@
+@echo off
+setlocal
+chcp 65001 >nul
+cd /d "%~dp0"
+set "PY=C:\Users\Administrator\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+if not exist "%PY%" set "PY=python"
+if not exist "data\logs" mkdir "data\logs"
+echo Running today's check...
+"%PY%" scripts\today_ops_check.py > "data\logs\today_check.log" 2>&1
+type "data\logs\today_check.log"
+pause
+endlocal

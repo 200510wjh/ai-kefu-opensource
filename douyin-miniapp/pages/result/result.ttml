@@ -1,0 +1,146 @@
+<view class="page result-page" tt:if="{{draft}}">
+  <view class="result-hero">
+    <text class="eyebrow">GENERATED LISTING</text>
+    <text class="result-title">{{draft.product_name}}</text>
+    <text class="result-subtitle">{{draft.platform}} · {{draft.short_title}}</text>
+    <view class="boundary-pill">只保存草稿 · 发布前人工确认</view>
+  </view>
+
+  <view class="product-preview">
+    <view class="poster-preview">
+      <text>{{draft.product_name}}</text>
+      <text>{{draft.selling_points[0]}}</text>
+      <text>￥{{draft.listing_fields.price}}</text>
+    </view>
+    <view class="listing-fields">
+      <text>类目：{{draft.listing_fields.category}}</text>
+      <text>平台：{{draft.listing_fields.platform}}</text>
+      <text>发货：{{draft.listing_fields.shipping}}</text>
+      <text>售后：{{draft.listing_fields.after_sales}}</text>
+    </view>
+  </view>
+
+  <view class="action-card">
+    <button class="primary-button neon-button" bindtap="copyPackage">复制整套上架资料</button>
+    <button class="ghost-button" bindtap="copyPlan">复制托管报价方案</button>
+    <button class="ghost-button" bindtap="generateImage">请求真实主图</button>
+    <button class="ghost-button" bindtap="regenerate">重新生成</button>
+  </view>
+
+  <view class="section-card managed-card" tt:if="{{managedPlan}}">
+    <text class="section-title">AI店铺运营托管方案</text>
+    <text class="managed-offer">{{managedPlan.sellable_offer}}</text>
+    <text class="managed-position">{{managedPlan.positioning}}</text>
+    <view class="package-grid">
+      <block tt:for="{{managedPlan.price_packages}}" tt:key="name">
+        <view class="package-card">
+          <text>{{item.name}}</text>
+          <text>{{item.price}}</text>
+          <text>{{item.scope}}</text>
+        </view>
+      </block>
+    </view>
+    <view class="task-list">
+      <block tt:for="{{managedPlan.launch_tasks}}" tt:key="task">
+        <view class="task-row">
+          <text>{{item.day}}</text>
+          <view>
+            <text>{{item.task}}</text>
+            <text>{{item.owner}} · {{item.output}} · {{item.confirmation_required ? '需人工确认' : 'AI先生成'}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+    <view class="queue-list">
+      <block tt:for="{{managedPlan.publishing_queue}}" tt:key="item">
+        <view>
+          <text>{{item.status}}</text>
+          <text>{{item.item}}</text>
+          <text>{{item.next_operator_action}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="section-card media-pack-card" tt:if="{{mediaPack}}">
+    <text class="section-title">商品媒体包</text>
+    <image tt:if="{{mediaPack.main_image_url}}" class="generated-image" src="{{mediaPack.main_image_url}}" mode="aspectFill"></image>
+    <image tt:if="{{mediaPack.detail_image_url}}" class="generated-image tall-detail" src="{{mediaPack.detail_image_url}}" mode="aspectFill"></image>
+    <video tt:if="{{mediaPack.video_url}}" class="generated-video" src="{{mediaPack.video_url}}" controls></video>
+    <view class="video-fallback" tt:if="{{!mediaPack.video_url}}">
+      <text>短视频状态：{{mediaPack.video_status}}</text>
+      <text>已生成视频预览页，当前环境没有 MP4 渲染运行时或需要服务器安装 FFmpeg/OpenCV。</text>
+      <text>{{mediaPack.video_preview_url}}</text>
+    </view>
+  </view>
+
+  <view class="section-card image-result-card" tt:if="{{imageStatus || generatedImageUrl}}">
+    <text class="section-title">真实图片结果</text>
+    <image tt:if="{{generatedImageUrl}}" class="generated-image" src="{{generatedImageUrl}}" mode="aspectFill"></image>
+    <text class="image-status">{{imageStatus}}</text>
+  </view>
+
+  <view class="section-card">
+    <text class="section-title">商品标题草稿</text>
+    <block tt:for="{{titleRows}}" tt:key="id">
+      <view class="copy-row">
+        <text>{{item.index}}</text>
+        <text>{{item.text}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="section-card">
+    <text class="section-title">主图 / 详情图提示词</text>
+    <block tt:for="{{promptRows}}" tt:key="id">
+      <view class="prompt-card">
+        <text>{{item.index}}</text>
+        <text>{{item.text}}</text>
+        <button size="mini" bindtap="copyPrompt" data-index="{{index}}">复制</button>
+      </view>
+    </block>
+  </view>
+
+  <view class="section-card">
+    <text class="section-title">详情页结构</text>
+    <block tt:for="{{detailRows}}" tt:key="id">
+      <view class="copy-row">
+        <text>{{item.index}}</text>
+        <text>{{item.text}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="section-card">
+    <text class="section-title">SKU / 价格 / 库存</text>
+    <block tt:for="{{skuRows}}" tt:key="id">
+      <view class="sku-row">
+        <text>{{item.sku}}</text>
+        <text>￥{{item.price}}</text>
+        <text>库存 {{item.stock}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="section-card">
+    <text class="section-title">客服FAQ</text>
+    <block tt:for="{{faqRows}}" tt:key="id">
+      <view class="faq-row">
+        <text>Q：{{item.question}}</text>
+        <text>A：{{item.answer}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="section-card risk-card">
+    <text class="section-title">发布前检查</text>
+    <block tt:for="{{riskRows}}" tt:key="id">
+      <view class="copy-row">
+        <text>✓</text>
+        <text>{{item.text}}</text>
+      </view>
+    </block>
+  </view>
+
+  <button class="primary-button sticky-button" bindtap="goLead">我要接入这个系统</button>
+</view>

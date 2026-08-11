@@ -21,9 +21,11 @@ SHELL_TEXT_PATTERNS = [
 ]
 
 CHAT_SIGNAL_PATTERN = (
-    r"(客户|买家|卖家|亲|你好|您好|在吗|价格|多少钱|下单|付款|发货|退款|退货|换货|地址|客服|"
-    r"优惠|订单|物流|可以吗|有吗|多久|包邮|库存|现货|售后|投诉|发票|尺码|颜色|配送|送到|怎么拍|怎么下单|"
-    r"hello|hi|price|order|refund|shipping|delivery|invoice)"
+    r"(\u5ba2\u6237|\u4e70\u5bb6|\u5356\u5bb6|\u4eb2|\u4f60\u597d|\u60a8\u597d|\u5728\u5417|\u4ef7\u683c|\u591a\u5c11\u94b1|"
+    r"\u4e0b\u5355|\u4ed8\u6b3e|\u53d1\u8d27|\u9000\u6b3e|\u9000\u8d27|\u6362\u8d27|\u5730\u5740|\u5ba2\u670d|\u4f18\u60e0|"
+    r"\u8ba2\u5355|\u7269\u6d41|\u53ef\u4ee5\u5417|\u6709\u5417|\u591a\u4e45|\u5305\u90ae|\u5e93\u5b58|\u73b0\u8d27|\u552e\u540e|"
+    r"\u6295\u8bc9|\u53d1\u7968|\u5c3a\u7801|\u989c\u8272|\u914d\u9001|\u9001\u5230|\u600e\u4e48\u62cd|\u600e\u4e48\u4e0b\u5355|"
+    r"hello|hi|price|order|refund|shipping|delivery|invoice|contract|payment)"
 )
 
 

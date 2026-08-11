@@ -1,0 +1,92 @@
+﻿score,category,title,path,evidence,recommendation,monetization
+100,AI客服,AI客服 - DESKTOP_PLATFORM_ASSISTANT,docs\DESKTOP_PLATFORM_ASSISTANT.md,﻿# 桌面客服辅助脚本使用说明,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,图文视频生成,图文视频生成 - ECOMMERCE_AUTOMATION_AUDIT,docs\ECOMMERCE_AUTOMATION_AUDIT.md,最值得做的产品不是单点“短视频生成器”，而是一个面向商家和代理商的 **电商 AI 自动化增长中台**：,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+100,AI客服,AI客服 - HOW_TO_USE_AI_CUSTOMER_SERVICE_SYSTEM,docs\HOW_TO_USE_AI_CUSTOMER_SERVICE_SYSTEM.md,﻿# AI 客服 SaaS 使用说明,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,图文视频生成,图文视频生成 - IMPLEMENTATION_DESIGN_2026-06-25,docs\IMPLEMENTATION_DESIGN_2026-06-25.md,先把当前 `商剪增长画布` 从“能生成脚本的 SaaS 原型”升级成“能演示完整商家运营闭环的中台”。第一版不追求全自动发布，也不直接整合所有本地项目，而是把最能卖钱、最能演示、最安全的链路跑通：,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+100,图文视频生成,图文视频生成 - POST_DEPLOY_REVIEW,docs\POST_DEPLOY_REVIEW.md,- 首页 HyperFrames 作品集主视觉。,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+100,部署交付,部署交付 - 交付审计与记忆点,运营计划\交付审计与记忆点.md,## 必须长期记住的产品原则,整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+100,AI客服,AI客服 - 各程序测试验收清单,运营计划\今日交付包\各程序测试验收清单.md,# 各程序测试验收清单,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,AI客服,AI客服 - 需求雷达,运营计划\今日交付包\需求雷达\需求雷达.json,"""category"": ""AI客服"",",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,AI客服,AI客服 - 需求雷达报告,运营计划\今日交付包\需求雷达\需求雷达报告.md,- AI客服：39 条,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,AI客服,AI客服 - main,src\main.tsx,"{question: '你们能做什么？', answer: '我们可以自动回复客户咨询，并把高意向客户标记出来。'},",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,AI客服,AI客服 - customer_service_saas,backend\customer_service_saas.py,"welcome_message: str = ""您好，我是 AI 客服。请问有什么可以帮您？""",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,图文视频生成,图文视频生成 - main,backend\main.py,"audience: str = ""潜在客户""",先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+100,AI客服,AI客服 - build_ops_delivery_pack,scripts\build_ops_delivery_pack.py,# AI客服脚本型应答库,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,AI客服,AI客服 - generate_all_projects_summary_pdf,scripts\generate_all_projects_summary_pdf.py,"[p(""AI客服、桌面辅助、电商商品图、小程序、短视频画布、开源获客、服务器部署、运营交付"", ""CoverSub"")],",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+100,AI客服,AI客服 - generate_project_summary_pdf,scripts\generate_project_summary_pdf.py,"PDF_PATH = OUT_DIR / ""AI电商商品图生成与AI客服SaaS项目整理.pdf""",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+99,文件需求挖掘,文件需求挖掘 - local_demand_radar,scripts\local_demand_radar.py,"""获客运营"": [""获客"", ""线索"", ""客户"", ""私域"", ""引流"", ""抖音号"", ""转化"", ""矩阵"", ""企业号"", ""表单""],",把本地资料扫描成需求雷达，按高频词和商用紧急度生成项目优先级。,作为咨询交付物和项目立项工具，提高成交可信度。
+84,图文视频生成,图文视频生成 - DOUYIN_AI_FAVORITES_2026-06-25,docs\DOUYIN_AI_FAVORITES_2026-06-25.md,- 位置：`收藏 > 视频`,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+84,AI客服,AI客服 - acceptance_check,scripts\acceptance_check.py,"""先看这个-怎么使用AI客服.md"",",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+83,AI客服,AI客服 - 01_AI客服脚本型应答库,运营计划\今日交付包\01_AI客服脚本型应答库.md,# AI客服脚本型应答库,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+76,AI客服,AI客服 - MCP_CN_COMMERCE_SETUP_AND_SALES_2026-06-25,docs\MCP_CN_COMMERCE_SETUP_AND_SALES_2026-06-25.md,- 淘宝,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+63,AI客服,AI客服 - ACCEPTANCE_MATRIX,docs\ACCEPTANCE_MATRIX.md,﻿# AI 客服 SaaS 验收矩阵,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+59,获客运营,获客运营 - 交付包怎么做,运营计划\06_交付给客户\交付包怎么做.md,客户不需要 Codex 插件。,用企业号线索表单、评论私信承接、手动/授权导入客户表，禁止无授权抓取联系方式。,卖代运营启动包、获客 SOP、线索清洗和客服承接服务。
+57,AI客服,AI客服 - desktop_platform_prepare,scripts\desktop_platform_prepare.py,"label=""微信"",",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+55,AI客服,AI客服 - api,douyin-miniapp\utils\api.js,"douyin: '抖音小店',",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+51,图文视频生成,图文视频生成 - FUNCTION_TEST_COVERAGE_2026-06-25,docs\FUNCTION_TEST_COVERAGE_2026-06-25.md,这份文档记录当前我改过/新增过的主要文件、怎么测试、哪些是假按钮/临时数据/未覆盖情况。后续继续开发时，必须更新这份清单或同类验收文档。,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+47,部署交付,部署交付 - AI客服和生成API怎么接,运营计划\03_API接入说明\AI客服和生成API怎么接.md,# AI客服和生成 API 怎么接,整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+47,AI客服,AI客服 - desktop_acceptance_launcher,scripts\desktop_acceptance_launcher.py,"""wechat"": ""微信"",",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+45,图文视频生成,图文视频生成 - 图片视频真实接入路线,运营计划\04_真实出图出视频\图片视频真实接入路线.md,# 图片和视频真实接入路线,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+45,获客运营,获客运营 - delivery-sop,product-kit\delivery-sop.md,1. 给客户看 `index.html` 演示页或 `sample-daily-report.md`。,用企业号线索表单、评论私信承接、手动/授权导入客户表，禁止无授权抓取联系方式。,卖代运营启动包、获客 SOP、线索清洗和客服承接服务。
+43,获客运营,获客运营 - 先看这个,运营计划\先看这个.md,-> AI客服判断客户意向,用企业号线索表单、评论私信承接、手动/授权导入客户表，禁止无授权抓取联系方式。,卖代运营启动包、获客 SOP、线索清洗和客服承接服务。
+43,图文视频生成,图文视频生成 - 客户到底买什么,运营计划\02_客户SaaS产品\客户到底买什么.md,# 客户到底买什么,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+43,AI客服,AI客服 - 02_今日可商用操作指南,运营计划\今日交付包\02_今日可商用操作指南.md,# 今日可商用操作指南,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+39,图文视频生成,图文视频生成 - 不要混在一起做,运营计划\00_分批落地路线\不要混在一起做.md,# 不要混在一起做：分批落地路线,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+38,图文视频生成,图文视频生成 - REMOTION_AI_STARTUP_DOUYIN_VIDEO_2026-06-25,docs\REMOTION_AI_STARTUP_DOUYIN_VIDEO_2026-06-25.md,# Remotion 创业抖音视频设计稿,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+37,图文视频生成,图文视频生成 - 目前先接哪些功能,运营计划\04_真实出图出视频\目前先接哪些功能.md,# 真实出图出视频目前先接哪些功能,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+36,AI客服,AI客服 - 桌面自动化客服使用说明,运营计划\02_客户SaaS产品\桌面自动化客服使用说明.md,# 桌面自动化客服使用说明,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+35,AI客服,AI客服 - 监听式自动客服使用说明,运营计划\02_客户SaaS产品\监听式自动客服使用说明.md,# 监听式自动客服使用说明,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+34,获客运营,获客运营 - 03_合规获客与推流SOP,运营计划\今日交付包\03_合规获客与推流SOP.md,# 合规获客与全平台推流 SOP,用企业号线索表单、评论私信承接、手动/授权导入客户表，禁止无授权抓取联系方式。,卖代运营启动包、获客 SOP、线索清洗和客服承接服务。
+34,文件需求挖掘,文件需求挖掘 - 今日脚本验收报告,运营计划\今日交付包\今日脚本验收报告.md,# 今日脚本验收报告,把本地资料扫描成需求雷达，按高频词和商用紧急度生成项目优先级。,作为咨询交付物和项目立项工具，提高成交可信度。
+33,AI客服,AI客服 - 先看这个-今日交付包,运营计划\今日交付包\先看这个-今日交付包.md,1. `02_今日可商用操作指南.md`,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+31,图文视频生成,图文视频生成 - SKILL_CANDIDATES,docs\SKILL_CANDIDATES.md,- 操作对象：商品草稿、订单、客服消息、素材上传。,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+30,图文视频生成,图文视频生成 - GTM,docs\GTM.md,商剪增长画布帮助本地商家、电商卖家和 AI 代理商把一句需求变成短视频、主图详情、客服话术和线索承接流程。,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+30,AI客服,AI客服 - 04_官方API接入清单,运营计划\今日交付包\04_官方API接入清单.md,- 网页客服气泡：自动回复、会话落库、线索标记。,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+30,图文视频生成,图文视频生成 - 商品媒体工厂E2E验收报告,运营计划\今日交付包\商品媒体工厂测试\商品媒体工厂E2E验收报告.md,# 商品媒体工厂 E2E 验收报告,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+29,AI客服,AI客服 - ECOMMERCE_AUTOMATION_GITHUB_RESEARCH_2026-06-25,docs\ECOMMERCE_AUTOMATION_GITHUB_RESEARCH_2026-06-25.md,只读数据/采集 -> 商品与素材草稿 -> 客服候选回复 -> ERP/订单中台 -> 人工确认执行,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+29,部署交付,部署交付 - 服务器连接排查报告,运营计划\今日交付包\服务器连接排查报告.md,# 服务器连接排查报告,整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+29,小程序系统,小程序系统 - README,douyin-miniapp\README.md,# AI店铺运营管家抖音小程序,先做线索收集/AI客服入口小程序，避免重做复杂交易系统，快速上架验证需求。,卖行业小程序模板 + 年费维护 + 私域部署。
+28,图文视频生成,图文视频生成 - e2e_product_media_acceptance,scripts\e2e_product_media_acceptance.py,"f""- 主图：{online_result['urls']['main']}"",",先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+27,AI客服,AI客服 - OPEN_SOURCE_ADAPTERS,docs\OPEN_SOURCE_ADAPTERS.md,当前主产品是“商家 AI 客服 SaaS”：网页气泡自动回复、知识库导入、客服脚本生成、渠道草稿和会话收件箱。,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+27,图文视频生成,图文视频生成 - product_media_e2e_acceptance,运营计划\今日交付包\商品媒体工厂测试\product_media_e2e_acceptance.json,"""first_frame"": ""C:\\Users\\Administrator\\Documents\\运营\\运营计划\\今日交付包\\商品媒体工厂测试\\商品短视频首帧_E2E.png"",",先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+27,AI客服,AI客服 - sales-script,product-kit\sales-script.md,# 销售话术,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+26,图文视频生成,图文视频生成 - OPEN_SOURCE_ECOMMERCE_STACK,docs\OPEN_SOURCE_ECOMMERCE_STACK.md,- 用途：上传产品图或模特图，结合场景描述生成电商可用商品图，也可生成场景图视频。,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+25,图文视频生成,图文视频生成 - AUTOMATION_USAGE,docs\AUTOMATION_USAGE.md,- HyperFrames 出片计划。,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+25,图文视频生成,图文视频生成 - 商品媒体工厂E2E验收预览,运营计划\今日交付包\商品媒体工厂测试\商品媒体工厂E2E验收预览.html,<title>商品媒体工厂 E2E 验收预览</title>,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+25,部署交付,部署交付 - desktop_reply_e2e_acceptance,scripts\desktop_reply_e2e_acceptance.py,"DEFAULT_API_BASE = ""https://wjhai.cn/merchant-admin/api""",整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+24,部署交付,部署交付 - CUSTOMER_SERVICE_SAAS,docs\CUSTOMER_SERVICE_SAAS.md,## 核心接口,整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+24,部署交付,部署交付 - Mac安装包打包说明,运营计划\今日交付包\Mac安装包打包说明.md,当前已加入 Electron 桌面客户端工程，默认打开：,整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+24,图文视频生成,图文视频生成 - product_media_pack_response,运营计划\今日交付包\商品媒体工厂测试\product_media_pack_response.json,"""竖版9:16电商主图，蓝紫霓虹科技风，商品为补水保湿精华液，主体居中，蓝紫发光商业海报质感，大标题写“深层补水”，副标题写“129.00”，画面包含商品卡片、价格标签、平台上架草稿按钮，高清，适合抖音封面。"",",先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+24,获客运营,获客运营 - customer-intake,product-kit\customer-intake.md,# 客户资料收集表,用企业号线索表单、评论私信承接、手动/授权导入客户表，禁止无授权抓取联系方式。,卖代运营启动包、获客 SOP、线索清洗和客服承接服务。
+24,部署交付,部署交付 - desktop_reply_assistant,scripts\desktop_reply_assistant.py,"DEFAULT_API_BASE = os.getenv(""MERCHANT_DESKTOP_API_BASE"", ""https://wjhai.cn/merchant-admin/api"")",整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+24,小程序系统,小程序系统 - validate_miniapp,scripts\validate_miniapp.py,"""pages/index/index.ttml"",",先做线索收集/AI客服入口小程序，避免重做复杂交易系统，快速上架验证需求。,卖行业小程序模板 + 年费维护 + 私域部署。
+21,图文视频生成,图文视频生成 - remotion-ai-startup-douyin-spec,docs\remotion-ai-startup-douyin-spec.json,"""text"": ""别再问 AI 到底能不能创业。\n真正的问题是：你能不能用 AI 找到一个每天都有人愿意付费的问题。\nAI 不会替你赚钱，它只会放大你找需求、做交付、跑反馈的速度。\n普通人别一上来就做大模型，先做小工作流。\n比如简历优化、短视频脚本、私域客服、行业报告，越具体，越容易收钱。\n第一步，找一个高频痛点：谁每天都在重复劳动？谁愿意为省一个",先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+20,AI客服,AI客服 - desktop_listener_launcher,scripts\desktop_listener_launcher.py,"self.title(""AI 自动客服监听器"")",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+19,AI客服,AI客服 - CUSTOMER_NEED_API,docs\CUSTOMER_NEED_API.md,# 客户需求接入 API,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+19,AI客服,AI客服 - 怎么安装和使用,运营计划\01_Codex本地插件\怎么安装和使用.md,这是给你自己用的 Codex 本地插件，不是卖给客户的 SaaS。,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+19,获客运营,获客运营 - README,product-kit\README.md,> 每天一份老板看得懂的经营日报，告诉他哪里赚钱、哪里漏钱、明天先改什么。,用企业号线索表单、评论私信承接、手动/授权导入客户表，禁止无授权抓取联系方式。,卖代运营启动包、获客 SOP、线索清洗和客服承接服务。
+18,部署交付,部署交付 - desktop_auto_reply_listener,scripts\desktop_auto_reply_listener.py,"DEFAULT_API_BASE = os.getenv(""MERCHANT_DESKTOP_API_BASE"", ""https://wjhai.cn/merchant-admin/api"")",整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+17,部署交付,部署交付 - 项目文件夹索引,运营计划\项目文件夹索引.md,- `backend`：FastAPI 后端,整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+16,图文视频生成,图文视频生成 - API_PROVIDERS,docs\API_PROVIDERS.md,当前项目先接入 OpenAI-compatible Chat Completions，用于生成更有网感的短视频脚本、主图/详情页结构和客服话术。,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+15,图文视频生成,图文视频生成 - VIDEOCUT_SKILLS_INSTALL_2026-06-25,docs\VIDEOCUT_SKILLS_INSTALL_2026-06-25.md,-> 口播视频剪辑,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+15,AI客服,AI客服 - VIDEO_REPLY_ASSISTANT,docs\VIDEO_REPLY_ASSISTANT.md,# 视频参考功能：微信/私信回复助手,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+15,获客运营,获客运营 - merchant_knowledge.example,docs\examples\merchant_knowledge.example.txt,售后：花材损坏请客户拍照，人工核实后处理,用企业号线索表单、评论私信承接、手动/授权导入客户表，禁止无授权抓取联系方式。,卖代运营启动包、获客 SOP、线索清洗和客服承接服务。
+13,部署交付,部署交付 - smoke_test,scripts\smoke_test.py,"""conversation"": ""客户：你们这个体验课多少钱？我怕去了被推销。"",",整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+12,小程序系统,小程序系统 - 抖音小程序怎么做订阅,运营计划\05_抖音小程序订阅\抖音小程序怎么做订阅.md,# 抖音小程序怎么做订阅,先做线索收集/AI客服入口小程序，避免重做复杂交易系统，快速上架验证需求。,卖行业小程序模板 + 年费维护 + 私域部署。
+11,AI客服,AI客服 - index,product-kit\index.html,"<a class=""button primary"" href=""customer-intake.md"">客户资料表</a>",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+11,AI客服,AI客服 - commerce_daily_report,scripts\commerce_daily_report.py,"lines.append(f""今天整体有增长机会，但 {names} 的退款率偏高，优先处理退款原因和高风险 SKU。"")",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+10,AI客服,AI客服 - sample-daily-report,product-kit\sample-daily-report.md,今天店铺整体销售稳定，但利润质量下降。GMV 比昨天高 8.6%，订单数增加 12 单，但退款率从 4.8% 升到 6.9%。主要问题集中在「夏季薄款防晒衫」尺码偏小和色差反馈。,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+10,AI客服,AI客服 - desktop_real_platform_acceptance,scripts\desktop_real_platform_acceptance.py,"""message"": f""没有找到 {platform} 的可见客服窗口，请先打开对应平台聊天窗口再验收。"",",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+9,AI客服,AI客服 - DOUYIN_MINIAPP_MVP,docs\DOUYIN_MINIAPP_MVP.md,# 抖音小程序 MVP 落地记录,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+9,AI客服,AI客服 - cases,douyin-miniapp\pages\cases\cases.js,"subtitle: '套用后会回到首页，直接生成商品上架包、客服 FAQ 和7天运营托管报价。',",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+9,图文视频生成,图文视频生成 - lead,douyin-miniapp\pages\lead\lead.js,"subtitle: '提交后进入后台线索池。适合商品上架、客服承接、每周素材更新和代运营试点。',",先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+8,部署交付,部署交付 - DEPLOYMENT,docs\DEPLOYMENT.md,# 部署指南,整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+8,图文视频生成,图文视频生成 - index,douyin-miniapp\pages\index\index.ttml,<text>主图详情</text>,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+8,获客运营,获客运营 - desktop_listener.config.example,scripts\desktop_listener.config.example.json,"""reply_goal"": ""先回答客户问题，再推进客户留下地址、用途、预算或确认下单。"",",用企业号线索表单、评论私信承接、手动/授权导入客户表，禁止无授权抓取联系方式。,卖代运营启动包、获客 SOP、线索清洗和客服承接服务。
+8,部署交付,部署交付 - today_ops_check,scripts\today_ops_check.py,"""# 今日脚本验收报告"",",整理为可复制部署包、验收脚本、客户教程，减少交付返工。,卖部署服务、二开服务和月度运维。
+7,图文视频生成,图文视频生成 - CEEON_VIDEOCUT_FRONTEND_2026-06-25,docs\CEEON_VIDEOCUT_FRONTEND_2026-06-25.md,-> 填原始视频、口播稿、素材路径,先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+7,AI客服,AI客服 - index,douyin-miniapp\pages\index\index.js,"{ label: '抖音小店', value: 'douyin' },",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+7,图文视频生成,图文视频生成 - result,douyin-miniapp\pages\result\result.js,"'主图/详情图提示词：',",先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+7,图文视频生成,图文视频生成 - result,douyin-miniapp\pages\result\result.ttml,"<button class=""ghost-button"" bindtap=""generateImage"">请求真实主图</button>",先做主图/详情图/短视频脚本和画布模板，渲染服务后置接 HyperFrames/Remotion。,按生成次数、模板包、行业素材包收费。
+5,AI客服,AI客服 - desktop_diagnostics,scripts\desktop_diagnostics.py,"if any(word in title.lower() for word in [""微信"", ""wechat"", ""抖音"", ""douyin"", ""千牛"", ""淘宝"", ""拼多多"", ""pdd"", ""闲鱼"", ""咸鱼"", ""xianyu"", ""goofish""])",优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。
+4,AI客服,AI客服 - AUTOMATED_COMMERCE_DAILY_REPORT,docs\AUTOMATED_COMMERCE_DAILY_REPORT.md,这版是你自己先试用的自动化版本：不用真实店铺授权，先用本地示例数据一键生成日报。跑通后，再把数据源换成 `mcp-cn-commerce` 的真实抖店、京东、淘宝、拼多多数据。,优先做网页客服自动回复 + 桌面辅助回复；官方 API 到位后再切抖音小店/微信客服自动发送。,按商家订阅收费，Starter 99/月，Pro 299/月，私有化部署 1999 起。

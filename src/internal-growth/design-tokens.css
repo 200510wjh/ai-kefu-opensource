@@ -1,0 +1,36 @@
+:root {
+  --ig-color-bg: #f6f7f4;
+  --ig-color-surface: #ffffff;
+  --ig-color-surface-muted: #f1f4ef;
+  --ig-color-surface-strong: #e8eee8;
+  --ig-color-border: #d9e1da;
+  --ig-color-border-strong: #bcc9c1;
+  --ig-color-text: #17211d;
+  --ig-color-text-muted: #68766f;
+  --ig-color-text-subtle: #8a9790;
+  --ig-color-primary: #176b5b;
+  --ig-color-primary-hover: #105447;
+  --ig-color-primary-soft: #e7f3ef;
+  --ig-color-accent: #b7772f;
+  --ig-color-accent-soft: #fff3df;
+  --ig-color-danger: #b84a3d;
+  --ig-color-danger-soft: #fff0ed;
+  --ig-color-warning: #a76514;
+  --ig-color-warning-soft: #fff5df;
+  --ig-color-success: #247447;
+  --ig-color-success-soft: #e9f6ee;
+  --ig-color-sidebar: #10251f;
+  --ig-color-sidebar-muted: #b9c9c1;
+  --ig-radius-sm: 6px;
+  --ig-radius-md: 8px;
+  --ig-space-1: 4px;
+  --ig-space-2: 8px;
+  --ig-space-3: 12px;
+  --ig-space-4: 16px;
+  --ig-space-5: 20px;
+  --ig-space-6: 24px;
+  --ig-shadow-panel: 0 12px 32px rgba(23, 33, 29, 0.08);
+  --ig-shadow-soft: 0 8px 20px rgba(23, 33, 29, 0.06);
+  --ig-font-sans: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+}
+

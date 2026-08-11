@@ -1,0 +1,25 @@
+<view class="page lead-page">
+  <view class="lead-hero glass">
+    <text class="eyebrow">LEAD FORM</text>
+    <text class="lead-title">{{copy.title}}</text>
+    <text class="lead-subtitle">{{copy.subtitle}}</text>
+  </view>
+
+  <view class="lead-form glass">
+    <view class="field">
+      <text>{{copy.business}}</text>
+      <input value="{{form.business_name}}" placeholder="{{copy.businessPlaceholder}}" bindinput="onInput" data-key="business_name" />
+    </view>
+    <view class="field">
+      <text>{{copy.contact}}</text>
+      <input value="{{form.contact}}" placeholder="{{copy.contactPlaceholder}}" bindinput="onInput" data-key="contact" />
+    </view>
+    <view class="field">
+      <text>{{copy.need}}</text>
+      <textarea value="{{form.need}}" placeholder="{{copy.needPlaceholder}}" bindinput="onInput" data-key="need" />
+    </view>
+    <button class="primary-button" loading="{{saving}}" disabled="{{saving}}" bindtap="submitLead">
+      {{buttonText}}
+    </button>
+  </view>
+</view>

@@ -1,0 +1,15 @@
+{
+  "condition": {
+    "miniprogram": {
+      "current": 1782376546887,
+      "list": [
+        {
+          "id": 1782376546887,
+          "name": "index",
+          "pathName": "pages/index/index",
+          "query": ""
+        }
+      ]
+    }
+  }
+}

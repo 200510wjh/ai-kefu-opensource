@@ -453,6 +453,205 @@ select:focus {
   color: #ff9d9d;
 }
 
+.aiHomeDashboard {
+  display: grid;
+  gap: 16px;
+  animation: panelIn 0.35s ease both;
+}
+
+.aiHomeHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 18px;
+  align-items: end;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  padding: 22px;
+  background:
+    linear-gradient(135deg, rgba(110, 231, 188, 0.12), rgba(255, 255, 255, 0.02) 40%),
+    linear-gradient(120deg, rgba(102, 126, 234, 0.1), transparent 52%),
+    rgba(12, 18, 22, 0.76);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.aiHomeHero p,
+.aiHomePanelHeader small,
+.aiHomeSignal small,
+.aiValueCard small {
+  margin: 0;
+  color: #6ee7bc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.aiHomeHero h1 {
+  margin: 6px 0 10px;
+  color: #ffffff;
+  font-size: 38px;
+}
+
+.aiHomeHero span,
+.aiHomeSignal span,
+.aiValueCard span {
+  display: block;
+  color: rgba(238, 246, 241, 0.68);
+}
+
+.aiHomeSignal {
+  display: grid;
+  gap: 6px;
+  border: 1px solid rgba(110, 231, 188, 0.18);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.aiHomeSignal strong {
+  color: #ffffff;
+}
+
+.aiValueGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.aiValueCard {
+  display: grid;
+  gap: 7px;
+  min-height: 124px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  padding: 15px;
+  background: rgba(12, 18, 22, 0.72);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+}
+
+.aiValueCard strong {
+  color: #ffffff;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.aiValueCard.success {
+  border-color: rgba(110, 231, 188, 0.28);
+  background: linear-gradient(145deg, rgba(110, 231, 188, 0.1), rgba(12, 18, 22, 0.72));
+}
+
+.aiValueCard.gold {
+  border-color: rgba(255, 210, 122, 0.32);
+  background: linear-gradient(145deg, rgba(255, 210, 122, 0.09), rgba(12, 18, 22, 0.72));
+}
+
+.aiValueCard.purple {
+  border-color: rgba(147, 162, 255, 0.28);
+  background: linear-gradient(145deg, rgba(147, 162, 255, 0.09), rgba(12, 18, 22, 0.72));
+}
+
+.aiValueCard.danger {
+  border-color: rgba(255, 123, 123, 0.3);
+  background: linear-gradient(145deg, rgba(255, 123, 123, 0.09), rgba(12, 18, 22, 0.72));
+}
+
+.aiHomeGrid {
+  display: grid;
+  grid-template-columns: minmax(360px, 1.15fr) repeat(2, minmax(260px, 0.85fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.aiHomePanel {
+  display: grid;
+  gap: 14px;
+  min-height: 280px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(12, 18, 22, 0.72);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+}
+
+.aiHomePanelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aiHomePanelHeader strong {
+  display: block;
+  margin-top: 3px;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.aiSuggestionList,
+.aiCustomerList {
+  display: grid;
+  gap: 10px;
+}
+
+.aiSuggestionList article {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aiSuggestionList span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  color: #07100d;
+  background: #6ee7bc;
+  font-size: 12px;
+  font-weight: 920;
+}
+
+.aiSuggestionList p {
+  margin: 0;
+  color: rgba(238, 246, 241, 0.78);
+  line-height: 1.55;
+}
+
+.aiCustomerList button {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  padding: 11px;
+  color: #eef6f1;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aiCustomerList button:hover {
+  border-color: rgba(110, 231, 188, 0.36);
+  background: rgba(110, 231, 188, 0.08);
+}
+
+.aiCustomerList strong,
+.aiCustomerList span,
+.aiCustomerList small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aiCustomerList span {
+  color: rgba(238, 246, 241, 0.72);
+}
+
 .cosmosPanel {
   display: flex;
   align-items: center;
@@ -870,6 +1069,641 @@ select:focus {
   color: rgba(248, 241, 221, 0.82);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+}
+
+.aiServiceDesk {
+  display: grid;
+  gap: 16px;
+  color: #eef6f1;
+  animation: panelIn 0.35s ease both;
+}
+
+.aiDeskHero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 4px 2px 0;
+}
+
+.aiDeskHero p,
+.replyComposerHeader small,
+.aiSurfaceHeader small {
+  margin: 0;
+  color: #6ee7bc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.aiDeskHero h1 {
+  margin: 4px 0 8px;
+  color: #fff8df;
+  font-size: 34px;
+}
+
+.aiDeskHero span,
+.replyComposerHeader span {
+  display: block;
+  max-width: 760px;
+  color: rgba(238, 246, 241, 0.68);
+}
+
+.aiDeskHeroActions,
+.deskButtonRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aiOpsStrip {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(420px, 1.1fr);
+  gap: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(15, 23, 30, 0.92), rgba(11, 16, 18, 0.82));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+}
+
+.aiOpsStatus {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.aiOpsStatus > div,
+.aiPipelineStep,
+.aiMetricTile,
+.customerContextBar {
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aiOpsStatus > div {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-height: 58px;
+  padding: 10px;
+}
+
+.aiOpsStatus small,
+.aiMetricTile small,
+.customerContextBar small {
+  color: rgba(238, 246, 241, 0.56);
+  font-size: 12px;
+  font-weight: 830;
+}
+
+.aiOpsStatus strong {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.aiOpsStatus button.pauseButton,
+.aiOpsStatus button.resumeButton {
+  min-width: 128px;
+  border-radius: 8px;
+}
+
+.aiOpsStatus button.pauseButton {
+  border-color: rgba(255, 123, 123, 0.35);
+  color: #ffe5e5;
+  background: rgba(180, 55, 55, 0.18);
+}
+
+.aiOpsStatus button.resumeButton {
+  border-color: rgba(110, 231, 188, 0.38);
+  color: #d9fff1;
+  background: rgba(41, 145, 104, 0.18);
+}
+
+.aiPipeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.aiPipelineStep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 10px;
+}
+
+.aiPipelineStep > span {
+  display: grid;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  color: #07100d;
+  background: #6ee7bc;
+  font-size: 12px;
+  font-weight: 920;
+}
+
+.aiPipelineStep strong,
+.aiPipelineStep small {
+  display: block;
+}
+
+.aiPipelineStep strong {
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.aiPipelineStep small {
+  color: rgba(238, 246, 241, 0.62);
+}
+
+.aiPipelineStep.warn > span {
+  background: #ffd27a;
+}
+
+.aiPipelineStep.blocked > span {
+  color: #fff6f6;
+  background: #ef6b6b;
+}
+
+.aiDeskHeroActions button,
+.deskButtonRow button,
+.aiDeskSurface button,
+.replyOutputPanel button,
+.replyPolicyPanel button,
+.compactLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #eef6f1;
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 850;
+}
+
+.aiDeskHeroActions button:hover,
+.deskButtonRow button:hover,
+.aiDeskSurface button:hover,
+.replyOutputPanel button:hover,
+.replyPolicyPanel button:hover,
+.compactLink:hover {
+  border-color: rgba(110, 231, 188, 0.42);
+  background: rgba(110, 231, 188, 0.1);
+}
+
+.aiDeskMetrics {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.aiMetricTile {
+  display: grid;
+  gap: 5px;
+  min-height: 96px;
+  padding: 13px;
+}
+
+.aiMetricTile strong {
+  color: #ffffff;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.aiMetricTile span {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(238, 246, 241, 0.62);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aiMetricTile.warn {
+  border-color: rgba(255, 210, 122, 0.32);
+  background: rgba(255, 210, 122, 0.07);
+}
+
+.aiDeskGrid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(420px, 1.28fr) minmax(320px, 0.95fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.aiDeskColumn {
+  display: grid;
+  gap: 14px;
+}
+
+.aiDeskSurface,
+.replyComposerSurface {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(12, 18, 22, 0.72);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(18px);
+}
+
+.aiSurfaceHeader,
+.replyComposerHeader,
+.aiQueueItem > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aiSurfaceHeader strong,
+.replyComposerHeader h2 {
+  display: block;
+  margin: 3px 0 0;
+  color: #ffffff;
+}
+
+.replyComposerHeader h2 {
+  font-size: 22px;
+}
+
+.agentModeControl,
+.replyInputGrid,
+.replyPolicyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.agentModeControl {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.agentModeControl label,
+.replyInputGrid label,
+.replyPolicyGrid label {
+  display: grid;
+  gap: 7px;
+  color: rgba(238, 246, 241, 0.72);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.replyInputGrid input,
+.replyInputGrid select,
+.replyInputGrid textarea,
+.replyPolicyGrid input,
+.replyPolicyGrid textarea,
+.agentModeControl select,
+.aiQueueItem textarea,
+.replyResultBox {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+  padding: 10px 11px;
+  color: #f8fffb;
+  background: rgba(3, 8, 11, 0.44);
+  outline: none;
+}
+
+.replyInputGrid textarea,
+.replyPolicyGrid textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.replyMessageInput {
+  min-height: 116px;
+}
+
+.replyResultBox {
+  min-height: 190px;
+  resize: vertical;
+}
+
+.replyPolicyPanel,
+.replyOutputPanel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(110, 231, 188, 0.14);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(110, 231, 188, 0.04);
+}
+
+.replyOutputPanel {
+  border-color: rgba(148, 163, 184, 0.16);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.customerContextBar {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(300px, 1.08fr);
+  gap: 12px;
+  padding: 13px;
+}
+
+.customerContextBar strong,
+.customerContextBar span {
+  display: block;
+}
+
+.customerContextBar strong {
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.customerContextBar > div:first-child span {
+  display: -webkit-box;
+  margin-top: 4px;
+  overflow: hidden;
+  color: rgba(238, 246, 241, 0.66);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.customerContextStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.customerContextStats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  padding: 8px 9px;
+  color: rgba(238, 246, 241, 0.72);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.customerContextStats .hot {
+  border-color: rgba(255, 210, 122, 0.32);
+  color: #ffe4a6;
+}
+
+.customerContextStats .warm {
+  border-color: rgba(110, 231, 188, 0.3);
+  color: #bffbe3;
+}
+
+.customerContextStats .cold {
+  color: rgba(238, 246, 241, 0.64);
+}
+
+.aiInsightGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.aiInsightGrid section,
+.citationPanel {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.aiInsightGrid small {
+  color: #6ee7bc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.aiInsightGrid section > div:not(.intentScoreDial) {
+  display: grid;
+  grid-template-columns: minmax(76px, 0.42fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  padding-bottom: 8px;
+}
+
+.aiInsightGrid section > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.aiInsightGrid span {
+  color: rgba(238, 246, 241, 0.56);
+  font-size: 12px;
+}
+
+.aiInsightGrid strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #ffffff;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aiInsightGrid p {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  color: rgba(238, 246, 241, 0.72);
+  line-height: 1.45;
+}
+
+.intentScoreDial {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(110, 231, 188, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(110, 231, 188, 0.06);
+}
+
+.intentScoreDial strong {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 999px;
+  color: #06110d;
+  background: #6ee7bc;
+  font-size: 22px;
+}
+
+.citationList {
+  display: grid;
+  gap: 10px;
+}
+
+.citationList article {
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  padding: 11px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.citationList strong {
+  color: #ffffff;
+}
+
+.citationList span {
+  color: rgba(238, 246, 241, 0.58);
+  font-size: 12px;
+}
+
+.citationList p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: rgba(238, 246, 241, 0.74);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.agentStatusLine,
+.qualityChecklist {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.qualityChecklist {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.agentStatusLine span,
+.qualityChecklist span {
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  padding: 9px;
+  color: rgba(238, 246, 241, 0.68);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+}
+
+.qualityChecklist span {
+  align-items: center;
+  grid-template-columns: auto 1fr;
+}
+
+.qualityChecklist span.ok svg,
+.qualityChecklist span.ok b {
+  color: #8bf0c6;
+}
+
+.qualityChecklist span.warn svg,
+.qualityChecklist span.warn b {
+  color: #ffd27a;
+}
+
+.qualityChecklist span.blocked {
+  border-color: rgba(255, 119, 119, 0.32);
+  color: #ffd1d1;
+  background: rgba(170, 48, 48, 0.12);
+}
+
+.miniCode {
+  max-width: 100%;
+}
+
+.compactConversationList,
+.queueSurface {
+  display: grid;
+  gap: 10px;
+}
+
+.compactConversationList {
+  max-height: 420px;
+  overflow: auto;
+}
+
+.compactConversationList button {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  padding: 10px;
+  color: #eef6f1;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.compactConversationList button.active {
+  border-color: rgba(110, 231, 188, 0.48);
+  box-shadow: 0 0 0 3px rgba(110, 231, 188, 0.08);
+}
+
+.compactConversationList span,
+.aiQueueItem p,
+.aiLogRow span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compactConversationList span {
+  white-space: nowrap;
+}
+
+.aiQueueItem,
+.aiLogRow {
+  display: grid;
+  gap: 9px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aiQueueItem p {
+  display: -webkit-box;
+  margin: 0;
+  color: rgba(238, 246, 241, 0.78);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.aiQueueItem textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.aiLogRow strong,
+.aiLogRow span,
+.aiLogRow small {
+  display: block;
+}
+
+.aiLogRow span {
+  color: rgba(248, 241, 221, 0.78);
+  white-space: nowrap;
 }
 
 .inboxLayout {
@@ -1642,7 +2476,21 @@ select:focus {
     grid-template-columns: 1fr;
   }
 
+  .aiOpsStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .aiHomeHero,
+  .aiHomeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .aiValueGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .metricGrid.six,
+  .aiDeskMetrics,
   .channelGrid,
   .desktopGrid,
   .localScriptGrid,
@@ -1657,6 +2505,10 @@ select:focus {
 @media (max-width: 1040px) {
   .brainShell,
   .commerceFactory,
+  .aiDeskGrid,
+  .aiOpsStatus,
+  .customerContextBar,
+  .aiInsightGrid,
   .inboxLayout,
   .operatorGrid,
   .scriptWorkbench {
@@ -1676,8 +2528,16 @@ select:focus {
 
   .metricGrid,
   .metricGrid.six,
+  .aiValueGrid,
+  .aiDeskMetrics,
+  .aiPipeline,
+  .customerContextStats,
+  .agentStatusLine,
+  .qualityChecklist,
   .formGrid,
   .commandGrid,
+  .replyInputGrid,
+  .replyPolicyGrid,
   .uploadStrip,
   .faqRow,
   .channelGrid,
@@ -1712,11 +2572,32 @@ select:focus {
 
   .cosmosPanel,
   .desktopHero,
+  .aiHomeHero,
+  .aiDeskHero,
+  .replyComposerHeader,
+  .aiSurfaceHeader,
+  .aiOpsStatus,
   .detailHeader,
   .panelHeader,
   .channelTop {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .aiDeskHero h1 {
+    font-size: 27px;
+  }
+
+  .aiHomeHero h1 {
+    font-size: 30px;
+  }
+
+  .aiDeskHeroActions,
+  .deskButtonRow,
+  .aiOpsStatus button.pauseButton,
+  .aiOpsStatus button.resumeButton {
+    justify-content: flex-start;
+    width: 100%;
   }
 
   .chatBubble {

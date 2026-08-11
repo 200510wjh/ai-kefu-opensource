@@ -4,7 +4,6 @@ import {
   BarChart3,
   Bot,
   Brain,
-  Building2,
   Clipboard,
   Code2,
   Database,
@@ -25,6 +24,7 @@ import {
   Users,
   Workflow
 } from 'lucide-react';
+import InternalGrowthApp from './internal-growth/App';
 import './styles.css';
 
 const API_PREFIX = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -1585,6 +1585,7 @@ type DesktopAgentActionLog = {
   mode: DesktopAgentMode;
   status: string;
   reason: string;
+  intent_score?: number;
   platform?: string;
   channel?: string;
   window_title?: string;
@@ -1594,6 +1595,14 @@ type DesktopAgentActionLog = {
   reply_text?: string;
   risk_flags?: string[];
   workflow_run_ids?: string[];
+  reply_meta?: {
+    ai_model?: string;
+    ai_mode?: string;
+    confidence?: number;
+    citations?: Array<{id?: number; title?: string; source_type?: string; snippet?: string; match_score?: number}>;
+    knowledge_answered?: boolean;
+    connector_safety?: Record<string, unknown>;
+  };
   created_at: string;
   updated_at: string;
   result?: Record<string, unknown>;
@@ -1680,16 +1689,13 @@ const emptyProfile: MerchantProfile = {
 };
 
 const sectionItems: Array<{id: Section; label: string; icon: React.ReactNode}> = [
-  {id: 'enterprise', label: '企业管理', icon: <Building2 size={18} />},
-  {id: 'acquisition', label: '获客中心', icon: <Target size={18} />},
+  {id: 'enterprise', label: '首页', icon: <Brain size={18} />},
   {id: 'aiService', label: 'AI 客服', icon: <Bot size={18} />},
-  {id: 'crm', label: 'CRM', icon: <Users size={18} />},
+  {id: 'crm', label: '客户管理', icon: <Users size={18} />},
   {id: 'knowledge', label: '知识库', icon: <Database size={18} />},
-  {id: 'products', label: '商品中心', icon: <Package size={18} />},
-  {id: 'automation', label: '自动化中心', icon: <Workflow size={18} />},
-  {id: 'aiDecision', label: 'AI 决策中心', icon: <Brain size={18} />},
-  {id: 'analytics', label: '经营分析', icon: <BarChart3 size={18} />},
-  {id: 'settings', label: '系统设置', icon: <Settings size={18} />}
+  {id: 'automation', label: '自动化', icon: <Workflow size={18} />},
+  {id: 'analytics', label: '数据分析', icon: <BarChart3 size={18} />},
+  {id: 'settings', label: '设置', icon: <Settings size={18} />}
 ];
 
 const channelNames: Record<string, string> = {
@@ -1894,7 +1900,7 @@ function App() {
   const [localScripts, setLocalScripts] = useState<LocalScriptInfo[]>([]);
   const [localRun, setLocalRun] = useState<LocalScriptRun | null>(null);
   const [localScriptStatus, setLocalScriptStatus] = useState('');
-  const [loginDraft, setLoginDraft] = useState({username: 'ai_kefu_demo', password: 'admin123'});
+  const [loginDraft, setLoginDraft] = useState({username: '', password: ''});
   const [importDraft, setImportDraft] = useState({
     title: '企业客服知识库',
     source_type: 'faq',
@@ -1917,6 +1923,13 @@ function App() {
     customer_name: '',
     message: '客户问：多少钱？怎么接到我网站？',
     reply: ''
+  });
+  const [replyPolicyDraft, setReplyPolicyDraft] = useState({
+    tone: '成交型但克制，像真人客服，2-4句',
+    goal: '先回答客户当前问题，再推进到留资、演示、下单或人工跟进',
+    boundary: '只根据企业资料和知识库回答；资料没有就不要编造',
+    handoff_rule: '退款、投诉、付款、账号、隐私、合同、发票、价格不确定时转人工',
+    forbidden_terms: '保证准时,一定有效,无条件退款,私下付款,私下收款,绝对安全'
   });
   const [mediaDraft, setMediaDraft] = useState({
     product_name: '保湿精华液',
@@ -1948,6 +1961,36 @@ function App() {
     const code = profile.merchant_code || 'WJAIKF001';
     return `${window.location.origin}${apiUrl(`/api/widget-test?merchant_code=${code}`)}`;
   }, [profile.merchant_code]);
+
+  const forbiddenReplyHits = useMemo(() => {
+    const terms = replyPolicyDraft.forbidden_terms
+      .split(/[,，、\n]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    return terms.filter((term) => replyDraft.reply.includes(term));
+  }, [replyDraft.reply, replyPolicyDraft.forbidden_terms]);
+
+  function replyPolicyText() {
+    return [
+      `语气：${replyPolicyDraft.tone}`,
+      `目标：${replyPolicyDraft.goal}`,
+      `知识边界：${replyPolicyDraft.boundary}`,
+      `转人工规则：${replyPolicyDraft.handoff_rule}`,
+      `禁止承诺：${replyPolicyDraft.forbidden_terms}`,
+      '不确定时固定回复：“这个问题需要人工客服确认，我帮您转接。”'
+    ].join('\n');
+  }
+
+  function replyMessageWithPolicy() {
+    return [`客户原话：${replyDraft.message.trim()}`, '', '客服策略：', replyPolicyText()].join('\n');
+  }
+
+  function displaySourceText(value: string) {
+    return value
+      .replace(/^客户原话：/, '')
+      .split('\n\n客服策略：')[0]
+      .trim();
+  }
 
   useEffect(() => {
     if (!token) return;
@@ -2523,7 +2566,11 @@ function App() {
       const response = await fetch(apiUrl('/api/reply/draft'), {
         method: 'POST',
         headers: {'Content-Type': 'application/json', ...authHeaders(token)},
-        body: JSON.stringify(replyDraft)
+        body: JSON.stringify({
+          channel: replyDraft.channel,
+          customer_name: replyDraft.customer_name,
+          message: replyMessageWithPolicy()
+        })
       });
       if (!response.ok) throw new Error(await response.text());
       const data = await response.json();
@@ -2531,6 +2578,32 @@ function App() {
       setStatus(data.need_followup ? '已生成回复草稿，此消息建议人工确认。' : '已生成回复草稿。');
     } catch {
       setStatus('回复草稿生成失败，请检查 AI 配置。');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveReplyPolicyToKnowledge() {
+    setLoading(true);
+    setStatus('正在保存 AI 客服策略。');
+    try {
+      const response = await fetch(apiUrl('/api/knowledge/import'), {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', ...authHeaders(token)},
+        body: JSON.stringify({
+          title: 'AI客服回复策略',
+          source_type: 'policy',
+          tags: 'AI客服,回复质量,转人工',
+          content: replyPolicyText(),
+          sync_to_faq: false
+        })
+      });
+      if (!response.ok) throw new Error(await response.text());
+      const data = await response.json();
+      setStatus(`AI 客服策略已保存到知识库：${data.imported} 条。`);
+      await refreshAll();
+    } catch {
+      setStatus('AI 客服策略保存失败，请检查登录状态或后端服务。');
     } finally {
       setLoading(false);
     }
@@ -2546,7 +2619,7 @@ function App() {
         body: JSON.stringify({
           channel: replyDraft.channel,
           customer_name: replyDraft.customer_name,
-          message: replyDraft.message
+          message: replyMessageWithPolicy()
         })
       });
       if (!response.ok) throw new Error(await response.text());
@@ -4648,10 +4721,10 @@ function App() {
           <h1>AI 商家运营工作台</h1>
           <span>面向企业电商团队和数字化运营团队，统一管理客服、知识库、线索、商品、自动化和经营分析。</span>
           <div className="loginHint">
-            <strong>演示账号</strong>
-            <code>ai_kefu_demo</code>
-            <strong>演示密码</strong>
-            <code>admin123</code>
+            <strong>生产登录</strong>
+            <code>使用已发放的企业账号</code>
+            <strong>安全提示</strong>
+            <code>默认密码已关闭</code>
           </div>
           <label>账号<input value={loginDraft.username} onChange={(event) => setLoginDraft({...loginDraft, username: event.target.value})} /></label>
           <label>密码<input type="password" value={loginDraft.password} onChange={(event) => setLoginDraft({...loginDraft, password: event.target.value})} /></label>
@@ -4680,7 +4753,6 @@ function App() {
             </button>
           ))}
         </nav>
-        <button className="ghostButton" onClick={() => refreshAll()} disabled={loading}>{loading ? <RefreshCw className="spin" size={16} /> : <RefreshCw size={16} />}刷新真实数据</button>
         <button className="ghostButton" onClick={() => { localStorage.removeItem('cs_token'); setToken(''); }}>退出登录</button>
         {status && <div className="statusText">{status}</div>}
       </aside>
@@ -4701,31 +4773,121 @@ function App() {
   );
 
   function renderEnterprise() {
+    const todayConsultations = overview?.today_conversations ?? conversations.length;
+    const aiReplies = overview?.auto_replies ?? 0;
+    const savedMinutes = aiReplies * 3;
+    const savedTime = savedMinutes >= 60 ? `${Math.floor(savedMinutes / 60)}h ${savedMinutes % 60}m` : `${savedMinutes}m`;
+    const highIntentCustomers = crmOverview?.high_intent ?? conversations.filter((item) => item.intent_score >= 70).length;
+    const followupCustomers = crmOverview?.needs_followup ?? overview?.handoff_needed ?? crmTasks.filter((item) => item.status === 'open').length;
+    const replyRate = todayConsultations > 0 ? Math.round((aiReplies / todayConsultations) * 100) : 0;
+    const highIntentList = conversations.filter((item) => item.intent_score >= 70).slice(0, 4);
+    const followupList = conversations.filter((item) => item.need_followup).slice(0, 4);
+    const aiSuggestions = [
+      followupCustomers > 0
+        ? `优先处理 ${followupCustomers} 个待跟进客户，避免高意向咨询冷却。`
+        : '当前待跟进压力较低，可以把重点放在新增咨询承接。',
+      highIntentCustomers > 0
+        ? `把 ${highIntentCustomers} 个高意向客户交给人工确认报价、资质或合作细节。`
+        : '高意向客户暂未形成，可优化欢迎语和首轮追问来提高识别率。',
+      knowledge.length > 0
+        ? `知识库已有 ${knowledge.length} 条内容，建议继续补充价格、退款、开票和交付边界。`
+        : '先导入 FAQ、价格表和售后规则，AI 才能减少不确定回复。',
+      aiReplies > 0
+        ? `AI 已处理 ${aiReplies} 次回复，预计节省 ${savedTime} 人工时间。`
+        : '建议先开启网页客服或桌面助手，积累第一批真实咨询样本。'
+    ];
+    const valueCards = [
+      {label: '今日客户咨询', value: todayConsultations, detail: '来自客服会话与渠道入口', tone: 'default'},
+      {label: 'AI自动回复数量', value: aiReplies, detail: `${replyRate}% 咨询已由 AI 承接`, tone: 'success'},
+      {label: '人工节省时间', value: savedTime, detail: '按每次回复 3 分钟估算', tone: 'purple'},
+      {label: '高意向客户', value: highIntentCustomers, detail: '意向分 70 以上', tone: 'gold'},
+      {label: '待跟进客户', value: followupCustomers, detail: '需要人工确认或跟进', tone: followupCustomers ? 'danger' : 'default'}
+    ];
+
     return (
-      <div className="pageStack">
-        <PageTitle eyebrow="Enterprise" title="企业管理" desc="维护企业资料、业务边界、联系方式和 AI 客服默认上下文。" />
-        <div className="metricGrid six">
-          <Metric label="今日会话" value={overview?.today_conversations ?? 0} />
-          <Metric label="自动回复" value={overview?.auto_replies ?? 0} />
-          <Metric label="线索数" value={overview?.leads ?? 0} />
-          <Metric label="待人工" value={overview?.handoff_needed ?? 0} warn />
-          <Metric label="知识条目" value={overview?.knowledge_items ?? 0} />
-          <Metric label="启用渠道" value={overview?.enabled_channels ?? 0} />
-        </div>
-        <section className="panel cleanFormPanel">
-          <div className="panelHeader"><strong>企业资料</strong><button onClick={saveProfile} disabled={loading}><Save size={16} />保存</button></div>
-          <div className="formGrid">
-            <label>企业名称<input value={profile.business_name} onChange={(event) => updateProfile('business_name', event.target.value)} /></label>
-            <label>行业<input value={profile.industry} onChange={(event) => updateProfile('industry', event.target.value)} /></label>
-            <label>营业时间<input value={profile.hours} onChange={(event) => updateProfile('hours', event.target.value)} /></label>
-            <label>联系方式<input value={profile.contact} onChange={(event) => updateProfile('contact', event.target.value)} /></label>
-            <label className="wide">欢迎语<textarea value={profile.welcome_message} onChange={(event) => updateProfile('welcome_message', event.target.value)} /></label>
-            <label className="wide">业务介绍<textarea value={profile.business_intro} onChange={(event) => updateProfile('business_intro', event.target.value)} /></label>
-            <label className="wide">商品 / 服务<textarea value={profile.products_services} onChange={(event) => updateProfile('products_services', event.target.value)} /></label>
-            <label>价格 / 套餐<textarea value={profile.pricing} onChange={(event) => updateProfile('pricing', event.target.value)} /></label>
-            <label>优惠 / 活动<textarea value={profile.promotions} onChange={(event) => updateProfile('promotions', event.target.value)} /></label>
+      <div className="aiHomeDashboard">
+        <section className="aiHomeHero">
+          <div>
+            <p>AI Operations Command</p>
+            <h1>AI 运营驾驶舱</h1>
+            <span>把客服自动化转化成老板能直接判断的经营结果：咨询承接、回复效率、高意向客户和待跟进动作。</span>
+          </div>
+          <div className="aiHomeSignal">
+            <small>AI 工作状态</small>
+            <strong>{aiStatus?.provider ? '已接入 AI Engine' : '等待 AI Engine 配置'}</strong>
+            <span>{aiStatus?.model || aiStatus?.mode || '统一由 AI Engine 处理客服回复与经营建议'}</span>
           </div>
         </section>
+
+        <div className="aiValueGrid">
+          {valueCards.map((card) => (
+            <article className={`aiValueCard ${card.tone}`} key={card.label}>
+              <small>{card.label}</small>
+              <strong>{card.value}</strong>
+              <span>{card.detail}</span>
+            </article>
+          ))}
+        </div>
+
+        <div className="aiHomeGrid">
+          <section className="aiHomePanel advicePanel">
+            <div className="aiHomePanelHeader">
+              <div>
+                <small>AI 今日经营建议</small>
+                <strong>下一步该抓什么</strong>
+              </div>
+              <Sparkles size={18} />
+            </div>
+            <div className="aiSuggestionList">
+              {aiSuggestions.map((item, index) => (
+                <article key={item}>
+                  <span>{index + 1}</span>
+                  <p>{item}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="aiHomePanel">
+            <div className="aiHomePanelHeader">
+              <div>
+                <small>高意向客户</small>
+                <strong>{highIntentCustomers} 个值得优先跟进</strong>
+              </div>
+              <Target size={18} />
+            </div>
+            <div className="aiCustomerList">
+              {highIntentList.length === 0 && <EmptyState text="暂无高意向客户。AI 会按咨询内容和意向分自动识别。" />}
+              {highIntentList.map((item) => (
+                <button key={item.session_id} onClick={() => { setSelectedSessionId(item.session_id); setSection('aiService'); }}>
+                  <strong>{item.visitor_name || '访客'} · {item.intent_score}</strong>
+                  <span>{item.last_query}</span>
+                  <small>{asDateText(item.updated_at)}</small>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="aiHomePanel">
+            <div className="aiHomePanelHeader">
+              <div>
+                <small>待跟进客户</small>
+                <strong>{followupCustomers} 个需要人工确认</strong>
+              </div>
+              <Headphones size={18} />
+            </div>
+            <div className="aiCustomerList">
+              {followupList.length === 0 && <EmptyState text="暂无待跟进客户。投诉、退款、报价不确定等场景会进入这里。" />}
+              {followupList.map((item) => (
+                <button key={item.session_id} onClick={() => { setSelectedSessionId(item.session_id); setSection('aiService'); }}>
+                  <strong>{item.visitor_name || '访客'} · 需跟进</strong>
+                  <span>{item.last_query}</span>
+                  <small>{asDateText(item.updated_at)}</small>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
     );
   }
@@ -4782,71 +4944,375 @@ function App() {
   }
 
   function renderAiService() {
+    const canControlLocalAgent = Boolean(window.merchantDesktop?.desktopAgent);
+    const globallyPaused = Boolean(desktopAgentState?.pauses.some((item) => item.paused && !item.platform && !item.window_title));
+    const activeChannel = channels.find((channel) => channel.channel === replyDraft.channel);
+    const latestAgentAction = desktopAgentLogs[0];
+    const aiWorkflow = workflowDefinitions.find((definition) => definition.id === 'ai_customer_service_desktop_mvp');
+    const latestAiWorkflowRun = workflowRuns.find((run) => run.workflow_id === 'ai_customer_service_desktop_mvp');
+    const riskyDraftCount = replyDraftQueue.filter((item) => item.risk_flags.length > 0 || item.intent_score >= 70).length;
+    const replyHasText = Boolean(replyDraft.reply.trim());
+    const qualityChecks = [
+      {label: '知识库', value: knowledge.length ? `${knowledge.length} 条可用` : '未导入', state: knowledge.length ? 'ok' : 'warn'},
+      {label: '转人工', value: replyDraft.reply.includes('人工') || forbiddenReplyHits.length ? '已触发' : '按策略判断', state: forbiddenReplyHits.length ? 'blocked' : 'ok'},
+      {label: '禁用承诺', value: forbiddenReplyHits.length ? forbiddenReplyHits.join(' / ') : '未命中', state: forbiddenReplyHits.length ? 'blocked' : 'ok'},
+      {label: '回复长度', value: replyHasText ? `${replyDraft.reply.length} 字` : '待生成', state: replyHasText ? 'ok' : 'warn'}
+    ];
+    const currentIntentScore = selectedConversation?.intent_score ?? 0;
+    const customerTemperature = currentIntentScore >= 70 ? '高意向' : currentIntentScore >= 40 ? '可培育' : '待识别';
+    const customerTemperatureClass = currentIntentScore >= 70 ? 'hot' : currentIntentScore >= 40 ? 'warm' : 'cold';
+    const activeMessages = detail?.session_id === selectedConversation?.session_id ? detail.messages : [];
+    const nextBestAction = selectedConversation?.need_followup
+      ? '人工接管并补充报价/售后规则'
+      : replyDraft.reply.trim()
+        ? '审核回复后准备外发'
+        : '生成知识库回复草稿';
+    const aiHealthText = aiStatus?.provider ? `${aiStatus.provider}${aiStatus.model ? ` / ${aiStatus.model}` : ''}` : 'AI Engine 待检查';
+    const deskMetrics = [
+      {label: '今日会话', value: overview?.today_conversations ?? conversations.length, hint: '实时客服入口'},
+      {label: '待审核', value: replyDraftQueue.length, hint: replyDraftQueue.length ? '需要人工确认' : '队列清爽', warn: replyDraftQueue.length > 0},
+      {label: '高风险', value: riskyDraftCount, hint: riskyDraftCount ? '优先处理' : '暂无拦截', warn: riskyDraftCount > 0},
+      {label: '外发准备', value: replyDispatches.length, hint: '复制或 API 发送'},
+      {label: '知识条目', value: knowledge.length, hint: knowledge.length ? '可检索' : '先导入资料'},
+      {label: 'Agent 动作', value: desktopAgentLogs.length, hint: latestAgentAction?.status || '暂无动作'}
+    ];
+    const pipelineSteps = [
+      {label: '监听消息', value: electronAgentStatus?.running ? '运行中' : '待启动', state: electronAgentStatus?.running ? 'ok' : 'warn'},
+      {label: '知识库回复', value: knowledge.length ? '可生成' : '缺资料', state: knowledge.length ? 'ok' : 'warn'},
+      {label: '人工审核', value: replyDraftQueue.length ? `${replyDraftQueue.length} 条` : '无积压', state: replyDraftQueue.length ? 'warn' : 'ok'},
+      {label: '受控外发', value: globallyPaused ? '已暂停' : desktopAgentMode, state: globallyPaused ? 'blocked' : 'ok'}
+    ];
+    const latestCustomerText = selectedConversation?.last_query || replyDraft.message;
+    const customerNeed = latestCustomerText.includes('价格') || latestCustomerText.includes('多少钱')
+      ? '价格与套餐'
+      : latestCustomerText.includes('退款') || latestCustomerText.includes('售后')
+        ? '售后与风险'
+        : latestCustomerText.includes('接入') || latestCustomerText.includes('官网')
+          ? '接入咨询'
+          : '需求识别';
+    const customerProfileItems = [
+      {label: '客户阶段', value: selectedConversation?.need_followup ? '人工确认阶段' : replyDraft.reply ? '回复审核阶段' : '首次咨询阶段'},
+      {label: '核心需求', value: customerNeed},
+      {label: '最近触点', value: activeChannel?.display_name || channelNames[replyDraft.channel] || replyDraft.channel},
+      {label: '缺失信息', value: currentIntentScore >= 70 ? '联系方式 / 预算 / 时间' : '预算 / 使用场景'}
+    ];
+    const intentReasons = [
+      currentIntentScore >= 70 ? '表达明确购买或接入意向' : '意向仍需通过追问确认',
+      selectedConversation?.need_followup ? '命中人工接管规则' : '未命中强制人工接管',
+      latestCustomerText.length > 18 ? '客户问题包含可分析上下文' : '客户信息较短'
+    ];
+    const recommendedActions = [
+      nextBestAction,
+      currentIntentScore >= 70 ? '索要联系方式并安排人工跟进' : '补问行业、渠道和咨询量',
+      knowledge.length ? '引用知识库边界回答' : '先补充价格、售后、接入资料'
+    ];
+    const citationSources = knowledge.slice(0, 3);
+
     return (
-      <div className="pageStack">
-        <PageTitle eyebrow="AI Service" title="AI 客服" desc="统一管理网页客服、会话回复、真人风格草稿和人工接管。" />
-        <div className="onePageConsole">
-          <section className="panel">
-            <div className="panelHeader"><strong>网页客服接入代码</strong><button onClick={() => copyText(widgetCode, '接入代码已复制。')}><Clipboard size={16} />复制</button></div>
-            <pre className="miniCode">{widgetCode}</pre>
-            <a className="primaryLink" href={widgetTestUrl} target="_blank" rel="noreferrer"><Code2 size={16} />打开测试页</a>
-          </section>
-          <section className="panel">
-            <div className="panelHeader">
-              <strong>真人风格回复草稿</strong>
-              <div className="switchRow">
-                <button onClick={generateReplyDraft} disabled={loading}><Send size={16} />生成</button>
-                <button onClick={queueReplyDraft} disabled={loading}><ShieldAlert size={16} />加入队列</button>
+      <div className="aiServiceDesk">
+        <div className="aiDeskHero">
+          <div>
+            <p>AI Service Desk</p>
+            <h1>AI 客服工作台</h1>
+            <span>一个客服坐席可直接使用的生产控制台：监听客户消息，生成知识库回复，人工审核后受控外发。</span>
+          </div>
+          <div className="aiDeskHeroActions">
+            <button onClick={() => selectedConversation && setReplyDraft((current) => ({
+              ...current,
+              customer_name: selectedConversation.visitor_name || current.customer_name,
+              message: selectedConversation.last_query || current.message,
+              channel: 'web_widget'
+            }))} disabled={!selectedConversation}>
+              <Inbox size={16} />带入当前会话
+            </button>
+            <button className="primaryButton fit" onClick={generateReplyDraft} disabled={loading || !replyDraft.message.trim()}>
+              <Sparkles size={16} />生成回复
+            </button>
+          </div>
+        </div>
+
+        <section className="aiOpsStrip">
+          <div className="aiOpsStatus">
+            <div>
+              <small>AI Engine</small>
+              <strong>{aiHealthText}</strong>
+            </div>
+            <div>
+              <small>Desktop Agent</small>
+              <strong>{globallyPaused ? '人工暂停' : electronAgentStatus?.running ? '监听中' : '待启动'}</strong>
+            </div>
+            <div>
+              <small>Workflow</small>
+              <strong>{aiWorkflow ? '客服闭环已接入' : '未接入'}</strong>
+            </div>
+            <button className={globallyPaused ? 'resumeButton' : 'pauseButton'} onClick={() => setDesktopAgentPaused(!globallyPaused)} disabled={loading}>
+              <ShieldAlert size={16} />{globallyPaused ? '恢复自动辅助' : '紧急暂停'}
+            </button>
+          </div>
+          <div className="aiPipeline">
+            {pipelineSteps.map((step, index) => (
+              <div className={`aiPipelineStep ${step.state}`} key={step.label}>
+                <span>{index + 1}</span>
+                <div>
+                  <strong>{step.label}</strong>
+                  <small>{step.value}</small>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div className="aiDeskMetrics">
+          {deskMetrics.map((metric) => (
+            <article className={`aiMetricTile ${metric.warn ? 'warn' : ''}`} key={metric.label}>
+              <small>{metric.label}</small>
+              <strong>{metric.value}</strong>
+              <span>{metric.hint}</span>
+            </article>
+          ))}
+        </div>
+
+        <div className="aiDeskGrid">
+          <aside className="aiDeskColumn">
+            <section className="aiDeskSurface">
+              <div className="aiSurfaceHeader">
+                <div>
+                  <small>Desktop Agent</small>
+                  <strong>{globallyPaused ? '人工接管中' : electronAgentStatus?.running ? '本机监听运行中' : '等待启动'}</strong>
+                </div>
+                <em className={`pill ${globallyPaused ? 'blocked' : electronAgentStatus?.running ? 'connected' : 'ready'}`}>
+                  {globallyPaused ? 'paused' : electronAgentStatus?.running ? 'running' : 'ready'}
+                </em>
+              </div>
+              <div className="agentModeControl">
+                <label>模式
+                  <select value={desktopAgentMode} onChange={(event) => setDesktopAgentMode(event.target.value as DesktopAgentMode)}>
+                    <option value="assist">只生成草稿</option>
+                    <option value="auto_paste">自动粘贴</option>
+                    <option value="auto_send">守卫自动发送</option>
+                    <option value="paused">暂停</option>
+                  </select>
+                </label>
+                <div className="deskButtonRow">
+                  <button onClick={startLocalDesktopAgent} disabled={loading || !canControlLocalAgent}><Bot size={16} />启动</button>
+                  <button onClick={stopLocalDesktopAgent} disabled={!canControlLocalAgent || !electronAgentStatus?.running}>停止</button>
+                  <button onClick={() => setDesktopAgentPaused(!globallyPaused)} disabled={loading}><ShieldAlert size={16} />{globallyPaused ? '恢复' : '暂停'}</button>
+                </div>
+              </div>
+              <div className="agentStatusLine">
+                <span>会话 <b>{desktopAgentState?.sessions.length ?? 0}</b></span>
+                <span>Workflow <b>{aiWorkflow ? '已接入' : '未接入'}</b></span>
+                <span>最近 <b>{latestAgentAction?.status || '暂无'}</b></span>
+              </div>
+            </section>
+
+            <section className="aiDeskSurface">
+              <div className="aiSurfaceHeader">
+                <div><small>Web Widget</small><strong>网页客服入口</strong></div>
+                <a className="compactLink" href={widgetTestUrl} target="_blank" rel="noreferrer"><Code2 size={15} />预览入口</a>
+              </div>
+              <pre className="miniCode">{widgetCode}</pre>
+              <button onClick={() => copyText(widgetCode, '接入代码已复制。')}><Clipboard size={16} />复制接入代码</button>
+            </section>
+
+            <section className="aiDeskSurface liveSessionSurface">
+              <div className="aiSurfaceHeader">
+                <div><small>Live Inbox</small><strong>最近会话</strong></div>
+                <small>{conversations.length} 条</small>
+              </div>
+              <div className="compactConversationList">
+                {conversations.length === 0 && <EmptyState text="暂无会话。接入网页客服后，客户咨询会进入这里。" />}
+                {conversations.slice(0, 6).map((item) => (
+                  <button className={item.session_id === selectedConversation?.session_id ? 'active' : ''} key={item.session_id} onClick={() => setSelectedSessionId(item.session_id)}>
+                    <strong>{item.visitor_name || '访客'} · 意向 {item.intent_score}</strong>
+                    <span>{item.last_query}</span>
+                    <small>{item.need_followup ? '需人工接管' : '可自动辅助'} · {asDateText(item.updated_at)}</small>
+                  </button>
+                ))}
+              </div>
+            </section>
+          </aside>
+
+          <section className="replyComposerSurface">
+            <div className="replyComposerHeader">
+              <div>
+                <small>Reply Studio</small>
+                <h2>生成一条可审核的企业回复</h2>
+                <span>{activeChannel?.display_name || channelNames[replyDraft.channel] || replyDraft.channel} · {activeChannel?.mode || 'assist'} · {activeChannel?.status || 'draft'}</span>
+              </div>
+              <div className="deskButtonRow">
+                <button onClick={queueReplyDraft} disabled={loading || !replyDraft.message.trim()}><ShieldAlert size={16} />加入审核</button>
+                <button onClick={() => copyText(replyDraft.reply, '回复已复制。')} disabled={!replyDraft.reply}><Clipboard size={16} />复制回复</button>
               </div>
             </div>
-            <div className="formGrid">
+
+            <div className="customerContextBar">
+              <div>
+                <small>当前客户</small>
+                <strong>{selectedConversation?.visitor_name || replyDraft.customer_name || '未选择客户'}</strong>
+                <span>{selectedConversation?.last_query || replyDraft.message || '输入客户原话后开始生成'}</span>
+              </div>
+              <div className="customerContextStats">
+                <span className={customerTemperatureClass}><Target size={15} />{customerTemperature} · {currentIntentScore}</span>
+                <span><Headphones size={15} />{selectedConversation?.need_followup ? '需人工跟进' : '可自动辅助'}</span>
+                <span><Users size={15} />{activeMessages.length || selectedConversation?.message_count || 0} 条消息</span>
+                <span><Workflow size={15} />{nextBestAction}</span>
+              </div>
+            </div>
+
+            <div className="aiInsightGrid">
+              <section>
+                <small>客户画像</small>
+                {customerProfileItems.map((item) => (
+                  <div key={item.label}>
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                  </div>
+                ))}
+              </section>
+              <section>
+                <small>意向评分</small>
+                <div className="intentScoreDial">
+                  <strong>{currentIntentScore}</strong>
+                  <span>{customerTemperature}</span>
+                </div>
+                {intentReasons.map((item) => <p key={item}>{item}</p>)}
+              </section>
+              <section>
+                <small>推荐动作</small>
+                {recommendedActions.map((item) => (
+                  <p key={item}><Target size={14} />{item}</p>
+                ))}
+              </section>
+            </div>
+
+            <div className="replyInputGrid">
               <label>渠道
                 <select value={replyDraft.channel} onChange={(event) => setReplyDraft({...replyDraft, channel: event.target.value})}>
                   {channels.map((channel) => <option key={channel.channel} value={channel.channel}>{channel.display_name || channelNames[channel.channel] || channel.channel}</option>)}
                 </select>
               </label>
-              <label>客户名<input value={replyDraft.customer_name} onChange={(event) => setReplyDraft({...replyDraft, customer_name: event.target.value})} placeholder="可选" /></label>
-              <label className="wide">客户原话<textarea value={replyDraft.message} onChange={(event) => setReplyDraft({...replyDraft, message: event.target.value})} /></label>
-              <label className="wide">回复结果<textarea value={replyDraft.reply} onChange={(event) => setReplyDraft({...replyDraft, reply: event.target.value})} /></label>
+              <label>客户名
+                <input value={replyDraft.customer_name} onChange={(event) => setReplyDraft({...replyDraft, customer_name: event.target.value})} placeholder="可选" />
+              </label>
+              <label className="wide">客户原话
+                <textarea className="replyMessageInput" value={replyDraft.message} onChange={(event) => setReplyDraft({...replyDraft, message: event.target.value})} />
+              </label>
+            </div>
+
+            <div className="replyPolicyPanel">
+              <div className="aiSurfaceHeader">
+                <div><small>Quality Policy</small><strong>AI 客服策略配置</strong></div>
+                <button onClick={saveReplyPolicyToKnowledge} disabled={loading}><Database size={16} />保存为知识库</button>
+              </div>
+              <div className="replyPolicyGrid">
+                <label>语气<input value={replyPolicyDraft.tone} onChange={(event) => setReplyPolicyDraft({...replyPolicyDraft, tone: event.target.value})} /></label>
+                <label>回复目标<input value={replyPolicyDraft.goal} onChange={(event) => setReplyPolicyDraft({...replyPolicyDraft, goal: event.target.value})} /></label>
+                <label className="wide">知识边界<textarea value={replyPolicyDraft.boundary} onChange={(event) => setReplyPolicyDraft({...replyPolicyDraft, boundary: event.target.value})} /></label>
+                <label className="wide">转人工规则<textarea value={replyPolicyDraft.handoff_rule} onChange={(event) => setReplyPolicyDraft({...replyPolicyDraft, handoff_rule: event.target.value})} /></label>
+                <label className="wide">禁止承诺词<input value={replyPolicyDraft.forbidden_terms} onChange={(event) => setReplyPolicyDraft({...replyPolicyDraft, forbidden_terms: event.target.value})} /></label>
+              </div>
+            </div>
+
+            <div className="replyOutputPanel">
+              <div className="aiSurfaceHeader">
+                <div><small>AI Reply Suggestion</small><strong>AI 回复建议</strong></div>
+                <button className="primaryButton fit" onClick={generateReplyDraft} disabled={loading || !replyDraft.message.trim()}><Send size={16} />重新生成</button>
+              </div>
+              <textarea className="replyResultBox" value={replyDraft.reply} onChange={(event) => setReplyDraft({...replyDraft, reply: event.target.value})} placeholder="AI 会基于客户原话、回复策略和知识库生成建议。人工确认后再复制或加入审核队列。" />
+              <div className="qualityChecklist">
+                {qualityChecks.map((item) => (
+                  <span className={item.state} key={item.label}>
+                    <ListChecks size={15} />
+                    <b>{item.label}</b>
+                    {item.value}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="citationPanel">
+              <div className="aiSurfaceHeader">
+                <div><small>Knowledge Sources</small><strong>知识库引用来源</strong></div>
+                <small>{citationSources.length} 条可用</small>
+              </div>
+              <div className="citationList">
+                {citationSources.length === 0 && <EmptyState text="知识库暂无可引用内容。导入企业资料后，AI 回复会有更清晰边界。" />}
+                {citationSources.map((item) => (
+                  <article key={item.id || item.title}>
+                    <strong>{item.title}</strong>
+                    <span>{item.source_type}{item.tags ? ` · ${item.tags}` : ''}</span>
+                    <p>{item.content}</p>
+                  </article>
+                ))}
+              </div>
             </div>
           </section>
-          <section className="panel">
-            <div className="panelHeader"><strong>人工确认队列</strong><small>{replyDraftQueue.length} 条待处理</small></div>
-            {replyDraftQueue.length === 0 && <EmptyState text="暂无待确认回复草稿。Connector 只读消息入站或手动加入队列后会出现在这里。" />}
-            {replyDraftQueue.map((item) => (
-              <article className="knowledgeItem" key={item.id}>
-                <strong>{channelNames[item.connector] || item.connector} · 意向 {item.intent_score}</strong>
-                <p>{item.source_text}</p>
-                <textarea value={item.draft_text} onChange={(event) => setReplyDraftQueue((current) => current.map((draft) => draft.id === item.id ? {...draft, draft_text: event.target.value} : draft))} />
-                <small>{item.customer_name || '未知客户'} · {item.created_at} {item.risk_flags.length ? `· 风险：${item.risk_flags.join(' / ')}` : ''}</small>
-                <div className="switchRow">
-                  <button onClick={() => copyText(item.draft_text, '回复草稿已复制，请在平台人工确认后发送。')}><Clipboard size={16} />复制</button>
-                  <button onClick={() => reviewReplyDraft(item, 'approved')} disabled={loading}><Save size={16} />通过</button>
-                  <button onClick={() => reviewReplyDraft(item, 'approved', true)} disabled={loading}><Send size={16} />通过并准备发送</button>
-                  <button onClick={() => reviewReplyDraft(item, 'rejected')} disabled={loading}><ShieldAlert size={16} />驳回</button>
-                </div>
-              </article>
-            ))}
-          </section>
-          <section className="panel">
-            <div className="panelHeader"><strong>外发准备队列</strong><small>{replyDispatches.length} 条</small></div>
-            {replyDispatches.length === 0 && <EmptyState text="暂无外发准备记录。通过并准备发送后会进入这里，仍需人工复制到官方后台。" />}
-            {replyDispatches.map((item) => (
-              <article className="knowledgeItem" key={item.id}>
-                <div className="panelHeader">
-                  <strong>{channelNames[item.connector] || item.connector} · {item.dispatch_mode}</strong>
-                  <em className={`pill ${item.status === 'revoked' ? 'blocked' : 'ready'}`}>{item.status}</em>
-                </div>
-                <p>{item.draft_text}</p>
-                <small>{item.operator || 'system'} · {item.created_at} {item.risk_flags.length ? `· 风险：${item.risk_flags.join(' / ')}` : ''}</small>
-                <div className="switchRow">
-                  <button onClick={() => copyText(item.draft_text, '外发文案已复制，请在平台人工确认后发送。')}><Clipboard size={16} />复制</button>
-                  <button onClick={() => sendReplyDispatch(item)} disabled={loading || item.status === 'revoked' || item.status === 'sent' || item.status === 'blocked'}><Send size={16} />确认 API 发送</button>
-                  <button onClick={() => revokeReplyDispatch(item)} disabled={loading || item.status === 'revoked'}><ShieldAlert size={16} />撤回</button>
-                </div>
-              </article>
-            ))}
-          </section>
+
+          <aside className="aiDeskColumn reviewColumn">
+            <section className="aiDeskSurface queueSurface">
+              <div className="aiSurfaceHeader">
+                <div><small>Human Review</small><strong>人工确认队列</strong></div>
+                <small>{replyDraftQueue.length} 条</small>
+              </div>
+              {replyDraftQueue.length === 0 && <EmptyState text="暂无待确认回复草稿。" />}
+              {replyDraftQueue.slice(0, 5).map((item) => (
+                <article className="aiQueueItem" key={item.id}>
+                  <div>
+                    <strong>{channelNames[item.connector] || item.connector} · 意向 {item.intent_score}</strong>
+                    <em className={`pill ${item.risk_flags.length ? 'blocked' : 'ready'}`}>{item.risk_flags.length ? '需人工' : '待审'}</em>
+                  </div>
+                  <p>{displaySourceText(item.source_text)}</p>
+                  <textarea value={item.draft_text} onChange={(event) => setReplyDraftQueue((current) => current.map((draft) => draft.id === item.id ? {...draft, draft_text: event.target.value} : draft))} />
+                  <small>{item.customer_name || '未知客户'} · {asDateText(item.created_at)} {item.risk_flags.length ? `· 风险：${item.risk_flags.join(' / ')}` : ''}</small>
+                  <div className="deskButtonRow">
+                    <button onClick={() => copyText(item.draft_text, '回复草稿已复制，请在平台人工确认后发送。')}><Clipboard size={15} />复制</button>
+                    <button onClick={() => reviewReplyDraft(item, 'approved')} disabled={loading}><Save size={15} />通过</button>
+                    <button onClick={() => reviewReplyDraft(item, 'approved', true)} disabled={loading}><Send size={15} />准备发送</button>
+                    <button onClick={() => reviewReplyDraft(item, 'rejected')} disabled={loading}><ShieldAlert size={15} />驳回</button>
+                  </div>
+                </article>
+              ))}
+            </section>
+
+            <section className="aiDeskSurface queueSurface">
+              <div className="aiSurfaceHeader">
+                <div><small>Dispatch Gate</small><strong>外发准备</strong></div>
+                <small>{replyDispatches.length} 条</small>
+              </div>
+              {replyDispatches.length === 0 && <EmptyState text="通过并准备发送后会进入这里。" />}
+              {replyDispatches.slice(0, 5).map((item) => (
+                <article className="aiQueueItem" key={item.id}>
+                  <div>
+                    <strong>{channelNames[item.connector] || item.connector} · {item.dispatch_mode}</strong>
+                    <em className={`pill ${item.status === 'revoked' || item.status === 'blocked' ? 'blocked' : 'ready'}`}>{item.status}</em>
+                  </div>
+                  <p>{item.draft_text}</p>
+                  <small>{item.operator || 'system'} · {asDateText(item.created_at)} {item.risk_flags.length ? `· 风险：${item.risk_flags.join(' / ')}` : ''}</small>
+                  <div className="deskButtonRow">
+                    <button onClick={() => copyText(item.draft_text, '外发文案已复制，请在平台人工确认后发送。')}><Clipboard size={15} />复制</button>
+                    <button onClick={() => sendReplyDispatch(item)} disabled={loading || item.status === 'revoked' || item.status === 'sent' || item.status === 'blocked'}><Send size={15} />API 发送</button>
+                    <button onClick={() => revokeReplyDispatch(item)} disabled={loading || item.status === 'revoked'}><ShieldAlert size={15} />撤回</button>
+                  </div>
+                </article>
+              ))}
+            </section>
+
+            <section className="aiDeskSurface queueSurface">
+              <div className="aiSurfaceHeader">
+                <div><small>Workflow Log</small><strong>运行日志</strong></div>
+                <small>{latestAiWorkflowRun?.status || '暂无'}</small>
+              </div>
+              {desktopAgentLogs.length === 0 && <EmptyState text="暂无桌面 Agent 动作。" />}
+              {desktopAgentLogs.slice(0, 5).map((item) => (
+                <article className="aiLogRow" key={item.action_id}>
+                  <strong>{item.action} · {item.status}</strong>
+                  <span>{item.message_excerpt || item.reason || item.reply_text || '无摘要'}</span>
+                  <small>{channelNames[item.channel || item.platform || ''] || item.channel || item.platform || 'desktop'} · {asDateText(item.created_at || item.updated_at)}</small>
+                </article>
+              ))}
+            </section>
+          </aside>
         </div>
         {renderConversationInbox()}
       </div>
@@ -4856,7 +5322,7 @@ function App() {
   function renderCrm() {
     return (
       <div className="pageStack">
-        <PageTitle eyebrow="CRM" title="CRM" desc="统一客户、线索、会话、标签、意向分和人工跟进。网页客服和手动线索会进入同一套后端 CRM。" />
+        <PageTitle eyebrow="Customer Intelligence" title="客户管理" desc="统一客户、线索、会话、标签、意向分和人工跟进，让 AI 客服沉淀成可成交客户资产。" />
         <div className="metricGrid six">
           <Metric label="CRM线索" value={crmOverview?.leads ?? crmLeads.length} />
           <Metric label="高意向" value={crmOverview?.high_intent ?? crmLeads.filter((item) => item.intent_score >= 70).length} />
@@ -5035,44 +5501,44 @@ function App() {
     return (
       <section className="panel desktopAgentPanel">
         <div className="panelHeader">
-          <strong>Desktop AI Agent</strong>
+          <strong>桌面客服助手</strong>
           <div className="rowActions">
-            <button onClick={refreshDesktopAgentState} disabled={loading}><RefreshCw size={16} />Refresh</button>
+            <button onClick={refreshDesktopAgentState} disabled={loading}><RefreshCw size={16} />同步状态</button>
             <button onClick={() => setDesktopAgentPaused(!globallyPaused)} disabled={loading}>
-              <ShieldAlert size={16} />{globallyPaused ? 'Resume' : 'Pause'}
+              <ShieldAlert size={16} />{globallyPaused ? '恢复' : '暂停'}
             </button>
           </div>
         </div>
         <div className="desktopAgentControls">
-          <label>Mode
+          <label>运行模式
             <select value={desktopAgentMode} onChange={(event) => setDesktopAgentMode(event.target.value as DesktopAgentMode)}>
-              <option value="assist">Draft only</option>
-              <option value="auto_paste">Auto paste</option>
-              <option value="auto_send">Guarded auto-send</option>
-              <option value="paused">Paused</option>
+              <option value="assist">只生成草稿</option>
+              <option value="auto_paste">自动粘贴</option>
+              <option value="auto_send">守卫自动发送</option>
+              <option value="paused">暂停</option>
             </select>
           </label>
           <div className="desktopAgentButtons">
             <button className="primaryButton fit" onClick={startLocalDesktopAgent} disabled={loading || !canControlLocalAgent}>
-              <Bot size={16} />Start local Agent
+              <Bot size={16} />启动本机助手
             </button>
-            <button className="ghostButton fit" onClick={stopLocalDesktopAgent} disabled={!canControlLocalAgent || !electronAgentStatus?.running}>Stop</button>
-            <button className="ghostButton fit" onClick={refreshElectronAgentStatus} disabled={!canControlLocalAgent}>Status</button>
+            <button className="ghostButton fit" onClick={stopLocalDesktopAgent} disabled={!canControlLocalAgent || !electronAgentStatus?.running}>停止</button>
+            <button className="ghostButton fit" onClick={refreshElectronAgentStatus} disabled={!canControlLocalAgent}>查看状态</button>
           </div>
         </div>
         <div className="desktopDownloadRow">
-          <a className="downloadTile" href={apiUrl('/downloads/desktop-agent-windows.zip')} download>
+          <a className="downloadTile" href={apiUrl('/downloads/AI-Customer-Agent-Windows.exe')} download>
             <Package size={18} />
             <span>
-              <strong>Windows Download</strong>
-              <small>Windows desktop listener package</small>
+              <strong>Windows 安装包</strong>
+              <small>AI-Customer-Agent-Windows.exe</small>
             </span>
           </a>
           <div className="downloadTile disabledTile">
             <Package size={18} />
             <span>
-              <strong>macOS Pending</strong>
-              <small>Download removed until real macOS E2E validation passes</small>
+              <strong>macOS 暂未开放</strong>
+              <small>真实 macOS DMG 验收通过后开放</small>
             </span>
           </div>
         </div>
@@ -5103,6 +5569,12 @@ function App() {
               <article className="knowledgeItem" key={item.action_id}>
                 <strong>{item.action} · {item.status}</strong>
                 <p>{item.message_excerpt || item.reason || 'No summary'}</p>
+                <small>
+                  AI {item.reply_meta?.ai_model || item.reply_meta?.ai_mode || '-'} /
+                  confidence {typeof item.reply_meta?.confidence === 'number' ? `${Math.round(item.reply_meta.confidence * 100)}%` : '-'} /
+                  citations {item.reply_meta?.citations?.length ?? 0} /
+                  send {String(item.result?.status || item.status || '-')}
+                </small>
                 {item.reply_text && <small>{item.reply_text.slice(0, 120)}</small>}
                 <small>{item.platform || '-'} · {item.source || '-'} · {asDateText(item.created_at)}</small>
               </article>
@@ -5125,10 +5597,10 @@ function App() {
     return (
       <div className="pageStack">
         {renderDesktopAgentPanel(canControlLocalAgent, globallyPaused)}
-        <PageTitle eyebrow="Workflow" title="自动化中心" desc="消息、线索、定时和人工触发统一进入 Workflow；高风险动作继续要求人工确认。" />
+        <PageTitle eyebrow="Workflow" title="自动化" desc="消息、线索、定时和人工触发统一进入 Workflow；高风险动作继续要求人工确认。" />
         <section className="panel">
           <div className="panelHeader"><strong>Workflow 定义</strong><small>{workflowDefinitions.length} 个</small></div>
-          {workflowDefinitions.length === 0 && <EmptyState text="暂无 Workflow 定义。刷新后仍为空时，请检查 /api/v1/workflows/definitions。" />}
+          {workflowDefinitions.length === 0 && <EmptyState text="暂无 Workflow 定义。请检查后端自动化配置。" />}
           <div className="localScriptGrid">
             {workflowDefinitions.map((definition) => (
               <article className="scriptLaunchCard" key={definition.id}>
@@ -5140,30 +5612,9 @@ function App() {
             ))}
           </div>
         </section>
-        <section className="panel localScriptPanel">
-          <div className="panelHeader"><strong>可运行脚本</strong><button onClick={loadLocalScripts}><RefreshCw size={16} />刷新脚本</button></div>
-          {localScripts.length === 0 && <EmptyState text={localScriptStatus || '本机脚本列表为空。'} />}
-          <div className="localScriptGrid">
-            {localScripts.map((script) => (
-              <button className="scriptLaunchCard" key={script.id} onClick={() => runLocalScript(script.id)}>
-                <strong>{script.name}</strong>
-                <span>{script.description}</span>
-                <small>{script.risk === 'desktop' ? '会读取本机窗口' : script.risk === 'long_running' ? '可能运行较久' : '安全检查'}</small>
-                {script.command_preview && <code>{script.command_preview}</code>}
-              </button>
-            ))}
-          </div>
-          {localScriptStatus && <div className="statusText">{localScriptStatus}</div>}
-          {localRun && (
-            <div className="runLog">
-              <div className="panelHeader"><strong>{localRun.script_id} · {statusNames[localRun.status] || localRun.status}</strong><small>{localRun.workflow_run_id || localRun.run_id}</small></div>
-              <pre>{localRun.log || '暂无输出。'}</pre>
-            </div>
-          )}
-        </section>
         <section className="panel">
           <div className="panelHeader"><strong>Workflow 运行记录</strong><small>{workflowRuns.length} 条</small></div>
-          {workflowRuns.length === 0 && <EmptyState text="暂无 Workflow 运行记录。运行本机脚本或自动化后会写入这里。" />}
+          {workflowRuns.length === 0 && <EmptyState text="暂无 Workflow 运行记录。AI 客服自动化运行后会写入这里。" />}
           {workflowRuns.map((run) => (
             <article className="knowledgeItem" key={run.id}>
               <strong>{run.workflow_id} · {statusNames[run.status] || run.status}</strong>
@@ -5239,7 +5690,7 @@ function App() {
   function renderAnalytics() {
     return (
       <div className="pageStack">
-        <PageTitle eyebrow="Reports" title="经营分析" desc="老板驾驶舱、日报、周报和转化效率统计。当前只展示后端已有真实指标。" />
+        <PageTitle eyebrow="Analytics" title="数据分析" desc="从咨询承接、AI 回复、人工跟进和客户意向看清 AI 客服带来的经营效率。" />
         <div className="metricGrid six">
           <Metric label="今日会话" value={overview?.today_conversations ?? 0} />
           <Metric label="自动回复" value={overview?.auto_replies ?? 0} />
@@ -5352,7 +5803,7 @@ function App() {
   function renderSettings() {
     return (
       <div className="pageStack">
-        <PageTitle eyebrow="Settings" title="系统设置" desc="统一管理 Connector、渠道模式和系统接入状态。" />
+        <PageTitle eyebrow="Settings" title="设置" desc="统一管理 Connector、渠道模式和系统接入状态。" />
         <section className="panel">
           <div className="panelHeader"><strong>Connector 注册表</strong><small>{connectors.length} 个</small></div>
           {connectors.length === 0 && <EmptyState text="Connector 状态接口暂无返回。" />}
@@ -6354,7 +6805,7 @@ function App() {
       <div className="inboxLayout">
         <div className="conversationList">
           <PageTitle eyebrow="Inbox" title="会话收件箱" desc="AI 自动回复后的真实会话会沉淀在这里。" compact />
-          {conversations.length === 0 && <EmptyState text="暂无真实会话。打开网页客服测试页发一条消息后会出现。" />}
+          {conversations.length === 0 && <EmptyState text="暂无会话。接入网页客服后，客户咨询会沉淀在这里。" />}
           {conversations.map((item) => (
             <button className={`conversationItem ${item.session_id === selectedConversation?.session_id ? 'active' : ''}`} key={item.session_id} onClick={() => setSelectedSessionId(item.session_id)}>
               <strong>{item.visitor_name || '访客'}</strong>
@@ -6415,4 +6866,8 @@ function EmptyState({text}: {text: string}) {
   );
 }
 
-createRoot(document.getElementById('root')!).render(<App />);
+const useInternalGrowth =
+  window.location.pathname.startsWith('/internal-growth') ||
+  new URLSearchParams(window.location.search).get('app') === 'internal-growth';
+
+createRoot(document.getElementById('root')!).render(useInternalGrowth ? <InternalGrowthApp /> : <App />);

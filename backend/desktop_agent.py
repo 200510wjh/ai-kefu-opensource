@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import socket
 import uuid
 from typing import Any, Literal
@@ -14,12 +15,16 @@ from backend.customer_service_saas import (
     MerchantProfile,
     db,
     db_driver,
+    ensure_followup_task,
+    join_tags,
     knowledge_context_for,
+    knowledge_rows,
     now_sql,
     param,
     record_audit_log,
     record_usage,
     rows_to_dicts,
+    upsert_customer,
 )
 from backend.platform.ai_engine import default_ai_engine
 from backend.platform.workflow import workflow_engine
@@ -105,6 +110,7 @@ class DesktopAgentDecision(BaseModel):
     workflow_run_ids: list[str] = Field(default_factory=list)
     reason: str = ""
     safety_checks: dict[str, Any] = Field(default_factory=dict)
+    reply_meta: dict[str, Any] = Field(default_factory=dict)
 
 
 class DesktopAgentActionResultRequest(BaseModel):
@@ -145,6 +151,19 @@ def ensure_desktop_agent_tables() -> None:
         ensure_mysql_tables()
         return
     ensure_sqlite_tables()
+
+
+def ensure_sqlite_column(conn: Any, table: str, column: str, definition: str) -> None:
+    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    names = {str(row[1]) for row in rows}
+    if column not in names:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
+
+def ensure_mysql_column(conn: Any, table: str, column: str, definition: str) -> None:
+    rows = conn.execute(f"SHOW COLUMNS FROM {table} LIKE {param()} ", (column,)).fetchall()
+    if not rows:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def ensure_sqlite_tables() -> None:
@@ -219,6 +238,7 @@ def ensure_sqlite_tables() -> None:
                 risk_flags_json TEXT DEFAULT '[]',
                 intent_score INTEGER DEFAULT 0,
                 workflow_run_ids_json TEXT DEFAULT '[]',
+                reply_meta_json TEXT DEFAULT '{}',
                 status TEXT DEFAULT 'pending',
                 result_json TEXT DEFAULT '{}',
                 reason TEXT DEFAULT '',
@@ -229,6 +249,7 @@ def ensure_sqlite_tables() -> None:
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_desktop_events_lookup ON desktop_agent_events (merchant_id, session_id, message_hash)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_desktop_actions_event ON desktop_agent_actions (event_id)")
+        ensure_sqlite_column(conn, "desktop_agent_actions", "reply_meta_json", "TEXT DEFAULT '{}'")
 
 
 def ensure_mysql_tables() -> None:
@@ -304,6 +325,7 @@ def ensure_mysql_tables() -> None:
                 risk_flags_json MEDIUMTEXT,
                 intent_score INT DEFAULT 0,
                 workflow_run_ids_json MEDIUMTEXT,
+                reply_meta_json MEDIUMTEXT,
                 status VARCHAR(32) DEFAULT 'pending',
                 result_json MEDIUMTEXT,
                 reason TEXT,
@@ -313,6 +335,7 @@ def ensure_mysql_tables() -> None:
             ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
             """
         )
+        ensure_mysql_column(conn, "desktop_agent_actions", "reply_meta_json", "MEDIUMTEXT")
 
 
 def json_loads_list(value: Any) -> list[Any]:
@@ -528,6 +551,7 @@ def decision_from_existing_action(event_row: dict[str, Any], action_row: dict[st
         message_hash=str(event_row.get("message_hash") or ""),
         workflow_run_ids=[str(item) for item in json_loads_list(action_row.get("workflow_run_ids_json"))],
         reason=str(action_row.get("reason") or "duplicate message hash"),
+        reply_meta=json_loads_dict(action_row.get("reply_meta_json", "{}")),
     )
 
 
@@ -587,6 +611,7 @@ def insert_action(
     risk_flags: list[str],
     intent_score: int,
     workflow_run_ids: list[str],
+    reply_meta: dict[str, Any] | None = None,
     status: str,
     reason: str,
 ) -> str:
@@ -598,10 +623,10 @@ def insert_action(
             f"""
             INSERT INTO desktop_agent_actions (
                 action_id, event_id, session_id, merchant_id, action, mode, reply_text,
-                risk_flags_json, intent_score, workflow_run_ids_json, status, result_json, reason,
+                risk_flags_json, intent_score, workflow_run_ids_json, reply_meta_json, status, result_json, reason,
                 created_at, updated_at
             )
-            VALUES ({marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker})
+            VALUES ({marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker})
             """,
             (
                 action_id,
@@ -614,6 +639,7 @@ def insert_action(
                 json.dumps(risk_flags, ensure_ascii=False),
                 intent_score,
                 json.dumps(workflow_run_ids, ensure_ascii=False),
+                json.dumps(reply_meta or {}, ensure_ascii=False),
                 status,
                 "{}",
                 reason,
@@ -624,7 +650,20 @@ def insert_action(
     return action_id
 
 
-def build_reply_prompt(merchant: MerchantProfile, payload: DesktopAgentEventRequest, knowledge: str) -> str:
+def update_action_workflow_runs(action_id: str, merchant_id: int, workflow_run_ids: list[str]) -> None:
+    marker = param()
+    with db() as conn:
+        conn.execute(
+            f"""
+            UPDATE desktop_agent_actions
+            SET workflow_run_ids_json={marker}, updated_at={marker}
+            WHERE merchant_id={marker} AND action_id={marker}
+            """,
+            (json.dumps(workflow_run_ids, ensure_ascii=False), now_sql(), merchant_id, action_id),
+        )
+
+
+def build_reply_prompt(merchant: MerchantProfile, payload: DesktopAgentEventRequest, knowledge: str, citations: list[dict[str, Any]] | None = None) -> str:
     pieces = [
         "You are the merchant's AI customer-service assistant.",
         "Reply in the customer's language. Be concise, grounded, and commercially helpful.",
@@ -640,8 +679,19 @@ def build_reply_prompt(merchant: MerchantProfile, payload: DesktopAgentEventRequ
     ]
     if payload.merchant_profile:
         pieces.append(f"Desktop operator profile:\n{payload.merchant_profile[:3000]}")
-    if knowledge:
-        pieces.append(f"Knowledge base:\n{knowledge[:6000]}")
+    if citations:
+        citation_lines = []
+        for item in citations:
+            citation_lines.append(
+                f"[source:{item.get('id')}] {item.get('title')} ({item.get('source_type')}): {str(item.get('snippet') or '')}"
+            )
+        pieces.append("Use only these matched knowledge sources when answering:\n" + "\n".join(citation_lines))
+    elif knowledge:
+        pieces.append(
+            "No directly matched knowledge source was found for this message. "
+            "If the answer requires product, price, policy, invoice, contract, delivery, or after-sale facts, say it needs human confirmation."
+        )
+        pieces.append(f"General knowledge base context, not a citation:\n{knowledge[:3000]}")
     if payload.reply_goal:
         pieces.append(f"Reply goal: {payload.reply_goal[:800]}")
     return "\n\n".join(piece for piece in pieces if str(piece).strip())
@@ -652,6 +702,15 @@ def fallback_reply_for(merchant: MerchantProfile, message: str) -> str:
     return (
         f"您好，您问的这个我先按当前资料给您确认：{product}。\n"
         "如果您方便的话，可以补充一下具体需求、预算或使用场景，我这边就能更准确地给您推荐下一步。"
+    )
+
+
+def fallback_reply_for(merchant: MerchantProfile, message: str) -> str:
+    product = merchant.products_services or merchant.business_intro or "our service"
+    return (
+        f"\u60a8\u597d\uff0c\u6211\u5148\u6839\u636e\u5f53\u524d\u4f01\u4e1a\u8d44\u6599\u5e2e\u60a8\u786e\u8ba4\uff1a{product}\u3002"
+        "\u5982\u679c\u6d89\u53ca\u4ef7\u683c\u3001\u5408\u540c\u3001\u53d1\u7968\u3001\u552e\u540e\u3001\u9000\u6b3e\u6216\u627f\u8bfa\u4e8b\u9879\uff0c"
+        "\u9700\u8981\u4eba\u5de5\u5ba2\u670d\u786e\u8ba4\uff0c\u6211\u5e2e\u60a8\u8f6c\u63a5\u3002"
     )
 
 
@@ -668,6 +727,197 @@ def extra_safety_flags(text: str) -> list[str]:
         if any(word.lower() in lowered for word in words):
             flags.append(label)
     return flags
+
+
+def extra_safety_flags(text: str) -> list[str]:
+    terms = {
+        "refund_or_after_sale": ["\u9000\u6b3e", "\u9000\u8d27", "\u552e\u540e", "\u8d54\u4ed8", "\u6295\u8bc9", "\u5dee\u8bc4", "refund", "return", "complaint"],
+        "payment": ["\u4ed8\u6b3e", "\u8f6c\u8d26", "\u94f6\u884c\u5361", "\u62bc\u91d1", "\u53d1\u7968", "\u5408\u540c", "\u627f\u8bfa", "payment", "invoice", "contract", "promise"],
+        "account_or_privacy": ["\u5bc6\u7801", "\u9a8c\u8bc1\u7801", "\u8eab\u4efd\u8bc1", "\u624b\u673a\u53f7", "\u9690\u79c1", "\u8d26\u53f7", "password", "verification code"],
+        "medical_or_legal": ["\u5f8b\u5e08", "\u8d77\u8bc9", "\u62a5\u8b66", "\u533b\u7597", "\u8bca\u65ad", "legal", "medical"],
+    }
+    lowered = text.lower()
+    flags: list[str] = []
+    for label, words in terms.items():
+        if any(word.lower() in lowered for word in words):
+            flags.append(label)
+    return flags
+
+
+def citation_terms(text: str) -> set[str]:
+    lowered = text.lower()
+    terms = set(re.findall(r"[a-zA-Z0-9_+\-.]{3,}", lowered))
+    for token in re.findall(r"[\u4e00-\u9fff]{2,}", text):
+        terms.add(token)
+        for index in range(0, max(0, len(token) - 1)):
+            terms.add(token[index : index + 2])
+    return {term for term in terms if len(term.strip()) >= 2}
+
+
+def knowledge_citations_for(merchant_id: int | None, query: str, limit: int = 3) -> list[dict[str, Any]]:
+    if not merchant_id:
+        return []
+    query_terms = citation_terms(query)
+    if not query_terms:
+        return []
+    scored: list[tuple[int, dict[str, Any]]] = []
+    for row in knowledge_rows(merchant_id, limit=80):
+        title = str(row.get("title") or "")
+        content = str(row.get("content") or "")
+        row_terms = citation_terms(f"{title}\n{content}")
+        score = len(query_terms.intersection(row_terms))
+        if score > 0:
+            scored.append((score, row))
+    scored.sort(key=lambda item: (item[0], int(item[1].get("id") or 0)), reverse=True)
+    citations: list[dict[str, Any]] = []
+    for score, row in scored[:limit]:
+        content = str(row.get("content") or "")
+        citations.append(
+            {
+                "id": int(row.get("id") or 0),
+                "title": str(row.get("title") or ""),
+                "source_type": str(row.get("source_type") or ""),
+                "tags": str(row.get("tags") or ""),
+                "snippet": content[:260],
+                "match_score": score,
+            }
+        )
+    return citations
+
+
+def confidence_for(*, parse_confidence: float, citations: list[dict[str, Any]], risk_flags: list[str]) -> float:
+    confidence = max(0.05, min(0.98, parse_confidence))
+    confidence += 0.12 if citations else -0.28
+    if risk_flags:
+        confidence -= 0.25
+    return round(max(0.01, min(0.99, confidence)), 2)
+
+
+def desktop_customer_key(payload: DesktopAgentEventRequest, message_hash: str) -> str:
+    raw_identity = "|".join(
+        [
+            str(payload.platform or "desktop_agent"),
+            str(payload.metadata.get("account") or ""),
+            str(payload.metadata.get("contact") or ""),
+            payload.window_id,
+            payload.window_title,
+            message_hash,
+        ]
+    )
+    return "desktop-" + hashlib.sha256(raw_identity.encode("utf-8")).hexdigest()[:24]
+
+
+def record_desktop_business_activity(
+    *,
+    merchant: MerchantProfile,
+    payload: DesktopAgentEventRequest,
+    message_hash: str,
+    reply_text: str,
+    intent_score: int,
+    risk_flags: list[str],
+    action: DesktopAgentAction,
+    workflow_run_ids: list[str],
+) -> int:
+    merchant_id = merchant.id or 0
+    contact = str(payload.metadata.get("contact") or "").strip()
+    account = str(payload.metadata.get("account") or "").strip()
+    visitor_id = desktop_customer_key(payload, message_hash)
+    need_followup = action == "handoff" or bool(risk_flags) or intent_score >= 70
+    customer_id = upsert_customer(
+        merchant_id,
+        visitor_id,
+        payload.message_text,
+        intent_score,
+        need_followup,
+        source_channel=payload.platform or "desktop_agent",
+        session_id=payload.session_id,
+        risk_flags=risk_flags,
+    )
+    marker = param()
+    display_name = contact or account or f"{payload.platform or 'desktop'} customer"
+    workflow_run_id = workflow_run_ids[0] if workflow_run_ids else ""
+    visitor_info = {
+        "visitor_id": visitor_id,
+        "platform": payload.platform,
+        "channel": payload.channel,
+        "window_title": payload.window_title,
+        "window_id": payload.window_id,
+        "contact": contact,
+        "account": account,
+        "message_hash": message_hash,
+    }
+    with db() as conn:
+        conn.execute(
+            f"""
+            UPDATE customers
+            SET name={marker}, contact=COALESCE(NULLIF(contact, ''), {marker}), updated_at={marker}
+            WHERE merchant_id={marker} AND id={marker}
+            """,
+            (display_name, contact or account, now_sql(), merchant_id, customer_id),
+        )
+        conn.execute(
+            f"""
+            INSERT INTO conversations (
+                merchant_id, customer_id, session_id, visitor_info, query, response, intent_score,
+                need_followup, source_channel, risk_flags, workflow_run_id, created_at
+            )
+            VALUES ({marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker}, {marker})
+            """,
+            (
+                merchant_id,
+                customer_id,
+                payload.session_id,
+                json.dumps(visitor_info, ensure_ascii=False),
+                payload.message_text,
+                reply_text,
+                intent_score,
+                1 if need_followup else 0,
+                payload.platform or "desktop_agent",
+                join_tags(risk_flags),
+                workflow_run_id,
+                now_sql(),
+            ),
+        )
+    if need_followup:
+        ensure_followup_task(
+            merchant_id,
+            customer_id,
+            "桌面客服高意向或人工接管跟进",
+            workflow_run_id,
+            payload.platform or "desktop_agent",
+        )
+    return customer_id
+
+
+def record_desktop_sent_chat_log(action_row: dict[str, Any], merchant: MerchantProfile) -> None:
+    query = str(action_row.get("message_text") or "")
+    reply_text = str(action_row.get("reply_text") or "")
+    if not query.strip() or not reply_text.strip():
+        return
+    metadata = json_loads_dict(action_row.get("event_metadata_json", "{}"))
+    visitor_id = desktop_customer_key(
+        DesktopAgentEventRequest(
+            session_id=str(action_row.get("session_id") or ""),
+            platform=str(action_row.get("platform") or "desktop_agent"),
+            channel=str(action_row.get("channel") or ""),
+            window_title=str(action_row.get("window_title") or ""),
+            window_id=str(action_row.get("window_id") or ""),
+            source=str(action_row.get("source") or "unknown"),  # type: ignore[arg-type]
+            message_text=query,
+            message_hash=str(action_row.get("message_hash") or ""),
+            metadata=metadata,
+        ),
+        str(action_row.get("message_hash") or message_hash_for(query)),
+    )
+    marker = param()
+    with db() as conn:
+        conn.execute(
+            f"""
+            INSERT INTO chat_logs (merchant_id, bot_id, user_id, query, response, created_at)
+            VALUES ({marker}, {marker}, {marker}, {marker}, {marker}, {marker})
+            """,
+            (merchant.id, merchant.merchant_code, visitor_id, query, reply_text, now_sql()),
+        )
 
 
 def choose_action(
@@ -771,11 +1021,16 @@ async def ingest_desktop_agent_event(payload: DesktopAgentEventRequest, merchant
         )
 
     engine = default_ai_engine(DATA_DIR)
+    connector_safety = json_loads_dict(payload.metadata.get("connector_safety", {}))
+    connector_risks = [str(item) for item in connector_safety.get("risk_flags", []) if item]
     risk = engine.assess_risk(payload.message_text)
-    risk_flags = list(dict.fromkeys([*risk.risk_flags, *extra_safety_flags(payload.message_text)]))
+    citations = knowledge_citations_for(merchant.id, payload.message_text)
+    risk_flags = list(dict.fromkeys([*risk.risk_flags, *extra_safety_flags(payload.message_text), *connector_risks]))
+    if not citations:
+        risk_flags = list(dict.fromkeys([*risk_flags, "knowledge_no_answer"]))
     intent = engine.score_intent(payload.message_text)
     knowledge = knowledge_context_for(merchant.id)
-    system_prompt = build_reply_prompt(merchant, payload, knowledge)
+    system_prompt = build_reply_prompt(merchant, payload, knowledge, citations)
     fallback = fallback_reply_for(merchant, payload.message_text)
     reply = engine.generate_reply(
         system_prompt=system_prompt,
@@ -786,19 +1041,20 @@ async def ingest_desktop_agent_event(payload: DesktopAgentEventRequest, merchant
         timeout=35,
     )
     reply_text = reply.text.strip() or fallback
-    workflow_payload = {
-        "message": payload.message_text,
-        "session_id": payload.session_id,
-        "source": "desktop_auto_reply",
-        "platform": payload.platform,
-        "channel": payload.channel or payload.platform,
-        "window_title": payload.window_title,
-        "message_hash": message_hash,
-        "intent_score": intent.score,
-        "risk_flags": risk_flags,
+    if not citations:
+        reply_text = "这个问题需要人工客服确认，我帮您转接。"
+    parse_confidence = float(payload.metadata.get("parse_confidence") or 0.7)
+    reply_meta = {
+        "connector": payload.metadata.get("connector") or payload.platform,
+        "contact": payload.metadata.get("contact") or "",
+        "account": payload.metadata.get("account") or "",
+        "ai_mode": reply.mode,
+        "ai_model": engine.chat_config().model,
+        "confidence": confidence_for(parse_confidence=parse_confidence, citations=citations, risk_flags=risk_flags),
+        "citations": citations,
+        "connector_safety": connector_safety,
+        "knowledge_answered": bool(citations),
     }
-    workflow_runs = workflow_engine.trigger("message", "desktop_auto_reply", workflow_payload)
-    workflow_run_ids = [run.id for run in workflow_runs]
     action, should_reply, reason, checks = choose_action(
         mode=mode,
         paused=False,
@@ -817,9 +1073,44 @@ async def ingest_desktop_agent_event(payload: DesktopAgentEventRequest, merchant
         reply_text=reply_text,
         risk_flags=risk_flags,
         intent_score=intent.score,
-        workflow_run_ids=workflow_run_ids,
+        workflow_run_ids=[],
+        reply_meta=reply_meta,
         status=status,
         reason=reason,
+    )
+    workflow_payload = {
+        "message": payload.message_text,
+        "event_id": event_id,
+        "action_id": action_id,
+        "session_id": payload.session_id,
+        "source": "desktop_auto_reply",
+        "platform": payload.platform,
+        "channel": payload.channel or payload.platform,
+        "window_title": payload.window_title,
+        "message_hash": message_hash,
+        "intent_score": intent.score,
+        "risk_flags": risk_flags,
+        "knowledge_chars": len(knowledge),
+        "reply_text": reply_text,
+        "action": action,
+        "should_reply": should_reply,
+        "auto_send_enabled": payload.auto_send_enabled,
+        "auto_send_confirmed": session.auto_send_confirmed and payload.auto_send_confirm_phrase == CONFIRM_DESKTOP_AUTO_SEND,
+        "reason": reason,
+        "reply_meta": reply_meta,
+    }
+    workflow_runs = workflow_engine.trigger("message", "desktop_auto_reply", workflow_payload)
+    workflow_run_ids = [run.id for run in workflow_runs]
+    update_action_workflow_runs(action_id, merchant.id or 0, workflow_run_ids)
+    customer_id = record_desktop_business_activity(
+        merchant=merchant,
+        payload=payload,
+        message_hash=message_hash,
+        reply_text=reply_text,
+        intent_score=intent.score,
+        risk_flags=risk_flags,
+        action=action,
+        workflow_run_ids=workflow_run_ids,
     )
     record_usage(merchant.id or 0, "desktop_agent_event", 1, payload.platform, payload.session_id, {"action": action, "mode": mode})
     record_usage(merchant.id or 0, "ai_reply", 1, "desktop_agent", action_id, {"mode": reply.mode, "risk_flags": risk_flags})
@@ -838,6 +1129,8 @@ async def ingest_desktop_agent_event(payload: DesktopAgentEventRequest, merchant
             "intent_score": intent.score,
             "workflow_run_ids": workflow_run_ids,
             "reason": reason,
+            "reply_meta": reply_meta,
+            "customer_id": customer_id,
         },
     )
     return DesktopAgentDecision(
@@ -855,6 +1148,7 @@ async def ingest_desktop_agent_event(payload: DesktopAgentEventRequest, merchant
         workflow_run_ids=workflow_run_ids,
         reason=reason,
         safety_checks=checks,
+        reply_meta=reply_meta,
     )
 
 
@@ -867,7 +1161,13 @@ async def record_desktop_agent_action_result(
     marker = param()
     with db() as conn:
         row = conn.execute(
-            f"SELECT * FROM desktop_agent_actions WHERE merchant_id={marker} AND action_id={marker}",
+            f"""
+            SELECT a.*, e.message_text, e.platform, e.channel, e.window_title, e.window_id,
+                   e.source, e.message_hash, e.metadata_json AS event_metadata_json
+            FROM desktop_agent_actions a
+            LEFT JOIN desktop_agent_events e ON e.id = a.event_id
+            WHERE a.merchant_id={marker} AND a.action_id={marker}
+            """,
             (merchant.id, action_id),
         ).fetchone()
         if not row:
@@ -887,6 +1187,8 @@ async def record_desktop_agent_action_result(
                 action_id,
             ),
         )
+    if payload.sent and str(action_row.get("action") or "") == "send_reply":
+        record_desktop_sent_chat_log(action_row, merchant)
     audit_action = "desktop_agent.reply.sent" if payload.sent else "desktop_agent.reply.pasted" if payload.pasted else "desktop_agent.reply.blocked"
     if payload.status == "failed":
         audit_action = "desktop_agent.error"
@@ -992,6 +1294,7 @@ async def desktop_agent_state(merchant: MerchantProfile) -> DesktopAgentStateRes
     for action in actions:
         action["risk_flags"] = json_loads_list(action.pop("risk_flags_json", "[]"))
         action["workflow_run_ids"] = json_loads_list(action.pop("workflow_run_ids_json", "[]"))
+        action["reply_meta"] = json_loads_dict(action.pop("reply_meta_json", "{}"))
         action["result"] = json_loads_dict(action.pop("result_json", "{}"))
         action["reply_text"] = str(action.get("reply_text") or "")[:500]
     return DesktopAgentStateResponse(
@@ -1022,6 +1325,7 @@ async def desktop_agent_logs(merchant: MerchantProfile, limit: int = 50) -> list
     for row in rows:
         row["risk_flags"] = json_loads_list(row.pop("risk_flags_json", "[]"))
         row["workflow_run_ids"] = json_loads_list(row.pop("workflow_run_ids_json", "[]"))
+        row["reply_meta"] = json_loads_dict(row.pop("reply_meta_json", "{}"))
         row["result"] = json_loads_dict(row.pop("result_json", "{}"))
         row["reply_text"] = str(row.get("reply_text") or "")[:1200]
     return rows

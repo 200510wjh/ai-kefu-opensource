@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>商品媒体工厂 E2E 验收预览</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: #08111f;
+      color: #eef6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(56, 189, 248, .26), transparent 26%),
+        radial-gradient(circle at 88% 0%, rgba(168, 85, 247, .32), transparent 28%),
+        linear-gradient(135deg, #08111f 0%, #101827 46%, #050816 100%);
+    }
+    main {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 34px 0 46px;
+    }
+    header {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .eyebrow {
+      color: #7dd3fc;
+      font-size: 13px;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 58px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border: 1px solid rgba(125, 211, 252, .36);
+      border-radius: 999px;
+      background: rgba(15, 23, 42, .7);
+      color: #dbeafe;
+      font-size: 14px;
+    }
+    .pass { color: #86efac; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+    section {
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(8, 15, 30, .78);
+      box-shadow: 0 18px 70px rgba(0, 0, 0, .28);
+      border-radius: 8px;
+      padding: 18px;
+      overflow: hidden;
+    }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    img, video, iframe {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, .2);
+      border-radius: 8px;
+      background: #020617;
+      display: block;
+    }
+    img.tall {
+      max-height: 620px;
+      object-fit: contain;
+    }
+    video {
+      aspect-ratio: 9 / 16;
+      max-height: 720px;
+      object-fit: contain;
+    }
+    .checks {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .checks li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, .12);
+      padding: 8px 0;
+      color: #cbd5e1;
+    }
+    a {
+      color: #93c5fd;
+      word-break: break-all;
+    }
+    .links {
+      display: grid;
+      gap: 8px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+    .note {
+      color: #cbd5e1;
+      line-height: 1.7;
+      margin: 0;
+    }
+    @media (max-width: 860px) {
+      main { width: min(100% - 24px, 1180px); }
+      .span-4, .span-6, .span-8 { grid-column: span 12; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Product Media Factory Acceptance</div>
+      <h1>商品媒体工厂 E2E 验收预览</h1>
+      <div class="summary">
+        <span class="pill">生成时间：2026-07-12T16:49:30</span>
+        <span class="pill">本地验收：<b class="pass">通过</b></span>
+        <span class="pill">线上验收：<b class="pass">通过</b></span>
+        <span class="pill">发布边界：save_draft_only</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="span-4">
+        <h2>1. 商品实拍图</h2>
+        <img class="tall" src="file:///C:/Users/Administrator/Documents/%E8%BF%90%E8%90%A5/%E8%BF%90%E8%90%A5%E8%AE%A1%E5%88%92/%E4%BB%8A%E6%97%A5%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%95%86%E5%93%81%E5%AA%92%E4%BD%93%E5%B7%A5%E5%8E%82%E6%B5%8B%E8%AF%95/%E5%95%86%E5%93%81%E5%AE%9E%E6%8B%8D%E6%A0%B7%E5%9B%BE_E2E.png" alt="商品实拍图" />
+      </section>
+      <section class="span-4">
+        <h2>2. 视频首帧</h2>
+        <img class="tall" src="file:///C:/Users/Administrator/Documents/%E8%BF%90%E8%90%A5/%E8%BF%90%E8%90%A5%E8%AE%A1%E5%88%92/%E4%BB%8A%E6%97%A5%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%95%86%E5%93%81%E5%AA%92%E4%BD%93%E5%B7%A5%E5%8E%82%E6%B5%8B%E8%AF%95/%E5%95%86%E5%93%81%E7%9F%AD%E8%A7%86%E9%A2%91%E9%A6%96%E5%B8%A7_E2E.png" alt="商品短视频首帧" />
+      </section>
+      <section class="span-4">
+        <h2>3. MP4 视频</h2>
+        <video src="file:///C:/Users/Administrator/Documents/%E8%BF%90%E8%90%A5/data/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_video.mp4" controls playsinline></video>
+      </section>
+
+      <section class="span-6">
+        <h2>本地检查</h2>
+        <ul class="checks">
+          <li><span>product_name_preserved</span><b class="pass">通过</b></li><li><span>main_image_exists</span><b class="pass">通过</b></li><li><span>detail_image_exists</span><b class="pass">通过</b></li><li><span>video_rendered</span><b class="pass">通过</b></li><li><span>publish_boundary_safe</span><b class="pass">通过</b></li><li><span>first_frame_extracted</span><b class="pass">通过</b></li>
+        </ul>
+      </section>
+      <section class="span-6">
+        <h2>线上检查</h2>
+        <ul class="checks"><li><span>product_name_preserved</span><b class="pass">通过</b></li><li><span>main_accessible</span><b class="pass">通过</b></li><li><span>detail_accessible</span><b class="pass">通过</b></li><li><span>video_accessible</span><b class="pass">通过</b></li><li><span>publish_boundary_safe</span><b class="pass">通过</b></li></ul>
+      </section>
+
+      <section class="span-12">
+        <h2>线上产物链接</h2>
+        <div class="links">
+          <div>主图：<a href="https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_main.png" target="_blank">https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_main.png</a></div>
+          <div>详情图：<a href="https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_detail.png" target="_blank">https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_detail.png</a></div>
+          <div>视频：<a href="https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_video.mp4" target="_blank">https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_video.mp4</a></div>
+        </div>
+      </section>
+
+      <section class="span-12">
+        <h2>边界说明</h2>
+        <p class="note">当前已经验证“拍/上传商品图 -> 生成商品主图 -> 生成详情图 -> 渲染 MP4 视频”。它不是自动发布到抖音小店，发布前仍需要商家人工确认，因此 publish_boundary 必须保持 save_draft_only。</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

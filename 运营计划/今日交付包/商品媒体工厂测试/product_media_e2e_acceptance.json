@@ -1,0 +1,252 @@
+{
+  "generated_at": "2026-07-12T16:49:30",
+  "local": {
+    "ok": true,
+    "checks": {
+      "product_name_preserved": true,
+      "main_image_exists": true,
+      "detail_image_exists": true,
+      "video_rendered": true,
+      "publish_boundary_safe": true,
+      "first_frame_extracted": true
+    },
+    "sample_photo": "C:\\Users\\Administrator\\Documents\\运营\\运营计划\\今日交付包\\商品媒体工厂测试\\商品实拍样图_E2E.png",
+    "main_image": "data\\artifacts\\product_media\\4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_main.png",
+    "detail_image": "data\\artifacts\\product_media\\4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_detail.png",
+    "video": "data\\artifacts\\product_media\\4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_video.mp4",
+    "first_frame": "C:\\Users\\Administrator\\Documents\\运营\\运营计划\\今日交付包\\商品媒体工厂测试\\商品短视频首帧_E2E.png",
+    "video_probe": {
+      "available": false,
+      "ffmpeg": "C:\\Users\\Administrator\\rent-car-hyperframes\\tools\\ffmpeg\\ffmpeg.exe"
+    },
+    "response": {
+      "pack_id": "4994e8bf-8a82-4bdf-a4c8-3c03205a9afd",
+      "product_name": "测试保湿精华",
+      "main_image_url": "/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_main.png",
+      "detail_image_url": "/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_detail.png",
+      "video_preview_url": "/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_video_preview.html",
+      "video_url": "/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_video.mp4",
+      "video_status": "rendered",
+      "listing_draft": {
+        "draft_id": "a8670fc3-3f3d-462a-b585-b321415d1bd0",
+        "platform": "抖音小店",
+        "product_name": "测试保湿精华",
+        "titles": [
+          "测试保湿精华 补水保湿 美妆护肤",
+          "测试保湿精华 清爽不粘 现货可拍",
+          "18-35岁护肤用户适用 测试保湿精华 补水保湿"
+        ],
+        "short_title": "测试保湿精华 补水保湿",
+        "selling_points": [
+          "补水保湿",
+          "清爽不粘",
+          "敏感肌可用",
+          "熬夜急救"
+        ],
+        "main_image_prompts": [
+          "竖版9:16电商主图，蓝紫科技电商风，商品为测试保湿精华，主体居中，蓝紫发光商业海报质感，大标题写“补水保湿”，副标题写“129.00”，画面包含商品卡片、价格标签、平台上架草稿按钮，高清，适合抖音封面。",
+          "商品详情页长图首屏，蓝紫科技电商风，测试保湿精华真实产品展示，包含3个卖点模块：补水保湿; 清爽不粘; 敏感肌可用，视觉高级、干净、转化感强，移动端安全边距。",
+          "批量上架功能宣传图，展示上传商品资料、AI生成图片、生成标题卖点、保存平台草稿四步流程，风格参考赛博霓虹电商SaaS后台。"
+        ],
+        "detail_sections": [
+          "首屏大图：测试保湿精华 + 补水保湿 + 价格/活动入口",
+          "痛点场景：展示18-35岁护肤用户为什么需要这个商品",
+          "卖点证明：补水保湿; 清爽不粘; 敏感肌可用; 熬夜急救",
+          "规格参数：SKU、尺寸、材质、适用场景、发货说明",
+          "信任收口：售后承诺、评价截图、下单提醒，最终发布前人工确认"
+        ],
+        "sku_table": [
+          {
+            "sku": "标准款",
+            "price": "129.00",
+            "stock": "待确认"
+          }
+        ],
+        "listing_fields": {
+          "platform": "抖音小店",
+          "category": "美妆护肤",
+          "title": "测试保湿精华 补水保湿 美妆护肤",
+          "short_title": "测试保湿精华 补水保湿",
+          "price": "129.00",
+          "shipping": "按店铺实际承诺填写",
+          "after_sales": "按平台售后规则执行",
+          "description": "首屏大图：测试保湿精华 + 补水保湿 + 价格/活动入口。痛点场景：展示18-35岁护肤用户为什么需要这个商品。卖点证明：补水保湿; 清爽不粘; 敏感肌可用; 熬夜急救。规格参数：SKU、尺寸、材质、适用场景、发货说明。信任收口：售后承诺、评价截图、下单提醒，最终发布前人工确认"
+        },
+        "customer_faq": [
+          {
+            "question": "这个适合我吗？",
+            "answer": "如果您主要关注补水保湿，这款测试保湿精华可以优先看；具体规格和使用场景建议再确认一下。"
+          },
+          {
+            "question": "多久发货？",
+            "answer": "按店铺实际承诺填写"
+          },
+          {
+            "question": "售后怎么处理？",
+            "answer": "按平台售后规则执行"
+          }
+        ],
+        "risk_checks": [
+          "只生成商品草稿，不自动发布。",
+          "价格、库存、售后、发货承诺必须由商家最终确认。",
+          "避免绝对化用语：第一、最强、永久有效、保证治愈、100%成交等。",
+          "涉及功效、食品、化妆品、医疗、金融等类目时，必须补齐资质和平台审核材料。"
+        ],
+        "publish_boundary": "save_draft_only",
+        "next_action": "把主图提示词交给图片模型生成图片，再把 listing_fields 填入平台草稿，最终发布前人工确认。"
+      },
+      "scenes": [
+        {
+          "title": "商品主图",
+          "visual": "点击率包装：主体、价格、核心卖点和转化按钮",
+          "asset_url": "/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_main.png"
+        },
+        {
+          "title": "详情图",
+          "visual": "详情页首屏：卖点拆解、适用人群、发布前确认",
+          "asset_url": "/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_detail.png"
+        },
+        {
+          "title": "场景卖点图",
+          "visual": "真实使用场景：购买理由、适用人群和转化动作",
+          "asset_url": "/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_scene.png"
+        },
+        {
+          "title": "商品短视频",
+          "visual": "主图 -> 详情卖点 -> 上架草稿三段式",
+          "asset_url": "/artifacts/product_media/4994e8bf-8a82-4bdf-a4c8-3c03205a9afd_video.mp4"
+        }
+      ],
+      "test_checklist": [
+        "主图可打开且有商品名、价格、卖点和转化按钮。",
+        "详情图可打开且有卖点结构和人工确认提示。",
+        "场景卖点图可打开且有购买理由和适用人群。",
+        "视频预览 HTML 可打开；有视频运行时则生成 MP4。",
+        "上架草稿 publish_boundary 必须是 save_draft_only。"
+      ],
+      "next_action": "若已配置可用图片生成 API 会优先真实出图；API 不可用时使用高级 PNG 海报引擎直接生成。最终发布仍需商家确认价格、库存、资质和售后。"
+    }
+  },
+  "online": {
+    "ok": true,
+    "checks": {
+      "product_name_preserved": true,
+      "main_accessible": true,
+      "detail_accessible": true,
+      "video_accessible": true,
+      "publish_boundary_safe": true
+    },
+    "urls": {
+      "main": "https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_main.png",
+      "detail": "https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_detail.png",
+      "video": "https://wjhai.cn/merchant-admin/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_video.mp4"
+    },
+    "response": {
+      "pack_id": "1814b17d-e24a-4b53-ad1b-23a80f44e675",
+      "product_name": "测试保湿精华",
+      "main_image_url": "/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_main.png",
+      "detail_image_url": "/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_detail.png",
+      "video_preview_url": "/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_video_preview.html",
+      "video_url": "/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_video.mp4",
+      "video_status": "rendered",
+      "listing_draft": {
+        "draft_id": "83c9e199-c87c-4e3d-b6b1-5bc55c13a5dd",
+        "platform": "抖音小店",
+        "product_name": "测试保湿精华",
+        "titles": [
+          "测试保湿精华 补水保湿 美妆护肤",
+          "测试保湿精华 清爽不粘 现货可拍",
+          "18-35岁护肤用户适用 测试保湿精华 补水保湿"
+        ],
+        "short_title": "测试保湿精华 补水保湿",
+        "selling_points": [
+          "补水保湿",
+          "清爽不粘",
+          "敏感肌可用",
+          "熬夜急救"
+        ],
+        "main_image_prompts": [
+          "竖版9:16电商主图，蓝紫科技电商风，商品为测试保湿精华，主体居中，蓝紫发光商业海报质感，大标题写“补水保湿”，副标题写“129.00”，画面包含商品卡片、价格标签、平台上架草稿按钮，高清，适合抖音封面。",
+          "商品详情页长图首屏，蓝紫科技电商风，测试保湿精华真实产品展示，包含3个卖点模块：补水保湿; 清爽不粘; 敏感肌可用，视觉高级、干净、转化感强，移动端安全边距。",
+          "批量上架功能宣传图，展示上传商品资料、AI生成图片、生成标题卖点、保存平台草稿四步流程，风格参考赛博霓虹电商SaaS后台。"
+        ],
+        "detail_sections": [
+          "首屏大图：测试保湿精华 + 补水保湿 + 价格/活动入口",
+          "痛点场景：展示18-35岁护肤用户为什么需要这个商品",
+          "卖点证明：补水保湿; 清爽不粘; 敏感肌可用; 熬夜急救",
+          "规格参数：SKU、尺寸、材质、适用场景、发货说明",
+          "信任收口：售后承诺、评价截图、下单提醒，最终发布前人工确认"
+        ],
+        "sku_table": [
+          {
+            "sku": "标准款",
+            "price": "129.00",
+            "stock": "待确认"
+          }
+        ],
+        "listing_fields": {
+          "platform": "抖音小店",
+          "category": "美妆护肤",
+          "title": "测试保湿精华 补水保湿 美妆护肤",
+          "short_title": "测试保湿精华 补水保湿",
+          "price": "129.00",
+          "shipping": "按店铺实际承诺填写",
+          "after_sales": "按平台售后规则执行",
+          "description": "首屏大图：测试保湿精华 + 补水保湿 + 价格/活动入口。痛点场景：展示18-35岁护肤用户为什么需要这个商品。卖点证明：补水保湿; 清爽不粘; 敏感肌可用; 熬夜急救。规格参数：SKU、尺寸、材质、适用场景、发货说明。信任收口：售后承诺、评价截图、下单提醒，最终发布前人工确认"
+        },
+        "customer_faq": [
+          {
+            "question": "这个适合我吗？",
+            "answer": "如果您主要关注补水保湿，这款测试保湿精华可以优先看；具体规格和使用场景建议再确认一下。"
+          },
+          {
+            "question": "多久发货？",
+            "answer": "按店铺实际承诺填写"
+          },
+          {
+            "question": "售后怎么处理？",
+            "answer": "按平台售后规则执行"
+          }
+        ],
+        "risk_checks": [
+          "只生成商品草稿，不自动发布。",
+          "价格、库存、售后、发货承诺必须由商家最终确认。",
+          "避免绝对化用语：第一、最强、永久有效、保证治愈、100%成交等。",
+          "涉及功效、食品、化妆品、医疗、金融等类目时，必须补齐资质和平台审核材料。"
+        ],
+        "publish_boundary": "save_draft_only",
+        "next_action": "把主图提示词交给图片模型生成图片，再把 listing_fields 填入平台草稿，最终发布前人工确认。"
+      },
+      "scenes": [
+        {
+          "title": "商品主图",
+          "visual": "点击率包装：主体、价格、核心卖点和转化按钮",
+          "asset_url": "/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_main.png"
+        },
+        {
+          "title": "详情图",
+          "visual": "详情页首屏：卖点拆解、适用人群、发布前确认",
+          "asset_url": "/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_detail.png"
+        },
+        {
+          "title": "场景卖点图",
+          "visual": "真实使用场景：购买理由、适用人群和转化动作",
+          "asset_url": "/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_scene.png"
+        },
+        {
+          "title": "商品短视频",
+          "visual": "主图 -> 详情卖点 -> 上架草稿三段式",
+          "asset_url": "/artifacts/product_media/1814b17d-e24a-4b53-ad1b-23a80f44e675_video.mp4"
+        }
+      ],
+      "test_checklist": [
+        "主图可打开且有商品名、价格、卖点和转化按钮。",
+        "详情图可打开且有卖点结构和人工确认提示。",
+        "场景卖点图可打开且有购买理由和适用人群。",
+        "视频预览 HTML 可打开；有视频运行时则生成 MP4。",
+        "上架草稿 publish_boundary 必须是 save_draft_only。"
+      ],
+      "next_action": "若已配置可用图片生成 API 会优先真实出图；API 不可用时使用高级 PNG 海报引擎直接生成。最终发布仍需商家确认价格、库存、资质和售后。"
+    }
+  }
+}

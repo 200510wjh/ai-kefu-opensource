@@ -1,0 +1,101 @@
+{
+  "pack_id": "b48e6787-7729-488d-9b10-9d243bb2e21c",
+  "product_name": "补水保湿精华液",
+  "main_image_url": "/artifacts/product_media/b48e6787-7729-488d-9b10-9d243bb2e21c_main.svg",
+  "detail_image_url": "/artifacts/product_media/b48e6787-7729-488d-9b10-9d243bb2e21c_detail.svg",
+  "video_preview_url": "/artifacts/product_media/b48e6787-7729-488d-9b10-9d243bb2e21c_video_preview.html",
+  "video_url": "/artifacts/product_media/b48e6787-7729-488d-9b10-9d243bb2e21c_video.mp4",
+  "video_status": "rendered",
+  "listing_draft": {
+    "draft_id": "d4228488-36e5-42b3-a685-1706d303a8ba",
+    "platform": "抖音小店",
+    "product_name": "补水保湿精华液",
+    "titles": [
+      "补水保湿精华液 深层补水 美妆护肤",
+      "补水保湿精华液 清爽不粘 现货可拍",
+      "18-35岁护肤用户适用 补水保湿精华液 深层补水"
+    ],
+    "short_title": "补水保湿精华液 深层补水",
+    "selling_points": [
+      "深层补水",
+      "清爽不粘",
+      "敏感肌可用",
+      "熬夜急救"
+    ],
+    "main_image_prompts": [
+      "竖版9:16电商主图，蓝紫霓虹科技风，商品为补水保湿精华液，主体居中，蓝紫发光商业海报质感，大标题写“深层补水”，副标题写“129.00”，画面包含商品卡片、价格标签、平台上架草稿按钮，高清，适合抖音封面。",
+      "商品详情页长图首屏，蓝紫霓虹科技风，补水保湿精华液真实产品展示，包含3个卖点模块：深层补水; 清爽不粘; 敏感肌可用，视觉高级、干净、转化感强，移动端安全边距。",
+      "批量上架功能宣传图，展示上传商品资料、AI生成图片、生成标题卖点、保存平台草稿四步流程，风格参考赛博霓虹电商SaaS后台。"
+    ],
+    "detail_sections": [
+      "首屏大图：补水保湿精华液 + 深层补水 + 价格/活动入口",
+      "痛点场景：展示18-35岁护肤用户为什么需要这个商品",
+      "卖点证明：深层补水; 清爽不粘; 敏感肌可用; 熬夜急救",
+      "规格参数：SKU、尺寸、材质、适用场景、发货说明",
+      "信任收口：售后承诺、评价截图、下单提醒，最终发布前人工确认"
+    ],
+    "sku_table": [
+      {
+        "sku": "标准款",
+        "price": "129.00",
+        "stock": "待确认"
+      }
+    ],
+    "listing_fields": {
+      "platform": "抖音小店",
+      "category": "美妆护肤",
+      "title": "补水保湿精华液 深层补水 美妆护肤",
+      "short_title": "补水保湿精华液 深层补水",
+      "price": "129.00",
+      "shipping": "按店铺实际承诺填写",
+      "after_sales": "按平台售后规则执行",
+      "description": "首屏大图：补水保湿精华液 + 深层补水 + 价格/活动入口。痛点场景：展示18-35岁护肤用户为什么需要这个商品。卖点证明：深层补水; 清爽不粘; 敏感肌可用; 熬夜急救。规格参数：SKU、尺寸、材质、适用场景、发货说明。信任收口：售后承诺、评价截图、下单提醒，最终发布前人工确认"
+    },
+    "customer_faq": [
+      {
+        "question": "这个适合我吗？",
+        "answer": "如果您主要关注深层补水，这款补水保湿精华液可以优先看；具体规格和使用场景建议再确认一下。"
+      },
+      {
+        "question": "多久发货？",
+        "answer": "按店铺实际承诺填写"
+      },
+      {
+        "question": "售后怎么处理？",
+        "answer": "按平台售后规则执行"
+      }
+    ],
+    "risk_checks": [
+      "只生成商品草稿，不自动发布。",
+      "价格、库存、售后、发货承诺必须由商家最终确认。",
+      "避免绝对化用语：第一、最强、永久有效、保证治愈、100%成交等。",
+      "涉及功效、食品、化妆品、医疗、金融等类目时，必须补齐资质和平台审核材料。"
+    ],
+    "publish_boundary": "save_draft_only",
+    "next_action": "把主图提示词交给图片模型生成图片，再把 listing_fields 填入平台草稿，最终发布前人工确认。"
+  },
+  "scenes": [
+    {
+      "title": "商品主图",
+      "visual": "商品主体居中，价格和核心卖点大字展示",
+      "asset_url": "/artifacts/product_media/b48e6787-7729-488d-9b10-9d243bb2e21c_main.svg"
+    },
+    {
+      "title": "详情图",
+      "visual": "卖点拆解、适用人群、发布前确认",
+      "asset_url": "/artifacts/product_media/b48e6787-7729-488d-9b10-9d243bb2e21c_detail.svg"
+    },
+    {
+      "title": "商品短视频",
+      "visual": "主图 -> 详情卖点 -> 上架草稿三段式",
+      "asset_url": "/artifacts/product_media/b48e6787-7729-488d-9b10-9d243bb2e21c_video.mp4"
+    }
+  ],
+  "test_checklist": [
+    "主图 SVG 可打开且有商品名、价格、卖点。",
+    "详情图 SVG 可打开且有卖点结构和人工确认提示。",
+    "视频预览 HTML 可打开；有视频运行时则生成 MP4。",
+    "上架草稿 publish_boundary 必须是 save_draft_only。"
+  ],
+  "next_action": "把商品图片上传能力接到对象存储；有 FFmpeg/OpenCV 的环境会输出 MP4，最终发布仍需人工确认。"
+}

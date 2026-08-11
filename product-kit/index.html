@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 店铺经营日报</title>
+    <style>
+      :root {
+        color: #18202a;
+        background: #f4f6f8;
+        font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      .page {
+        min-height: 100vh;
+        background:
+          linear-gradient(120deg, rgba(30, 116, 108, 0.12), transparent 32%),
+          linear-gradient(45deg, transparent 58%, rgba(232, 177, 66, 0.16)),
+          #f4f6f8;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 22px 20px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 900;
+      }
+
+      .brand span {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        color: #fff;
+        background: #183b3a;
+        border-radius: 8px;
+      }
+
+      nav {
+        display: flex;
+        gap: 10px;
+      }
+
+      nav a,
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 9px 13px;
+        color: #183b3a;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        background: rgba(255, 255, 255, 0.74);
+        border: 1px solid rgba(24, 59, 58, 0.12);
+        border-radius: 8px;
+      }
+
+      .button.primary {
+        color: #fff;
+        background: #1e746c;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 10px 20px 54px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+        gap: 24px;
+        align-items: center;
+        min-height: calc(100vh - 120px);
+      }
+
+      .hero h1 {
+        margin: 0;
+        max-width: 720px;
+        font-size: clamp(40px, 6vw, 72px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .hero p {
+        margin: 18px 0 0;
+        max-width: 620px;
+        color: #52606d;
+        font-size: 18px;
+        line-height: 1.7;
+      }
+
+      .heroActions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 26px;
+      }
+
+      .proof {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .proof div,
+      .panel,
+      .price,
+      .step {
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(24, 59, 58, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 16px 42px rgba(18, 32, 42, 0.08);
+      }
+
+      .proof div {
+        padding: 14px;
+      }
+
+      .proof strong {
+        display: block;
+        color: #1e746c;
+        font-size: 24px;
+      }
+
+      .proof span {
+        color: #64717d;
+        font-size: 13px;
+      }
+
+      .dashboard {
+        display: grid;
+        gap: 14px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .panel h2,
+      .panel h3,
+      .section h2,
+      .price h3 {
+        margin: 0;
+      }
+
+      .metricGrid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .metric {
+        padding: 12px;
+        background: #f7faf9;
+        border-radius: 8px;
+      }
+
+      .metric b {
+        display: block;
+        margin-top: 4px;
+        font-size: 22px;
+      }
+
+      .metric small {
+        color: #687582;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 12px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 10px 8px;
+        text-align: left;
+        border-bottom: 1px solid #e4e9ed;
+      }
+
+      th {
+        color: #687582;
+      }
+
+      .alert {
+        padding: 12px;
+        color: #5f3711;
+        background: #fff4d8;
+        border: 1px solid #f4d28b;
+        border-radius: 8px;
+      }
+
+      .section {
+        margin-top: 42px;
+      }
+
+      .section > p {
+        max-width: 720px;
+        color: #586672;
+        line-height: 1.7;
+      }
+
+      .pricing,
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .price,
+      .step {
+        padding: 18px;
+      }
+
+      .price b {
+        display: block;
+        margin: 12px 0;
+        color: #1e746c;
+        font-size: 30px;
+      }
+
+      .price ul,
+      .step ul {
+        margin: 12px 0 0;
+        padding-left: 18px;
+        color: #53616d;
+        line-height: 1.7;
+      }
+
+      .step span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        margin-bottom: 10px;
+        color: #fff;
+        background: #183b3a;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      footer {
+        margin-top: 46px;
+        padding: 22px;
+        color: #fff;
+        background: #183b3a;
+        border-radius: 8px;
+      }
+
+      footer p {
+        margin: 8px 0 0;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      @media (max-width: 920px) {
+        header,
+        nav {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .hero,
+        .pricing,
+        .steps {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+          padding-top: 28px;
+        }
+
+        .metricGrid,
+        .proof {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 560px) {
+        .metricGrid,
+        .proof {
+          grid-template-columns: 1fr;
+        }
+
+        .hero h1 {
+          font-size: 38px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <div class="brand"><span>AI</span>店铺经营日报</div>
+        <nav>
+          <a href="#demo">样例日报</a>
+          <a href="#pricing">套餐价格</a>
+          <a href="#delivery">交付流程</a>
+          <a class="button primary" href="customer-intake.md">客户资料表</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <h1>每天一份老板看得懂的店铺经营日报</h1>
+            <p>
+              面向抖店、淘宝、京东、拼多多商家。把后台数据、退款差评、商品表现整理成一句话结论和明日行动清单。
+            </p>
+            <div class="heroActions">
+              <a class="button primary" href="sample-daily-report.md">查看样例报告</a>
+              <a class="button" href="sales-script.md">查看销售话术</a>
+              <a class="button" href="delivery-sop.md">查看交付 SOP</a>
+            </div>
+            <div class="proof">
+              <div><strong>99</strong><span>元店铺体检报告</span></div>
+              <div><strong>299</strong><span>元 7 天经营陪跑</span></div>
+              <div><strong>999</strong><span>元/月 AI 店铺运营助理</span></div>
+            </div>
+          </div>
+
+          <div class="dashboard" id="demo">
+            <section class="panel">
+              <h2>XX 女装店 今日经营日报</h2>
+              <div class="metricGrid">
+                <div class="metric"><small>GMV</small><b>28,950</b></div>
+                <div class="metric"><small>订单</small><b>156</b></div>
+                <div class="metric"><small>客单价</small><b>185.58</b></div>
+                <div class="metric"><small>退款率</small><b>6.9%</b></div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h3>今日核心结论</h3>
+              <p>销售增长，但退款率升高。主要问题集中在防晒衫尺码偏小和白色款色差。</p>
+              <div class="alert">明天先改详情页尺码说明，暂停白色 XL 投放，把预算转到黑色 M/L。</div>
+            </section>
+
+            <section class="panel">
+              <h3>商品动作建议</h3>
+              <table>
+                <thead>
+                  <tr><th>商品</th><th>问题</th><th>动作</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>夏季防晒衫</td><td>退款升高</td><td>建议拍大一码</td></tr>
+                  <tr><td>高腰阔腿裤</td><td>表现稳定</td><td>追加买家秀</td></tr>
+                  <tr><td>防晒帽</td><td>库存低</td><td>确认补货</td></tr>
+                </tbody>
+              </table>
+            </section>
+          </div>
+        </section>
+
+        <section class="section" id="pricing">
+          <h2>怎么打包收费</h2>
+          <p>先用低价体检降低成交门槛，再用 7 天陪跑证明价值，最后升级月费服务。</p>
+          <div class="pricing">
+            <div class="price">
+              <h3>AI 店铺体检</h3>
+              <b>99 元</b>
+              <ul>
+                <li>一次性诊断</li>
+                <li>看截图即可</li>
+                <li>24 小时交付</li>
+              </ul>
+            </div>
+            <div class="price">
+              <h3>7 天经营陪跑</h3>
+              <b>299 元</b>
+              <ul>
+                <li>每日 1 份日报</li>
+                <li>退款差评分析</li>
+                <li>每日行动清单</li>
+              </ul>
+            </div>
+            <div class="price">
+              <h3>AI 店铺运营助理</h3>
+              <b>999 元/月</b>
+              <ul>
+                <li>日报 + 周报</li>
+                <li>商品优化建议</li>
+                <li>客服话术建议</li>
+              </ul>
+            </div>
+            <div class="price">
+              <h3>多平台经营看板</h3>
+              <b>1999 起</b>
+              <ul>
+                <li>多店铺汇总</li>
+                <li>平台对比</li>
+                <li>API 自动接入</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="delivery">
+          <h2>交付流程</h2>
+          <div class="steps">
+            <div class="step"><span>1</span><h3>看样例</h3><ul><li>发演示页</li><li>发样例日报</li></ul></div>
+            <div class="step"><span>2</span><h3>收资料</h3><ul><li>后台截图</li><li>退款差评截图</li></ul></div>
+            <div class="step"><span>3</span><h3>出报告</h3><ul><li>核心结论</li><li>明日动作</li></ul></div>
+            <div class="step"><span>4</span><h3>升月费</h3><ul><li>稳定日报</li><li>API 自动化</li></ul></div>
+          </div>
+        </section>
+
+        <footer>
+          <strong>销售定位</strong>
+          <p>不卖插件，不卖代码，卖“老板每天能看懂的经营结论”。先手工交付收钱，客户稳定后再接 MCP 和平台 API。</p>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>
+

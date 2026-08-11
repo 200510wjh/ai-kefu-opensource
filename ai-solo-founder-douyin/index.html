@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #05060a;
+      }
+      body {
+        font-family: sans-serif;
+        color: #f7fbff;
+      }
+      [data-composition-id="main"] {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #05060a;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background-color: #05060a;
+      }
+      .scene:not(.scene-1) {
+        opacity: 0;
+      }
+      .scene-content {
+        position: relative;
+        z-index: 4;
+        width: 100%;
+        height: 100%;
+        padding: 142px 76px 220px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 32px;
+      }
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 8;
+        opacity: 0.12;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(247, 251, 255, 0.05) 1px, rgba(247, 251, 255, 0) 1px),
+          linear-gradient(90deg, rgba(247, 251, 255, 0.035) 1px, rgba(247, 251, 255, 0) 1px);
+        background-size: 48px 48px, 48px 48px;
+        mix-blend-mode: screen;
+      }
+      .scan {
+        position: absolute;
+        inset: 0;
+        z-index: 7;
+        opacity: 0.16;
+        background: repeating-linear-gradient(
+          180deg,
+          rgba(247, 251, 255, 0.08) 0,
+          rgba(247, 251, 255, 0.08) 1px,
+          rgba(5, 6, 10, 0) 3px,
+          rgba(5, 6, 10, 0) 9px
+        );
+        pointer-events: none;
+      }
+      .glow-cyan,
+      .glow-violet {
+        position: absolute;
+        width: 580px;
+        height: 580px;
+        border-radius: 999px;
+        filter: blur(80px);
+        opacity: 0.42;
+      }
+      .glow-cyan {
+        background: rgba(24, 231, 255, 0.5);
+      }
+      .glow-violet {
+        background: rgba(139, 92, 246, 0.48);
+      }
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 12px 18px;
+        border: 1px solid rgba(24, 231, 255, 0.42);
+        border-radius: 999px;
+        background: rgba(17, 24, 39, 0.48);
+        color: #18e7ff;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0;
+        backdrop-filter: blur(18px);
+      }
+      h1,
+      h2 {
+        margin: 0;
+        letter-spacing: 0;
+        line-height: 1.08;
+      }
+      h1 {
+        max-width: 910px;
+        font-size: 88px;
+        font-weight: 900;
+      }
+      h2 {
+        max-width: 850px;
+        font-size: 70px;
+        font-weight: 900;
+      }
+      .subline {
+        max-width: 810px;
+        color: #d9e4f2;
+        font-size: 34px;
+        line-height: 1.45;
+        font-weight: 500;
+      }
+      .glass {
+        border: 1px solid rgba(174, 185, 201, 0.24);
+        background:
+          linear-gradient(135deg, rgba(247, 251, 255, 0.13), rgba(247, 251, 255, 0.035)),
+          rgba(17, 24, 39, 0.46);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.13);
+        backdrop-filter: blur(22px);
+      }
+      .desk {
+        position: absolute;
+        left: 78px;
+        right: 78px;
+        bottom: 210px;
+        height: 560px;
+        border-radius: 34px;
+        transform: perspective(900px) rotateX(12deg);
+        background: linear-gradient(180deg, rgba(21, 28, 42, 0.88), rgba(5, 6, 10, 0.96));
+        box-shadow: 0 -24px 80px rgba(24, 231, 255, 0.14);
+      }
+      .monitor {
+        position: absolute;
+        left: 150px;
+        right: 150px;
+        bottom: 548px;
+        height: 540px;
+        border-radius: 28px;
+        overflow: hidden;
+      }
+      .monitor::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 78% 22%, rgba(139, 92, 246, 0.42), rgba(139, 92, 246, 0) 34%),
+          linear-gradient(180deg, rgba(11, 18, 32, 0.9), rgba(2, 5, 10, 0.96));
+      }
+      .code-lines {
+        position: absolute;
+        inset: 52px;
+        display: grid;
+        gap: 18px;
+      }
+      .code-lines span {
+        height: 16px;
+        border-radius: 99px;
+        background: linear-gradient(90deg, rgba(24, 231, 255, 0.9), rgba(139, 92, 246, 0.68), rgba(247, 251, 255, 0.12));
+        box-shadow: 0 0 28px rgba(24, 231, 255, 0.16);
+      }
+      .founder {
+        position: absolute;
+        left: 382px;
+        bottom: 238px;
+        width: 300px;
+        height: 420px;
+        border-radius: 150px 150px 36px 36px;
+        background:
+          radial-gradient(circle at 52% 18%, rgba(247, 251, 255, 0.12), rgba(247, 251, 255, 0) 18%),
+          linear-gradient(180deg, #151c2a, #06080f);
+        box-shadow: -34px 0 76px rgba(24, 231, 255, 0.12), 34px 0 70px rgba(139, 92, 246, 0.16);
+      }
+      .window-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(174, 185, 201, 0.08) 1px, rgba(174, 185, 201, 0) 1px),
+          linear-gradient(90deg, rgba(174, 185, 201, 0.08) 1px, rgba(174, 185, 201, 0) 1px);
+        background-size: 90px 90px;
+      }
+      .module-stack {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+        width: 100%;
+      }
+      .scene-2 .module-stack {
+        position: absolute;
+        left: 76px;
+        right: 76px;
+        bottom: 350px;
+        width: auto;
+        z-index: 5;
+      }
+      .module {
+        min-height: 130px;
+        border-radius: 20px;
+        padding: 26px 28px;
+        display: grid;
+        grid-template-columns: 74px 1fr auto;
+        align-items: center;
+        gap: 24px;
+      }
+      .icon {
+        width: 74px;
+        height: 74px;
+        border-radius: 20px;
+        display: grid;
+        place-items: center;
+        color: #05060a;
+        background: linear-gradient(135deg, #18e7ff, #8b5cf6);
+        font-family: monospace;
+        font-weight: 900;
+        font-size: 28px;
+      }
+      .module b {
+        display: block;
+        font-size: 34px;
+        margin-bottom: 8px;
+      }
+      .module span {
+        color: #aeb9c9;
+        font-size: 23px;
+      }
+      .status {
+        color: #18e7ff;
+        font: 700 24px monospace;
+      }
+      .product-shell {
+        width: auto;
+        min-height: 980px;
+        border-radius: 26px;
+        padding: 28px;
+        display: grid;
+        grid-template-columns: 210px 1fr;
+        gap: 22px;
+      }
+      .nav {
+        border-right: 1px solid rgba(174, 185, 201, 0.18);
+        padding-right: 22px;
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+      .nav span {
+        height: 54px;
+        border-radius: 14px;
+        background: rgba(247, 251, 255, 0.07);
+      }
+      .dashboard {
+        display: grid;
+        grid-template-rows: 170px 1fr;
+        gap: 20px;
+      }
+      .metric-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      .metric {
+        border-radius: 18px;
+        padding: 20px;
+        background: rgba(5, 6, 10, 0.42);
+      }
+      .metric small {
+        color: #aeb9c9;
+        font-size: 22px;
+      }
+      .metric strong {
+        display: block;
+        margin-top: 16px;
+        color: #f7fbff;
+        font: 900 42px monospace;
+      }
+      .flow {
+        border-radius: 22px;
+        background: rgba(5, 6, 10, 0.38);
+        padding: 26px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .flow-card {
+        border: 1px solid rgba(24, 231, 255, 0.2);
+        border-radius: 18px;
+        padding: 22px;
+        background: rgba(17, 24, 39, 0.54);
+      }
+      .flow-card b {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 30px;
+      }
+      .flow-card span {
+        color: #aeb9c9;
+        font-size: 22px;
+        line-height: 1.38;
+      }
+      .enterprise-board {
+        margin-top: auto;
+        display: grid;
+        gap: 22px;
+        padding-bottom: 120px;
+      }
+      .impact {
+        border-radius: 24px;
+        min-height: 190px;
+        padding: 30px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+      .impact strong {
+        color: #18e7ff;
+        font: 900 70px monospace;
+      }
+      .impact span {
+        max-width: 530px;
+        font-size: 32px;
+        line-height: 1.35;
+      }
+      .city {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 55% 14%, rgba(24, 231, 255, 0.26), rgba(24, 231, 255, 0) 26%),
+          linear-gradient(180deg, #080b16 0%, #05060a 48%, #020307 100%);
+      }
+      .skyline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 780px;
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        padding: 0 28px;
+        opacity: 0.9;
+      }
+      .tower {
+        flex: 1;
+        min-width: 42px;
+        border-radius: 8px 8px 0 0;
+        background:
+          repeating-linear-gradient(180deg, rgba(24, 231, 255, 0.26) 0 8px, rgba(24, 231, 255, 0) 8px 38px),
+          linear-gradient(180deg, rgba(24, 33, 55, 0.96), rgba(4, 7, 13, 0.98));
+        box-shadow: 0 0 40px rgba(24, 231, 255, 0.08);
+      }
+      .caption-wrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 152px;
+        z-index: 20;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+      .caption {
+        position: absolute;
+        max-width: 900px;
+        padding: 20px 30px 22px;
+        border-radius: 24px;
+        background: rgba(5, 6, 10, 0.62);
+        border: 1px solid rgba(24, 231, 255, 0.26);
+        box-shadow: 0 16px 56px rgba(0, 0, 0, 0.42), 0 0 44px rgba(139, 92, 246, 0.16);
+        color: #f7fbff;
+        font-size: 44px;
+        font-weight: 900;
+        line-height: 1.25;
+        text-align: center;
+        opacity: 0;
+        visibility: hidden;
+        text-shadow: 0 0 24px rgba(24, 231, 255, 0.24);
+      }
+      .transition-panel {
+        position: absolute;
+        inset: 0;
+        z-index: 15;
+        opacity: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(90deg, rgba(5, 6, 10, 0) 0%, rgba(24, 231, 255, 0.22) 36%, rgba(139, 92, 246, 0.72) 52%, rgba(5, 6, 10, 0) 100%),
+          #05060a;
+        filter: blur(0px);
+        transform: translateX(-1120px);
+      }
+      .accent-line {
+        width: 180px;
+        height: 5px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #18e7ff, #8b5cf6);
+        box-shadow: 0 0 34px rgba(24, 231, 255, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="30"
+      data-width="1080"
+      data-height="1920"
+    >
+      <audio id="narration" data-start="0" data-track-index="1" src="narration.mp3" data-volume="1"></audio>
+
+      <section id="scene1" class="scene scene-1">
+        <div class="glow-cyan" style="left: -180px; top: 160px"></div>
+        <div class="glow-violet" style="right: -180px; bottom: 260px"></div>
+        <div class="window-grid"></div>
+        <div class="monitor glass">
+          <div class="code-lines">
+            <span style="width: 72%"></span><span style="width: 92%"></span><span style="width: 64%"></span><span style="width: 82%"></span><span style="width: 55%"></span><span style="width: 88%"></span><span style="width: 70%"></span><span style="width: 95%"></span>
+          </div>
+        </div>
+        <div class="desk"></div>
+        <div class="founder"></div>
+        <div class="scene-content">
+          <div>
+            <div class="kicker">23:47 / SOLO FOUNDER LAB</div>
+            <h1 style="margin-top: 28px">一个人的AI创业实验</h1>
+          </div>
+          <p class="subline">深夜的屏幕、真实的客户需求、正在成型的企业系统。</p>
+        </div>
+      </section>
+
+      <section id="scene2" class="scene scene-2" style="opacity: 0">
+        <div class="glow-cyan" style="right: -210px; top: 210px"></div>
+        <div class="glow-violet" style="left: -160px; bottom: 180px"></div>
+        <div class="scene-content">
+          <div>
+            <div class="kicker">AI CODE GENERATION</div>
+            <h2 style="margin-top: 26px">代码自动生成，产品开始搭建</h2>
+          </div>
+          <div class="module-stack">
+            <div class="module glass"><div class="icon">{ }</div><div><b>API 服务</b><span>权限、订单、客户数据接口</span></div><div class="status">RUN</div></div>
+            <div class="module glass"><div class="icon">DB</div><div><b>数据库结构</b><span>客户、工单、知识库、线索表</span></div><div class="status">SYNC</div></div>
+            <div class="module glass"><div class="icon">UI</div><div><b>后台页面</b><span>可交付、可演示、可迭代</span></div><div class="status">BUILD</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene3" class="scene scene-3" style="opacity: 0">
+        <div class="glow-violet" style="right: -220px; top: 90px"></div>
+        <div class="product-shell glass" style="position:absolute; left:60px; right:60px; top:460px">
+          <div class="nav"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="dashboard">
+            <div class="metric-row">
+              <div class="metric"><small>AI客服</small><strong>24h</strong></div>
+              <div class="metric"><small>知识库命中</small><strong>86%</strong></div>
+              <div class="metric"><small>流程自动化</small><strong>12</strong></div>
+            </div>
+            <div class="flow">
+              <div class="flow-card"><b>客服接待</b><span>自动识别问题、调用资料、生成回复。</span></div>
+              <div class="flow-card"><b>CRM线索</b><span>自动记录需求、分级客户、提醒跟进。</span></div>
+              <div class="flow-card"><b>知识库</b><span>把产品资料变成可问答资产。</span></div>
+              <div class="flow-card"><b>工作流</b><span>从咨询到交付自动串联。</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="scene-content">
+          <div>
+            <div class="kicker">ENTERPRISE AI STACK</div>
+            <h2 style="margin-top: 26px">把AI能力，拼成企业软件</h2>
+          </div>
+          <div></div>
+        </div>
+      </section>
+
+      <section id="scene4" class="scene scene-4" style="opacity: 0">
+        <div class="glow-cyan" style="left: -220px; top: 260px"></div>
+        <div class="glow-violet" style="right: -200px; bottom: 240px"></div>
+        <div class="scene-content">
+          <div>
+            <div class="kicker">BUSINESS OUTCOME</div>
+            <h2 style="margin-top: 26px">企业要的不是概念，是降本增效</h2>
+          </div>
+          <div class="enterprise-board">
+            <div class="impact glass"><span>重复岗位压力下降</span><strong>-1</strong></div>
+            <div class="impact glass"><span>客户响应速度提升</span><strong>3x</strong></div>
+            <div class="impact glass"><span>团队时间回到高价值客户</span><strong>↑</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene5" class="scene scene-5" style="opacity: 0">
+        <div class="city"></div>
+        <div class="skyline">
+          <div class="tower" style="height: 520px"></div><div class="tower" style="height: 690px"></div><div class="tower" style="height: 450px"></div><div class="tower" style="height: 760px"></div><div class="tower" style="height: 590px"></div><div class="tower" style="height: 820px"></div><div class="tower" style="height: 620px"></div><div class="tower" style="height: 700px"></div><div class="tower" style="height: 540px"></div>
+        </div>
+        <div class="founder" style="left:390px; bottom:430px; opacity:.82"></div>
+        <div class="scene-content">
+          <div>
+            <div class="kicker">TONIGHT IS THE PROTOTYPE</div>
+            <h1 style="margin-top: 28px">一个人，也能交付企业级AI系统</h1>
+          </div>
+          <div>
+            <div class="accent-line"></div>
+            <p class="subline" style="margin-top: 24px">用真实项目，建立创业者个人IP。</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="caption-wrap" id="captions"></div>
+      <div class="transition-panel" id="transitionPanel"></div>
+      <div class="grain"></div>
+      <div class="scan"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const sceneStarts = [0, 6, 12, 18, 24];
+      const scenes = ["#scene1", "#scene2", "#scene3", "#scene4", "#scene5"];
+
+      function addFrom(selector, vars, at) {
+        if (document.querySelector(selector)) {
+          tl.from(selector, vars, at);
+        }
+      }
+
+      function enterScene(selector, at) {
+        addFrom(selector + " .kicker", { opacity: 0, y: 36, duration: 0.7, ease: "power3.out" }, at + 0.18);
+        addFrom(selector + " h1, " + selector + " h2", { opacity: 0, y: 72, scale: 0.98, duration: 0.86, ease: "expo.out" }, at + 0.36);
+        addFrom(selector + " .subline", { opacity: 0, x: -42, duration: 0.66, ease: "back.out(1.2)" }, at + 0.72);
+        addFrom(selector + " .glow-cyan, " + selector + " .glow-violet", { opacity: 0, scale: 0.72, duration: 1.1, ease: "sine.out" }, at + 0.24);
+      }
+
+      function transitionTo(prevSelector, nextSelector, at) {
+        tl.to("#transitionPanel", { opacity: 1, x: 1120, duration: 0.46, ease: "power3.inOut" }, at);
+        tl.set(nextSelector, { opacity: 1 }, at + 0.23);
+        tl.set(prevSelector, { opacity: 0 }, at + 0.24);
+        tl.set("#transitionPanel", { x: -1120, opacity: 0 }, at + 0.48);
+      }
+
+      scenes.forEach(function (selector, i) {
+        enterScene(selector, sceneStarts[i]);
+        if (i > 0) {
+          tl.from(selector, { filter: "blur(12px)", duration: 0.52, ease: "sine.out" }, sceneStarts[i] + 0.02);
+        }
+      });
+
+      transitionTo("#scene1", "#scene2", 5.72);
+      transitionTo("#scene2", "#scene3", 11.72);
+      transitionTo("#scene3", "#scene4", 17.72);
+      transitionTo("#scene4", "#scene5", 23.72);
+
+      tl.from(".code-lines span", { scaleX: 0, transformOrigin: "left center", duration: 0.46, stagger: 0.08, ease: "power2.out" }, 1.05);
+      tl.from(".monitor", { opacity: 0, y: 66, scale: 0.97, duration: 0.78, ease: "power2.out" }, 0.84);
+      tl.to(".code-lines span", { x: 34, duration: 1.4, repeat: 15, yoyo: true, ease: "sine.inOut" }, 2.0);
+      tl.from(".founder", { opacity: 0, y: 42, duration: 0.9, ease: "power2.out" }, 0.72);
+      tl.from(".module", { opacity: 0, x: -80, duration: 0.64, stagger: 0.18, ease: "expo.out" }, 6.98);
+      tl.from(".metric", { opacity: 0, y: 48, duration: 0.58, stagger: 0.12, ease: "back.out(1.35)" }, 12.78);
+      tl.from(".flow-card", { opacity: 0, scale: 0.94, duration: 0.5, stagger: 0.1, ease: "power3.out" }, 13.55);
+      tl.from(".impact", { opacity: 0, x: 72, duration: 0.68, stagger: 0.16, ease: "power4.out" }, 18.8);
+      tl.from(".tower", { y: 160, opacity: 0, duration: 1.0, stagger: 0.05, ease: "power2.out" }, 24.62);
+      tl.from(".accent-line", { scaleX: 0, transformOrigin: "left center", duration: 0.72, ease: "expo.out" }, 26.0);
+      tl.to("#root", { opacity: 0, duration: 0.8, ease: "sine.in" }, 29.15);
+
+      const captions = [
+        { text: "深夜，我在做一个人的AI创业实验", start: 0.2, end: 4.6 },
+        { text: "让AI写代码，搭后台，连接数据库", start: 4.7, end: 9.0 },
+        { text: "把AI客服、知识库、CRM和流程，组合成企业软件", start: 9.1, end: 15.6 },
+        { text: "客户少招一个重复岗位，响应却更快", start: 15.7, end: 20.2 },
+        { text: "成本下降，效率上升，团队专注高价值客户", start: 20.3, end: 24.6 },
+        { text: "一个人，也能交付企业级AI系统", start: 24.7, end: 27.5 },
+        { text: "这不是未来，是我今晚正在做的事", start: 27.55, end: 29.45 }
+      ];
+      const captionsRoot = document.getElementById("captions");
+      captions.forEach(function (group, index) {
+        const el = document.createElement("div");
+        el.className = "caption";
+        el.id = "caption-" + index;
+        el.textContent = group.text;
+        captionsRoot.appendChild(el);
+        tl.set(el, { visibility: "visible" }, group.start);
+        tl.fromTo(el, { opacity: 0, y: 28, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: "power3.out" }, group.start);
+        tl.to(el, { opacity: 0, scale: 0.98, duration: 0.14, ease: "power2.in" }, group.end - 0.14);
+        tl.set(el, { opacity: 0, visibility: "hidden" }, group.end);
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

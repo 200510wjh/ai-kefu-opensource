@@ -27,6 +27,18 @@ function Clear-FolderContents {
     }
 
     $fullPath = $resolved.Path
+    $protectedRoots = @(
+        'C:\Users\Administrator\Documents\运营',
+        'C:\Users\Administrator\Documents\运营\scripts'
+    )
+
+    foreach ($protectedRoot in $protectedRoots) {
+        if ($fullPath.StartsWith($protectedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+            Write-Log "Skip protected workspace path: $fullPath"
+            return
+        }
+    }
+
     Write-Log "Cleaning: $fullPath"
     Get-ChildItem -LiteralPath $fullPath -Force -ErrorAction SilentlyContinue |
         Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
@@ -43,10 +55,16 @@ $pathsToClean = @(
     'C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Default\GPUCache',
     'C:\Users\Administrator\AppData\Local\Microsoft\Edge\User Data\Default\Cache',
     'C:\Users\Administrator\AppData\Local\Microsoft\Edge\User Data\Default\Code Cache',
+    'C:\Users\Administrator\.cache',
+    'C:\Users\Administrator\AppData\Local\Microsoft\WinGet\Packages',
+    'C:\Users\Administrator\AppData\Local\Microsoft\Windows\INetCache',
+    'C:\Users\Administrator\AppData\Local\Microsoft\Windows\WebCache',
+    'C:\Users\Administrator\AppData\Local\CrashDumps',
     'C:\Users\Administrator\AppData\Local\electron\Cache',
     'C:\Users\Administrator\AppData\Local\Steam\htmlcache',
     'C:\Users\Administrator\AppData\Local\NetEase\CloudMusic\Cache',
     'C:\Users\Administrator\AppData\Roaming\Tencent\xwechat\log',
+    'C:\Users\Administrator\AppData\Roaming\Tencent\xwechat\update',
     'C:\Users\Administrator\AppData\Roaming\Tencent\xwechat\update\patch',
     'C:\Users\Administrator\AppData\Roaming\webcast_mate\logs',
     'C:\Users\Administrator\AppData\Roaming\webcast_mate\Cache',
@@ -77,9 +95,5 @@ foreach ($path in $pathsToClean) {
 
 Clear-RecycleBin -Force -ErrorAction SilentlyContinue
 Write-Log 'Recycle Bin cleaned.'
-
-Get-ChildItem -LiteralPath $logDir -Filter 'daily-c-drive-cleanup-*.log' -File -ErrorAction SilentlyContinue |
-    Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-14) } |
-    Remove-Item -Force -ErrorAction SilentlyContinue
 
 Write-Log "Cleanup finished. Free space: $(Get-FreeGb) GB"

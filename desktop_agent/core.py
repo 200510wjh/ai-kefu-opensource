@@ -9,6 +9,7 @@ from desktop_agent.adapters.base import ActiveTarget, WindowAdapter
 from desktop_agent.adapters.mock import MockAdapter
 from desktop_agent.api_client import DesktopAgentApiClient
 from desktop_agent.config import AgentConfig, CONFIRM_DESKTOP_AUTO_SEND
+from desktop_agent.connectors import PreparedMessage, connector_for_platform
 from desktop_agent.local_logging import append_jsonl
 from desktop_agent.normalizer import looks_like_chat_text, message_hash, normalize_chat_candidate
 from desktop_agent.safety import LocalSendGate, is_locally_paused
@@ -33,9 +34,12 @@ class DesktopAgent:
     def __init__(self, config: AgentConfig, adapter: WindowAdapter | None = None) -> None:
         self.config = config
         self.adapter = adapter or select_adapter(config)
+        self.connector = connector_for_platform(config.platform)
         self.api = DesktopAgentApiClient(config.api_base, config.auth_token)
-        self.send_gate = LocalSendGate(config.min_send_gap_seconds)
+        self.send_gate = LocalSendGate(config.min_send_gap_seconds, config.daily_send_limit, config.send_state_file)
         self.last_fingerprint = ""
+        self.last_candidate_fingerprint = ""
+        self.candidate_first_seen_at = 0.0
         self.session_id = config.session_id
 
     def register_session(self) -> dict[str, Any]:
@@ -50,7 +54,14 @@ class DesktopAgent:
                 "paused": self.config.mode == "paused",
                 "auto_send_confirmed": self.config.auto_send_confirmed,
                 "window_allowlist": self.config.window_allowlist,
-                "capabilities": self.adapter.capabilities(),
+                "capabilities": [*self.adapter.capabilities(), *self.connector.capabilities()],
+                "metadata": {
+                    "connector": self.connector.key,
+                    "authorized_account_configured": bool(self.config.authorized_account),
+                    "contact_allowlist_count": len(self.config.contact_allowlist),
+                    "daily_send_limit": self.config.daily_send_limit,
+                    "message_stability_seconds": self.config.message_stability_seconds,
+                },
             }
         )
         session = response.get("session") or {}
@@ -65,7 +76,8 @@ class DesktopAgent:
         text = self.adapter.read_chat_text(self.config, target).strip()
         return target, text
 
-    def send_event(self, target: ActiveTarget, chat_text: str, local_paused: bool) -> dict[str, Any]:
+    def send_event(self, target: ActiveTarget, prepared: PreparedMessage, local_paused: bool) -> dict[str, Any]:
+        message_text = prepared.message_text
         return self.api.send_event(
             {
                 "session_id": self.session_id,
@@ -74,14 +86,15 @@ class DesktopAgent:
                 "window_title": target.title,
                 "window_id": target.window_id,
                 "source": "mock" if self.config.source == "mock" else self.config.source if self.config.source != "auto" else "uia",
-                "message_text": chat_text,
-                "message_hash": message_hash(chat_text),
+                "message_text": message_text,
+                "message_hash": message_hash(prepared.hash_basis or message_text),
                 "mode": self.config.mode,
                 "auto_send_enabled": bool(self.config.send),
                 "auto_send_confirm_phrase": self.config.confirm_send if self.config.send else "",
                 "local_paused": local_paused,
                 "reply_goal": self.config.reply_goal,
                 "merchant_profile": self.config.merchant_profile,
+                "metadata": prepared.metadata,
             }
         )
 
@@ -99,7 +112,13 @@ class DesktopAgent:
             }
         elif action == "send_reply":
             if not self.send_gate.can_send():
-                result = {"status": "blocked", "copied": False, "pasted": False, "sent": False, "reason": "local rate limit"}
+                result = {
+                    "status": "blocked",
+                    "copied": False,
+                    "pasted": False,
+                    "sent": False,
+                    "reason": self.send_gate.last_block_reason or "local send gate",
+                }
             else:
                 paste_result = self.adapter.paste_and_optionally_send(reply, send=True, target=target)
                 if paste_result.get("sent"):
@@ -128,21 +147,54 @@ class DesktopAgent:
         target, chat_text = self.read_once()
         if not target:
             return False
-        fingerprint = f"{target.platform}:{target.title}:{message_hash(chat_text)}"
-        if not chat_text or fingerprint == self.last_fingerprint:
+        prepared = self.connector.prepare_message(chat_text[-self.config.max_chars :], target, self.config)
+        if not prepared.should_upload:
+            append_jsonl(
+                self.config.history_file,
+                {
+                    "event": "connector_skipped",
+                    "session_id": self.session_id,
+                    "window": target.title,
+                    "platform": target.platform,
+                    "reason": prepared.reason,
+                    "metadata": prepared.metadata,
+                },
+            )
             return False
+        fingerprint = f"{target.platform}:{target.title}:{message_hash(prepared.hash_basis or prepared.message_text)}"
+        if not prepared.message_text or fingerprint == self.last_fingerprint:
+            return False
+        if not self.config.once and self.config.message_stability_seconds > 0:
+            now = time.time()
+            if fingerprint != self.last_candidate_fingerprint:
+                self.last_candidate_fingerprint = fingerprint
+                self.candidate_first_seen_at = now
+                append_jsonl(
+                    self.config.history_file,
+                    {
+                        "event": "message_waiting_for_stability",
+                        "session_id": self.session_id,
+                        "window": target.title,
+                        "platform": target.platform,
+                        "wait_seconds": self.config.message_stability_seconds,
+                    },
+                )
+                return False
+            if now - self.candidate_first_seen_at < self.config.message_stability_seconds:
+                return False
         self.last_fingerprint = fingerprint
-        if not self.config.allow_non_chat_text and not looks_like_chat_text(chat_text, self.config.min_chat_chars):
+        if not self.config.allow_non_chat_text and not looks_like_chat_text(prepared.message_text, self.config.min_chat_chars):
             append_jsonl(
                 self.config.history_file,
                 {
                     "event": "not_chat_like",
                     "window": target.title,
-                    "candidate": normalize_chat_candidate(chat_text)[:500],
+                    "candidate": normalize_chat_candidate(prepared.message_text)[:500],
+                    "metadata": prepared.metadata,
                 },
             )
             return False
-        decision = self.send_event(target, chat_text[-self.config.max_chars :], local_paused)
+        decision = self.send_event(target, prepared, local_paused)
         result = self.execute_decision(target, decision)
         append_jsonl(
             self.config.history_file,
@@ -155,6 +207,7 @@ class DesktopAgent:
                 "action_id": decision.get("action_id"),
                 "message_hash": decision.get("message_hash"),
                 "risk_flags": decision.get("risk_flags"),
+                "reply_meta": decision.get("reply_meta"),
                 "result": result,
             },
         )
